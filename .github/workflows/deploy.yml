@@ -26,7 +26,7 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
         with:
-          enablement: true
+          # Pages must be enabled once in repository settings; this action reads its configuration.
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3
         with:
