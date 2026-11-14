@@ -1131,7 +1131,11 @@
       loadProfile();
       loadItems();
       renderAll();
-      await initSupabase();
+      // Initialize cloud auth without blocking event-handler registration.
+      initSupabase().catch(error => {
+        console.error('Supabase initialization failed:', error);
+        updateSyncBadge('雲端初始化失敗，請重新整理');
+      });
 
 
       document.getElementById('btn-open-cloud').addEventListener('click', () => {
@@ -1153,12 +1157,28 @@
       document.getElementById('btn-cloud-login').addEventListener('click', async () => {
         const email = document.getElementById('cloud-email-input').value.trim();
         if (!email) { showToast('請先輸入電子郵件'); return; }
-        const { error } = await supabaseClient.auth.signInWithOtp({
-          email,
-          options: { emailRedirectTo: window.location.origin + window.location.pathname }
-        });
-        if (error) showToast(`登入連結寄送失敗：${error.message}`);
-        else showToast('登入連結已寄出，請至信箱完成登入');
+        if (!supabaseClient) {
+          showToast('雲端服務尚未準備好，請重新整理頁面後再試');
+          return;
+        }
+        const button = document.getElementById('btn-cloud-login');
+        const originalText = button.textContent;
+        button.disabled = true;
+        button.textContent = '正在寄送…';
+        try {
+          const { error } = await supabaseClient.auth.signInWithOtp({
+            email,
+            options: { emailRedirectTo: window.location.origin + window.location.pathname }
+          });
+          if (error) showToast(`登入連結寄送失敗：${error.message}`);
+          else showToast('登入連結已寄出，請至信箱完成登入');
+        } catch (error) {
+          console.error('Email sign-in failed:', error);
+          showToast(`登入連結寄送失敗：${error.message || '請稍後再試'}`);
+        } finally {
+          button.disabled = false;
+          button.textContent = originalText;
+        }
       });
       document.getElementById('btn-cloud-logout').addEventListener('click', async () => {
         const { error } = await supabaseClient.auth.signOut();
