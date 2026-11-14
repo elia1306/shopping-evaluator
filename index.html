@@ -998,3 +998,410 @@
             ${item.analysisNotes ? `<div class="rounded-xl border border-slate-200 bg-slate-50 p-4"><h3 class="mb-1 font-semibold text-slate-900">推薦理由、優缺點與注意事項</h3><p class="whitespace-pre-wrap">${escapeHtml(item.analysisNotes)}</p></div>` : ''}
             ${item.reviewSources ? `<div class="rounded-xl border border-slate-200 bg-white p-4"><h3 class="mb-1 font-semibold text-slate-900">評價資料來源</h3><p class="whitespace-pre-wrap">${escapeHtml(item.reviewSources)}</p></div>` : ''}
             ${item.researchDate ? `<p class="text-xs text-slate-400">最近研究日期：${escapeHtml(item.researchDate)}（評價期間：往前六個月）</p>` : ''}
+          </div>
+
+          <div class="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4">
+            ${item.sourceUrl
+              ? `<a href="${escapeHtml(item.sourceUrl)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-800">
+                  查看參考評價 / 賣場連結
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </a>`
+              : '<span></span>'
+            }
+            <button type="button" id="btn-detail-edit" data-id="${escapeHtml(item.id)}" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">編輯此商品</button>
+          </div>
+        </div>
+      `;
+
+      const modal = document.getElementById('detail-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+
+      document.getElementById('btn-detail-edit').addEventListener('click', () => {
+        closeDetailModal();
+        openFormModal(item.id);
+      });
+    }
+
+    function closeDetailModal() {
+      const modal = document.getElementById('detail-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function setFormPreview(src) {
+      const img = document.getElementById('field-image-preview');
+      const placeholder = document.getElementById('field-image-placeholder');
+      if (src) {
+        img.src = src;
+        img.classList.remove('hidden');
+        placeholder.classList.add('hidden');
+      } else {
+        img.src = '';
+        img.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+      }
+    }
+
+    function openFormModal(editId = null) {
+      const form = document.getElementById('product-form');
+      form.reset();
+      document.getElementById('field-id').value = '';
+      const statusEl = document.getElementById('field-image-status');
+      statusEl.textContent = '';
+      statusEl.classList.add('hidden');
+      setFormPreview('');
+
+      if (editId) {
+        const item = items.find(i => i.id === editId);
+        if (!item) return;
+        document.getElementById('form-modal-title').textContent = '編輯商品評估';
+        document.getElementById('field-id').value = item.id;
+        document.getElementById('field-name').value = item.name || '';
+        document.getElementById('field-jp-name').value = item.jpName || '';
+        document.getElementById('field-subtitle').value = item.subtitle || '';
+        document.getElementById('field-category').value = item.category || '';
+        document.getElementById('field-recommendation').value = item.recommendation || '觀望比較';
+        document.getElementById('field-price-num').value = item.priceNumeric || '';
+        document.getElementById('field-purchase-status').value = item.purchaseStatus || '想買';
+        document.getElementById('field-budget').value = item.budget || '';
+        document.getElementById('field-suitability').value = item.suitability || '';
+        document.getElementById('field-reviews').value = item.reviews6m || '';
+        document.getElementById('field-review-sources').value = item.reviewSources || '';
+        document.getElementById('field-research-date').value = item.researchDate || '';
+        document.getElementById('field-analysis-notes').value = item.analysisNotes || '';
+        document.getElementById('field-locations').value = item.locationsAndPrice || '';
+        document.getElementById('field-source-url').value = item.sourceUrl || '';
+        document.getElementById('field-image-url').value = item.image || '';
+        setFormPreview(item.image || '');
+      } else {
+        document.getElementById('form-modal-title').textContent = '新增商品評估';
+        document.getElementById('field-research-date').value = new Date().toISOString().slice(0, 10);
+      }
+
+      const modal = document.getElementById('form-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeFormModal() {
+      const modal = document.getElementById('form-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function openConfirmDelete(id) {
+      pendingDeleteId = id;
+      const item = items.find(i => i.id === id);
+      document.getElementById('confirm-desc').textContent = item
+        ? `確定要移除「${item.name}」嗎？`
+        : '確定要刪除此筆商品評估嗎？';
+      const modal = document.getElementById('confirm-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeConfirmDelete() {
+      pendingDeleteId = null;
+      const modal = document.getElementById('confirm-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // Event Listeners
+    function openProfileModal() {
+      document.getElementById('profile-skin-input').value = userProfile.skin || '';
+      document.getElementById('profile-hair-input').value = userProfile.hair || '';
+      document.getElementById('profile-general-input').value = userProfile.general || '';
+      const modal = document.getElementById('profile-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeProfileModal() {
+      const modal = document.getElementById('profile-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      loadCloudUrl();
+      loadProfile();
+      loadItems();
+      renderAll();
+      await initSupabase();
+
+
+      document.getElementById('btn-open-cloud').addEventListener('click', () => {
+        const m = document.getElementById('cloud-modal');
+        m.classList.remove('hidden');
+        m.classList.add('flex');
+      });
+      document.getElementById('btn-close-cloud').addEventListener('click', () => {
+        const m = document.getElementById('cloud-modal');
+        m.classList.add('hidden');
+        m.classList.remove('flex');
+      });
+      document.getElementById('cloud-modal').addEventListener('click', e => {
+        if (e.target.id === 'cloud-modal') {
+          e.target.classList.add('hidden');
+          e.target.classList.remove('flex');
+        }
+      });
+      document.getElementById('btn-cloud-login').addEventListener('click', async () => {
+        const email = document.getElementById('cloud-email-input').value.trim();
+        if (!email) { showToast('請先輸入電子郵件'); return; }
+        const { error } = await supabaseClient.auth.signInWithOtp({
+          email,
+          options: { emailRedirectTo: window.location.origin + window.location.pathname }
+        });
+        if (error) showToast(`登入連結寄送失敗：${error.message}`);
+        else showToast('登入連結已寄出，請至信箱完成登入');
+      });
+      document.getElementById('btn-cloud-logout').addEventListener('click', async () => {
+        const { error } = await supabaseClient.auth.signOut();
+        if (error) showToast(`登出失敗：${error.message}`);
+        else { currentUser = null; updateSyncBadge(); showToast('已登出雲端'); }
+      });
+
+      document.getElementById('btn-open-profile').addEventListener('click', openProfileModal);
+      document.getElementById('btn-edit-profile-inline').addEventListener('click', openProfileModal);
+      document.getElementById('btn-close-profile').addEventListener('click', closeProfileModal);
+      document.getElementById('btn-cancel-profile').addEventListener('click', closeProfileModal);
+      document.getElementById('profile-modal').addEventListener('click', e => {
+        if (e.target.id === 'profile-modal') closeProfileModal();
+      });
+      document.getElementById('profile-form').addEventListener('submit', e => {
+        e.preventDefault();
+        userProfile = {
+          skin: document.getElementById('profile-skin-input').value.trim(),
+          hair: document.getElementById('profile-hair-input').value.trim(),
+          general: document.getElementById('profile-general-input').value.trim()
+        };
+        saveProfile();
+        renderProfile();
+        closeProfileModal();
+        showToast('已更新個人評估設定');
+        pushToCloud({ action: 'saveProfile', profile: userProfile });
+      });
+
+      // KPI buttons
+      document.querySelectorAll('.kpi-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          filters.recommendation = btn.dataset.kpiRec;
+          renderAll();
+        });
+      });
+
+      // Delegated filter pills
+      document.getElementById('category-pills').addEventListener('click', e => {
+        const btn = e.target.closest('.cat-pill');
+        if (!btn) return;
+        filters.category = btn.dataset.cat;
+        renderAll();
+      });
+
+      document.getElementById('rec-pills').addEventListener('click', e => {
+        const btn = e.target.closest('.rec-pill');
+        if (!btn) return;
+        filters.recommendation = btn.dataset.rec;
+        renderAll();
+      });
+
+      // Search & Sort
+      document.getElementById('input-search').addEventListener('input', e => {
+        filters.search = e.target.value;
+        renderGrid();
+      });
+
+      document.getElementById('select-sort').addEventListener('change', e => {
+        filters.sortBy = e.target.value;
+        renderGrid();
+      });
+
+      document.getElementById('btn-clear-filters').addEventListener('click', () => {
+        filters = { category: '全部', recommendation: '全部', search: '', sortBy: 'newest' };
+        document.getElementById('input-search').value = '';
+        document.getElementById('select-sort').value = 'newest';
+        renderAll();
+      });
+
+      // Delegated Grid Actions
+      document.getElementById('product-grid').addEventListener('click', e => {
+        const target = e.target.closest('[data-action]');
+        if (!target) return;
+        const { action, id } = target.dataset;
+        if (action === 'detail') openDetailModal(id);
+        if (action === 'edit') openFormModal(id);
+        if (action === 'delete') openConfirmDelete(id);
+      });
+
+      // Modals close
+      document.getElementById('btn-close-detail').addEventListener('click', closeDetailModal);
+      document.getElementById('detail-modal').addEventListener('click', e => {
+        if (e.target.id === 'detail-modal') closeDetailModal();
+      });
+
+      document.getElementById('btn-open-add').addEventListener('click', () => openFormModal());
+      document.getElementById('btn-close-form').addEventListener('click', closeFormModal);
+      document.getElementById('btn-cancel-form').addEventListener('click', closeFormModal);
+      document.getElementById('form-modal').addEventListener('click', e => {
+        if (e.target.id === 'form-modal') closeFormModal();
+      });
+
+      // Image upload inside form
+      document.getElementById('field-image-file').addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const statusEl = document.getElementById('field-image-status');
+        statusEl.textContent = '正在處理圖片...';
+        statusEl.classList.remove('hidden');
+        const reader = new FileReader();
+        reader.onload = ev => {
+          const img = new Image();
+          img.onload = () => {
+            const maxDim = 900;
+            let w = img.width, h = img.height;
+            if (w > maxDim || h > maxDim) {
+              if (w >= h) { h = Math.round(h * maxDim / w); w = maxDim; }
+              else { w = Math.round(w * maxDim / h); h = maxDim; }
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            const compressed = canvas.toDataURL('image/jpeg', 0.82);
+            document.getElementById('field-image-url').value = compressed;
+            setFormPreview(compressed);
+            statusEl.textContent = '圖片已載入！請點擊右下角「儲存評估」加入清單。';
+          };
+          img.onerror = () => {
+            const dataUrl = ev.target.result;
+            document.getElementById('field-image-url').value = dataUrl;
+            setFormPreview(dataUrl);
+            statusEl.textContent = '圖片已載入！請點擊右下角「儲存評估」加入清單。';
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+
+      document.getElementById('field-image-url').addEventListener('input', e => {
+        setFormPreview(e.target.value.trim());
+      });
+
+      // Submit Form
+      document.getElementById('product-form').addEventListener('submit', e => {
+        e.preventDefault();
+        const id = document.getElementById('field-id').value;
+        const rawName = document.getElementById('field-name').value.trim();
+        const rawImage = document.getElementById('field-image-url').value.trim();
+        if (!rawName && !rawImage) {
+          showToast('請至少上傳商品圖片或填寫商品名稱');
+          return;
+        }
+        const today = new Date().toISOString().slice(0, 10);
+        const payload = {
+          id: id || 'item-' + Date.now(),
+          name: rawName || '待評估商品（僅照片）',
+          jpName: document.getElementById('field-jp-name').value.trim(),
+          subtitle: document.getElementById('field-subtitle').value.trim(),
+          category: document.getElementById('field-category').value.trim() || '待分類',
+          recommendation: document.getElementById('field-recommendation').value || '待評估',
+          priceNumeric: Number(document.getElementById('field-price-num').value) || 0,
+          purchaseStatus: document.getElementById('field-purchase-status').value || '想買',
+          budget: Number(document.getElementById('field-budget').value) || 0,
+          suitability: document.getElementById('field-suitability').value.trim() || '尚未評估',
+          reviews6m: document.getElementById('field-reviews').value.trim() || '尚未查詢近六個月評價',
+          reviewSources: document.getElementById('field-review-sources').value.trim(),
+          researchDate: document.getElementById('field-research-date').value || today,
+          analysisNotes: document.getElementById('field-analysis-notes').value.trim(),
+          locationsAndPrice: document.getElementById('field-locations').value.trim() || '尚未查詢購買地點與價格',
+          sourceUrl: document.getElementById('field-source-url').value.trim(),
+          image: rawImage,
+          updatedAt: today
+        };
+
+        if (id) {
+          const idx = items.findIndex(i => i.id === id);
+          if (idx !== -1) items[idx] = payload;
+          showToast('已更新商品評估');
+        } else {
+          items.unshift(payload);
+          filters = { category: '全部', recommendation: '全部', search: '', sortBy: 'newest' };
+          document.getElementById('input-search').value = '';
+          document.getElementById('select-sort').value = 'newest';
+          showToast('已新增至購物評估清單');
+        }
+
+        saveItems();
+        closeFormModal();
+        renderAll();
+        pushToCloud({ action: 'upsertItem', item: payload });
+      });
+
+      // Confirm Delete
+      document.getElementById('btn-cancel-delete').addEventListener('click', closeConfirmDelete);
+      document.getElementById('btn-confirm-delete').addEventListener('click', () => {
+        if (pendingDeleteId) {
+          const delId = pendingDeleteId;
+          items = items.filter(i => i.id !== delId);
+          saveItems();
+          renderAll();
+          showToast('已刪除商品評估');
+          pushToCloud({ action: 'deleteItem', id: delId });
+        }
+        closeConfirmDelete();
+      });
+
+      // Export JSON
+      document.getElementById('btn-export').addEventListener('click', () => {
+        const blob = new Blob([JSON.stringify(items, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `shopping_evaluation_${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        showToast('已匯出 JSON 清單檔案');
+      });
+
+      // Import JSON
+      document.getElementById('input-import').addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          try {
+            const parsed = JSON.parse(ev.target.result);
+            if (!Array.isArray(parsed)) throw new Error('Invalid format');
+            items = parsed;
+            saveItems();
+            renderAll();
+            showToast(`已成功匯入 ${parsed.length} 筆商品`);
+          } catch (err) {
+            showToast('匯入失敗：請確認為有效的 JSON 清單檔');
+          }
+        };
+        reader.readAsText(file);
+        e.target.value = '';
+      });
+
+      // Reset to defaults
+      document.getElementById('btn-reset').addEventListener('click', () => {
+        items = structuredClone(DEFAULT_ITEMS);
+        filters = { category: '全部', recommendation: '全部', search: '', sortBy: 'newest' };
+        document.getElementById('input-search').value = '';
+        document.getElementById('select-sort').value = 'newest';
+        saveItems();
+        renderAll();
+        showToast('已恢復為預設範例資料');
+      });
+    });
+  </script>
+</body>
+</html>
