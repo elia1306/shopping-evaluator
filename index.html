@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>我的購物評估清單 v1.2｜Supabase 雲端版</title>
+  <title>我的購物評估清單 v1.3｜Supabase 雲端版</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -27,6 +27,29 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+    img, input, select, textarea, button { max-width: 100%; }
+    @media (max-width: 640px) {
+      header > div { padding-left: 12px !important; padding-right: 12px !important; }
+      header h1 { font-size: 18px !important; line-height: 1.35; }
+      header .flex.flex-wrap.items-center.gap-2 > button,
+      header .flex.flex-wrap.items-center.gap-2 > label { flex: 1 1 calc(50% - 6px); justify-content: center; min-width: 0; }
+      main { padding-left: 12px !important; padding-right: 12px !important; }
+      main section { min-width: 0; }
+      #product-grid { grid-template-columns: minmax(0, 1fr) !important; }
+      #cloud-modal, #form-modal, #detail-modal, #profile-modal, #confirm-modal {
+        align-items: flex-start !important; overflow-y: auto;
+        padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom)) !important;
+      }
+      #cloud-modal > div, #profile-modal > div { width: 100%; max-width: 100%; margin: auto 0; padding: 18px !important; }
+      #form-modal > div, #detail-modal > div, #confirm-modal > div {
+        width: 100%; max-width: 100%; max-height: calc(100dvh - 24px);
+        margin: auto 0; padding: 16px !important; overflow-y: auto;
+      }
+      #toast { left: 12px !important; right: 12px !important; bottom: max(12px, env(safe-area-inset-bottom)) !important; width: auto; justify-content: center; text-align: center; }
+      .overflow-x-auto { max-width: 100%; }
+    }
   </style>
 </head>
 <body class="min-h-screen antialiased selection:bg-indigo-100 selection:text-indigo-900">
@@ -43,7 +66,7 @@
               </svg>
             </span>
             <div>
-              <h1 class="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">我的購物評估清單 <span class="ml-1 rounded-md bg-indigo-50 px-2 py-0.5 text-[10px] font-semibold text-indigo-700 align-middle">v1.2</span></h1>
+              <h1 class="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">我的購物評估清單 <span class="ml-1 rounded-md bg-indigo-50 px-2 py-0.5 text-[10px] font-semibold text-indigo-700 align-middle">v1.3</span></h1>
               <div class="flex flex-wrap items-center gap-2">
                 <p class="text-xs text-slate-500 sm:text-sm">圖片收藏 × 個人適合度 × 近六個月評價 × 購買通路</p>
                 <span id="sync-badge" class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-medium text-slate-600">本機模式</span>
@@ -390,7 +413,7 @@
       </div>
       <div class="space-y-4">
         <div id="cloud-auth-state" class="rounded-xl bg-slate-50 p-3 text-sm text-slate-600">尚未登入</div>
-        <div>
+        <div id="cloud-email-field">
           <label for="cloud-email-input" class="mb-1 block text-sm font-medium text-slate-700">電子郵件</label>
           <input id="cloud-email-input" type="email" autocomplete="email" placeholder="you@example.com" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100" />
         </div>
@@ -525,9 +548,11 @@
       const state = document.getElementById('cloud-auth-state');
       const logout = document.getElementById('btn-cloud-logout');
       const login = document.getElementById('btn-cloud-login');
-      if (state) state.textContent = currentUser ? `已登入：${currentUser.email || '帳號'}` : '尚未登入。輸入電子郵件即可收到安全登入連結。';
+      const emailField = document.getElementById('cloud-email-field');
+      if (state) state.textContent = currentUser ? `已登入：${currentUser.email || '帳號'}。商品資料將同步至私人雲端。` : '尚未登入。輸入電子郵件即可收到安全登入連結。';
       if (logout) logout.classList.toggle('hidden', !currentUser);
       if (login) login.classList.toggle('hidden', !!currentUser);
+      if (emailField) emailField.classList.toggle('hidden', !!currentUser);
     }
 
     async function initSupabase() {
@@ -538,18 +563,23 @@
       supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
         auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
       });
-      const { data } = await supabaseClient.auth.getSession();
-      currentUser = data.session?.user || null;
-      updateSyncBadge();
-      supabaseClient.auth.onAuthStateChange((_event, session) => {
+      // Register listener before getSession so magic-link callbacks are not missed.
+      supabaseClient.auth.onAuthStateChange((event, session) => {
         currentUser = session?.user || null;
         updateSyncBadge();
-        if (currentUser) setTimeout(() => syncFromCloud(), 0);
-        else {
+        if (currentUser && event !== 'INITIAL_SESSION') {
+          setTimeout(() => syncFromCloud(), 0);
+          const cloudModal = document.getElementById('cloud-modal');
+          if (cloudModal && !cloudModal.classList.contains('hidden')) showToast('登入成功！雲端同步已啟用');
+        } else if (!currentUser && event !== 'INITIAL_SESSION') {
           items = loadLocalItems();
           renderAll();
         }
       });
+      const { data, error } = await supabaseClient.auth.getSession();
+      if (error) throw error;
+      currentUser = data.session?.user || null;
+      updateSyncBadge();
       if (currentUser) await syncFromCloud();
     }
 
