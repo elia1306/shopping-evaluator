@@ -663,35 +663,47 @@
         const { data: products, error } = await supabaseClient.from('products').select('*').order('created_at', { ascending: false });
         if (error) throw error;
         const ids = (products || []).map(p => p.id);
-        let evaluations = [], images = [];
+        let evaluations = [], images = [], purchaseOptions = [];
         if (ids.length) {
-          const [evRes, imgRes] = await Promise.all([
+          const [evRes, imgRes, poRes] = await Promise.all([
             supabaseClient.from('evaluations').select('*').in('product_id', ids),
-            supabaseClient.from('product_images').select('*').in('product_id', ids).eq('image_type', 'original')
+            supabaseClient.from('product_images').select('*').in('product_id', ids).eq('image_type', 'original'),
+            supabaseClient.from('purchase_options').select('*').in('product_id', ids).order('price', { ascending: true })
           ]);
           if (evRes.error) throw evRes.error;
           if (imgRes.error) throw imgRes.error;
+          if (poRes.error) throw poRes.error;
           evaluations = evRes.data || [];
           images = imgRes.data || [];
+          purchaseOptions = poRes.data || [];
         }
         const evMap = new Map(evaluations.map(e => [e.product_id, e]));
         const imageMap = new Map(images.map(i => [i.product_id, i]));
+        const poMap = new Map();
+        for (const po of purchaseOptions) {
+          if (!poMap.has(po.product_id)) poMap.set(po.product_id, []);
+          poMap.get(po.product_id).push(po);
+        }
         const restored = [];
         for (const p of (products || [])) {
           const ev = evMap.get(p.id);
           const payload = ev?.analysis_payload && typeof ev.analysis_payload === 'object' ? ev.analysis_payload : {};
           const img = imageMap.get(p.id);
+          const opts = poMap.get(p.id) || [];
           let image = payload.image || '';
           if (img?.image_path) {
             const { data: signed } = await supabaseClient.storage.from(STORAGE_BUCKET).createSignedUrl(img.image_path, 3600);
             image = signed?.signedUrl || '';
           }
           restored.push({
-            ...payload, id: p.id, name: p.product_name, jpName: p.model || '',
-            subtitle: p.capacity || '', category: p.category || '待分類',
+            ...payload, id: p.id, name: p.product_name, jpName: p.model || payload.jpName || '',
+            subtitle: p.capacity || payload.subtitle || '', category: p.category || '待分類',
             budget: Number(p.budget) || 0, purchaseStatus: purchaseStatusFromDb(p.status),
             suitability: ev?.suitability_summary || payload.suitability || '尚未評估',
             reviews6m: ev?.review_summary || payload.reviews6m || '尚未查詢近六個月評價',
+            recommendation: ev?.recommendation || payload.recommendation || '觀望比較',
+            analysisNotes: p.personal_notes || payload.analysisNotes || '',
+            purchaseOptions: opts,
             image, imagePath: img?.image_path || ''
           });
         }
@@ -1022,7 +1034,24 @@
 
             <div class="rounded-xl border border-indigo-100 bg-indigo-50/50 p-4">
               <h3 class="mb-1 font-semibold text-indigo-950">可購買地點與價錢</h3>
-              <p class="font-medium text-indigo-800">${escapeHtml(item.locationsAndPrice)}</p>
+              <p class="font-medium text-indigo-800">${escapeHtml(item.locationsAndPrice || '尚未查詢購買地點與價格')}</p>
+              ${Array.isArray(item.purchaseOptions) && item.purchaseOptions.length ? `
+                <ul class="mt-2.5 space-y-1.5 border-t border-indigo-100 pt-2.5 text-xs text-indigo-900">
+                  ${item.purchaseOptions.map(po => `
+                    <li class="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-white/80 px-2.5 py-1.5">
+                      <span>
+                        <span class="font-semibold">${escapeHtml(po.country ? `[${po.country}] ` : '')}${escapeHtml(po.merchant)}</span>
+                        ${po.availability ? `<span class="ml-1 text-slate-500">(${escapeHtml(po.availability)})</span>` : ''}
+                        ${po.notes ? `<span class="ml-1 text-slate-500">· ${escapeHtml(po.notes)}</span>` : ''}
+                      </span>
+                      <span class="flex items-center gap-2">
+                        ${po.price != null ? `<span class="font-semibold text-indigo-700">${escapeHtml(po.currency || 'TWD')} ${Number(po.price).toLocaleString('zh-TW')}</span>` : ''}
+                        ${po.product_url ? `<a href="${escapeHtml(po.product_url)}" target="_blank" rel="noopener noreferrer" class="underline hover:text-indigo-600">連結</a>` : ''}
+                      </span>
+                    </li>
+                  `).join('')}
+                </ul>
+              ` : ''}
               ${item.budget ? `<p class="mt-2 text-xs text-indigo-700">個人預算上限：NT$${Number(item.budget).toLocaleString('zh-TW')}</p>` : ''}
             </div>
             ${item.analysisNotes ? `<div class="rounded-xl border border-slate-200 bg-slate-50 p-4"><h3 class="mb-1 font-semibold text-slate-900">推薦理由、優缺點與注意事項</h3><p class="whitespace-pre-wrap">${escapeHtml(item.analysisNotes)}</p></div>` : ''}
