@@ -166,6 +166,9 @@
             </svg>
             <input id="input-search" type="search" placeholder="搜尋品名、評價、地點..." class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-100" />
           </div>
+          <select id="select-brand" aria-label="篩選品牌" class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-100">
+            <option value="全部">全部品牌</option>
+          </select>
           <select id="select-sort" aria-label="排序方式" class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-100">
             <option value="newest">最新評估</option>
             <option value="rec-first">推薦優先</option>
@@ -504,6 +507,7 @@
     let filters = {
       category: '全部',
       recommendation: '全部',
+      brand: '全部',
       search: '',
       sortBy: 'newest'
     };
@@ -629,7 +633,7 @@
       delete details.image;
       delete details.imagePath;
       const productRow = {
-        id: item.id, user_id: userId, product_name: item.name || '待評估商品',
+        id: item.id, user_id: userId, brand: item.brand || null, product_name: item.name || '待評估商品',
         model: item.jpName || null, capacity: item.subtitle || null,
         category: item.category || '待分類', budget: Number(item.budget) || null,
         budget_currency: 'TWD', status: purchaseStatusToDb(item.purchaseStatus),
@@ -731,7 +735,7 @@
             image = signed?.signedUrl || '';
           }
           restored.push({
-            ...payload, id: p.id, name: p.product_name, jpName: p.model || payload.jpName || '',
+            ...payload, id: p.id, brand: p.brand || payload.brand || '', name: p.product_name, jpName: p.model || payload.jpName || '',
             subtitle: p.capacity || payload.subtitle || '', category: p.category || '待分類',
             budget: Number(p.budget) || 0, purchaseStatus: purchaseStatusFromDb(p.status),
             suitability: ev?.suitability_summary || payload.suitability || '尚未評估',
@@ -868,8 +872,10 @@
       let list = items.filter(item => {
         if (filters.category !== '全部' && item.category !== filters.category) return false;
         if (filters.recommendation !== '全部' && item.recommendation !== filters.recommendation) return false;
+        if (filters.brand !== '全部' && (item.brand || '').trim() !== filters.brand) return false;
         if (q) {
           const hay = [
+            item.brand,
             item.name,
             item.jpName,
             item.subtitle,
@@ -943,6 +949,15 @@
 
         return `<button type="button" data-rec="${escapeHtml(rec)}" class="rec-pill rounded-full px-3 py-1 text-xs font-medium transition ${cls}">${escapeHtml(rec)}</button>`;
       }).join('');
+
+      const brands = Array.from(new Set(items.map(i => (i.brand || '').trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b, 'zh-Hant'));
+      const brandSelect = document.getElementById('select-brand');
+      if (brandSelect) {
+        if (filters.brand !== '全部' && !brands.includes(filters.brand)) filters.brand = '全部';
+        brandSelect.innerHTML = `<option value="全部">全部品牌 (${brands.length})</option>` +
+          brands.map(b => `<option value="${escapeHtml(b)}">${escapeHtml(b)}</option>`).join('');
+        brandSelect.value = filters.brand;
+      }
     }
 
     function renderGrid() {
@@ -1166,6 +1181,7 @@
       document.getElementById('field-json-paste').value = '';
       document.getElementById('field-suitability-score').value = '';
       window.__pendingPurchaseOptions = [];
+      window.__pendingBrand = '';
       const statusEl = document.getElementById('field-image-status');
       statusEl.textContent = '';
       statusEl.classList.add('hidden');
@@ -1194,6 +1210,7 @@
         document.getElementById('field-source-url').value = item.sourceUrl || '';
         document.getElementById('field-image-url').value = item.image || '';
         window.__pendingPurchaseOptions = Array.isArray(item.purchaseOptions) ? item.purchaseOptions : [];
+        window.__pendingBrand = item.brand || '';
         setFormPreview(item.image || '');
       } else {
         document.getElementById('form-modal-title').textContent = '新增商品評估';
@@ -1355,14 +1372,20 @@
         renderGrid();
       });
 
+      document.getElementById('select-brand').addEventListener('change', e => {
+        filters.brand = e.target.value;
+        renderGrid();
+      });
+
       document.getElementById('select-sort').addEventListener('change', e => {
         filters.sortBy = e.target.value;
         renderGrid();
       });
 
       document.getElementById('btn-clear-filters').addEventListener('click', () => {
-        filters = { category: '全部', recommendation: '全部', search: '', sortBy: 'newest' };
+        filters = { category: '全部', recommendation: '全部', brand: '全部', search: '', sortBy: 'newest' };
         document.getElementById('input-search').value = '';
+        document.getElementById('select-brand').value = '全部';
         document.getElementById('select-sort').value = 'newest';
         renderAll();
       });
@@ -1443,6 +1466,7 @@
           showToast('JSON 格式有誤，請確認複製完整內容');
           return false;
         }
+        if (data.brand) window.__pendingBrand = String(data.brand).trim();
         if (data.name || data.product_name) document.getElementById('field-name').value = data.name || data.product_name;
         if (data.jpName || data.model) document.getElementById('field-jp-name').value = data.jpName || data.model;
         if (data.subtitle || data.capacity) document.getElementById('field-subtitle').value = data.subtitle || data.capacity;
@@ -1493,6 +1517,7 @@
         const today = new Date().toISOString().slice(0, 10);
         const payload = {
           id: id || 'item-' + Date.now(),
+          brand: window.__pendingBrand || '',
           name: rawName || '待評估商品（僅照片）',
           jpName: document.getElementById('field-jp-name').value.trim(),
           subtitle: document.getElementById('field-subtitle').value.trim(),
