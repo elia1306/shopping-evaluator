@@ -221,6 +221,18 @@
       <form id="product-form" class="space-y-4">
         <input type="hidden" id="field-id" />
 
+        <!-- Quick Paste Gemini JSON -->
+        <div class="rounded-xl border border-emerald-200 bg-emerald-50/60 p-3.5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <label for="field-json-paste" class="text-sm font-semibold text-emerald-950">貼上 Gemini JSON 快速填入</label>
+            <div class="flex gap-2">
+              <button id="btn-paste-json" type="button" class="rounded-lg border border-emerald-300 bg-white px-2.5 py-1 text-xs font-medium text-emerald-800 transition hover:bg-emerald-100">從剪貼簿貼上並套用</button>
+              <button id="btn-apply-json" type="button" class="rounded-lg bg-emerald-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-emerald-700">套用 JSON</button>
+            </div>
+          </div>
+          <textarea id="field-json-paste" rows="3" placeholder="直接貼上 Gemini 產生的 JSON（含 ```json 標記也沒關係），按下「套用 JSON」即可自動填好下方所有欄位，再上傳照片並儲存即可。" class="mt-2 w-full rounded-xl border border-emerald-200 bg-white px-3 py-2 font-mono text-xs outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"></textarea>
+        </div>
+
         <!-- Image Upload / Preview -->
         <div>
           <label class="mb-1.5 block text-sm font-medium text-slate-700">商品圖片（支援直接上傳照片或貼上圖片網址）</label>
@@ -653,6 +665,22 @@
         });
         if (imageError) throw imageError;
         item.imagePath = path;
+      }
+
+      if (Array.isArray(item.purchaseOptions) && item.purchaseOptions.length) {
+        await supabaseClient.from('purchase_options').delete().eq('product_id', item.id).eq('user_id', userId);
+        const poRows = item.purchaseOptions.map(po => ({
+          product_id: item.id, user_id: userId,
+          merchant: String(po.merchant || '未指定通路'),
+          country: po.country ? String(po.country) : null,
+          product_url: po.product_url ? String(po.product_url) : null,
+          price: po.price != null ? Number(po.price) || null : null,
+          currency: po.currency ? String(po.currency) : 'TWD',
+          availability: po.availability ? String(po.availability) : null,
+          notes: po.notes ? String(po.notes) : null
+        }));
+        const { error: poErr } = await supabaseClient.from('purchase_options').insert(poRows);
+        if (poErr) throw poErr;
       }
     }
 
@@ -1108,6 +1136,8 @@
       const form = document.getElementById('product-form');
       form.reset();
       document.getElementById('field-id').value = '';
+      document.getElementById('field-json-paste').value = '';
+      window.__pendingPurchaseOptions = [];
       const statusEl = document.getElementById('field-image-status');
       statusEl.textContent = '';
       statusEl.classList.add('hidden');
@@ -1134,6 +1164,7 @@
         document.getElementById('field-locations').value = item.locationsAndPrice || '';
         document.getElementById('field-source-url').value = item.sourceUrl || '';
         document.getElementById('field-image-url').value = item.image || '';
+        window.__pendingPurchaseOptions = Array.isArray(item.purchaseOptions) ? item.purchaseOptions : [];
         setFormPreview(item.image || '');
       } else {
         document.getElementById('form-modal-title').textContent = '新增商品評估';
@@ -1371,6 +1402,52 @@
         setFormPreview(e.target.value.trim());
       });
 
+      function applyJsonToForm(rawText) {
+        const trimmed = String(rawText || '').trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+        const start = trimmed.indexOf('{');
+        const end = trimmed.lastIndexOf('}');
+        const jsonText = (start !== -1 && end > start) ? trimmed.slice(start, end + 1) : trimmed;
+        let data;
+        try {
+          data = JSON.parse(jsonText);
+        } catch (err) {
+          showToast('JSON 格式有誤，請確認複製完整內容');
+          return false;
+        }
+        if (data.name || data.product_name) document.getElementById('field-name').value = data.name || data.product_name;
+        if (data.jpName || data.model) document.getElementById('field-jp-name').value = data.jpName || data.model;
+        if (data.subtitle || data.capacity) document.getElementById('field-subtitle').value = data.subtitle || data.capacity;
+        if (data.category) document.getElementById('field-category').value = data.category;
+        if (data.recommendation) document.getElementById('field-recommendation').value = data.recommendation;
+        if (data.priceNumeric != null) document.getElementById('field-price-num').value = Number(data.priceNumeric) || '';
+        if (data.purchaseStatus) document.getElementById('field-purchase-status').value = data.purchaseStatus;
+        if (data.budget != null) document.getElementById('field-budget').value = Number(data.budget) || '';
+        if (data.suitability || data.suitability_summary) document.getElementById('field-suitability').value = data.suitability || data.suitability_summary;
+        if (data.reviews6m || data.review_summary) document.getElementById('field-reviews').value = data.reviews6m || data.review_summary;
+        if (data.reviewSources) document.getElementById('field-review-sources').value = data.reviewSources;
+        if (data.researchDate) document.getElementById('field-research-date').value = data.researchDate;
+        if (data.analysisNotes || data.personal_notes) document.getElementById('field-analysis-notes').value = data.analysisNotes || data.personal_notes;
+        if (data.locationsAndPrice) document.getElementById('field-locations').value = data.locationsAndPrice;
+        if (data.sourceUrl) document.getElementById('field-source-url').value = data.sourceUrl;
+        if (Array.isArray(data.purchase_options)) window.__pendingPurchaseOptions = data.purchase_options;
+        showToast('已成功將 JSON 填入表單！');
+        return true;
+      }
+
+      document.getElementById('btn-apply-json').addEventListener('click', () => {
+        applyJsonToForm(document.getElementById('field-json-paste').value);
+      });
+
+      document.getElementById('btn-paste-json').addEventListener('click', async () => {
+        try {
+          const text = await navigator.clipboard.readText();
+          document.getElementById('field-json-paste').value = text;
+          applyJsonToForm(text);
+        } catch (err) {
+          showToast('瀏覽器未授權讀取剪貼簿，請直接長按貼進下方文字框再點「套用 JSON」');
+        }
+      });
+
       // Submit Form
       document.getElementById('product-form').addEventListener('submit', e => {
         e.preventDefault();
@@ -1399,6 +1476,7 @@
           analysisNotes: document.getElementById('field-analysis-notes').value.trim(),
           locationsAndPrice: document.getElementById('field-locations').value.trim() || '尚未查詢購買地點與價格',
           sourceUrl: document.getElementById('field-source-url').value.trim(),
+          purchaseOptions: Array.isArray(window.__pendingPurchaseOptions) ? window.__pendingPurchaseOptions : [],
           image: rawImage,
           updatedAt: today
         };
