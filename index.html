@@ -1018,6 +1018,7 @@
             <!-- Card Body -->
             <div class="flex flex-1 flex-col p-5">
               <div class="mb-3">
+                ${item.brand ? `<span class="mb-1 inline-block rounded-md bg-indigo-50 px-2 py-0.5 text-[11px] font-semibold text-indigo-700">${escapeHtml(item.brand)}</span>` : ''}
                 <h2 class="text-base font-bold leading-snug text-slate-900 line-clamp-2">${escapeHtml(item.name)}</h2>
                 ${item.jpName ? `<p class="mt-1 text-xs font-medium text-slate-600"><span class="mr-1 inline-block rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500">日文</span>${escapeHtml(item.jpName)}</p>` : ''}
                 ${item.subtitle ? `<p class="mt-0.5 text-xs text-slate-500">${escapeHtml(item.subtitle)}</p>` : ''}
@@ -1087,6 +1088,7 @@
             <span class="ml-auto text-xs text-slate-400">更新日期：${escapeHtml(item.updatedAt || '')}</span>
           </div>
 
+          ${item.brand ? `<span class="mb-1.5 inline-block rounded-md bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-700">${escapeHtml(item.brand)}</span>` : ''}
           <h2 id="detail-title" class="text-xl font-bold text-slate-900 sm:text-2xl">${escapeHtml(item.name)}</h2>
           ${item.jpName ? `<p class="mt-1.5 text-sm font-medium text-slate-700"><span class="mr-1.5 inline-block rounded bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-500">日文品名</span>${escapeHtml(item.jpName)}</p>` : ''}
           ${item.subtitle ? `<p class="mt-1 text-sm text-slate-500">${escapeHtml(item.subtitle)}</p>` : ''}
