@@ -146,7 +146,7 @@
     </section>
 
     <!-- KPI Summary Cards -->
-    <section aria-label="評估統計" class="mb-6 grid grid-cols-2 gap-3.5 sm:grid-cols-4">
+    <section aria-label="評估統計" class="mb-6 grid grid-cols-1 gap-3.5 sm:grid-cols-3">
       <button type="button" data-kpi-rec="全部" class="kpi-btn ehon-box group flex flex-col bg-[#FFFCF6] p-4 text-left transition hover:-translate-y-0.5">
         <span class="text-xs font-bold text-[#3E3A39]/80">全部評估商品</span>
         <span id="stat-total" class="mt-1 text-2xl font-bold text-[#3E3A39]">0</span>
@@ -154,10 +154,6 @@
       <button type="button" data-kpi-rec="推薦購買" class="kpi-btn ehon-box group flex flex-col bg-[#B9DAA5] p-4 text-left transition hover:-translate-y-0.5">
         <span class="text-xs font-bold text-[#3E3A39]">推薦購買</span>
         <span id="stat-rec" class="mt-1 text-2xl font-bold text-[#3E3A39]">0</span>
-      </button>
-      <button type="button" data-kpi-rec="待評估" class="kpi-btn ehon-box group flex flex-col bg-[#F6D27A] p-4 text-left transition hover:-translate-y-0.5">
-        <span class="text-xs font-bold text-[#3E3A39]">待評估</span>
-        <span id="stat-pending" class="mt-1 text-2xl font-bold text-[#3E3A39]">0</span>
       </button>
       <button type="button" data-kpi-rec="暫不推薦" class="kpi-btn ehon-box group flex flex-col bg-[#F2A497] p-4 text-left transition hover:-translate-y-0.5">
         <span class="text-xs font-bold text-[#3E3A39]">暫不推薦</span>
@@ -322,7 +318,6 @@
           <div>
             <label for="field-recommendation" class="mb-1 block text-sm font-medium text-slate-700">推薦標籤</label>
             <select id="field-recommendation" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100">
-              <option value="待評估">待評估（僅先存圖）</option>
               <option value="推薦購買">推薦購買</option>
               <option value="暫不推薦">暫不推薦</option>
             </select>
@@ -645,6 +640,12 @@
       return ({ want_to_buy:'想買', researching:'尚未列入', waiting_discount:'等待入手', purchased:'已購買', not_interested:'不考慮' })[value] || '尚未列入';
     }
 
+    function normalizeRec(rawRec, score10) {
+      if (rawRec === '推薦購買' || rawRec === '暫不推薦') return rawRec;
+      if (score10 != null && score10 < 6) return '暫不推薦';
+      return '推薦購買';
+    }
+
     function normalizeScore10(raw) {
       if (raw == null || raw === '') return null;
       const n = Number(raw);
@@ -768,7 +769,7 @@
             suitability: ev?.suitability_summary || payload.suitability || '尚未評估',
             suitabilityScore: normalizeScore10(ev?.suitability_score ?? payload.suitability_score ?? payload.suitabilityScore),
             reviews6m: ev?.review_summary || payload.reviews6m || '尚未查詢近六個月評價',
-            recommendation: (ev?.recommendation || payload.recommendation || '待評估').replace('觀望比較', '待評估'),
+            recommendation: normalizeRec(ev?.recommendation || payload.recommendation, normalizeScore10(ev?.suitability_score ?? payload.suitability_score ?? payload.suitabilityScore)),
             analysisNotes: p.personal_notes || payload.analysisNotes || '',
             purchaseOptions: opts,
             image, imagePath: img?.image_path || ''
@@ -938,7 +939,6 @@
     function renderStats() {
       document.getElementById('stat-total').textContent = items.length;
       document.getElementById('stat-rec').textContent = items.filter(i => i.recommendation === '推薦購買').length;
-      document.getElementById('stat-pending').textContent = items.filter(i => !i.recommendation || i.recommendation === '待評估' || i.recommendation === '觀望比較').length;
       document.getElementById('stat-skip').textContent = items.filter(i => i.recommendation === '暫不推薦').length;
 
       document.querySelectorAll('.kpi-btn').forEach(btn => {
@@ -964,16 +964,15 @@
         }">${escapeHtml(cat)}</button>`;
       }).join('');
 
-      const recs = ['全部', '待評估', '推薦購買', '暫不推薦'];
+      const recs = ['全部', '推薦購買', '暫不推薦'];
       const recContainer = document.getElementById('rec-pills');
       recContainer.innerHTML = recs.map(rec => {
         const active = filters.recommendation === rec;
         let cls = active
-          ? 'bg-indigo-600 text-white shadow-sm'
-          : 'bg-slate-100 text-slate-600 hover:bg-slate-200';
-        if (active && rec === '推薦購買') cls = 'bg-emerald-600 text-white shadow-sm';
-        if (active && rec === '待評估') cls = 'bg-amber-500 text-white shadow-sm';
-        if (active && rec === '暫不推薦') cls = 'bg-rose-600 text-white shadow-sm';
+          ? 'bg-[#A8D3E6] text-[#3E3A39] border-2 border-[#3E3A39] font-bold'
+          : 'bg-[#FFFCF6] text-[#3E3A39] border-2 border-[#3E3A39]/30 hover:border-[#3E3A39]';
+        if (active && rec === '推薦購買') cls = 'bg-[#B9DAA5] text-[#3E3A39] border-2 border-[#3E3A39] font-bold';
+        if (active && rec === '暫不推薦') cls = 'bg-[#F2A497] text-[#3E3A39] border-2 border-[#3E3A39] font-bold';
 
         return `<button type="button" data-rec="${escapeHtml(rec)}" class="rec-pill rounded-full px-3 py-1 text-xs font-medium transition ${cls}">${escapeHtml(rec)}</button>`;
       }).join('');
@@ -1243,7 +1242,7 @@
         document.getElementById('field-jp-name').value = item.jpName || '';
         document.getElementById('field-subtitle').value = item.subtitle || '';
         document.getElementById('field-category').value = item.category || '';
-        document.getElementById('field-recommendation').value = (item.recommendation === '觀望比較' ? '待評估' : item.recommendation) || '待評估';
+        document.getElementById('field-recommendation').value = normalizeRec(item.recommendation, normalizeScore10(item.suitabilityScore));
         document.getElementById('field-price-num').value = item.priceNumeric || '';
         document.getElementById('field-suitability-score').value = normalizeScore10(item.suitabilityScore) || '';
         document.getElementById('field-purchase-status').value = (item.purchaseStatus === '研究中' ? '想買' : item.purchaseStatus) || '想買';
@@ -1547,7 +1546,7 @@
         if (data.jpName || data.model) document.getElementById('field-jp-name').value = data.jpName || data.model;
         if (data.subtitle || data.capacity) document.getElementById('field-subtitle').value = data.subtitle || data.capacity;
         if (data.category) document.getElementById('field-category').value = data.category;
-        if (data.recommendation) document.getElementById('field-recommendation').value = data.recommendation === '觀望比較' ? '待評估' : data.recommendation;
+        if (data.recommendation) document.getElementById('field-recommendation').value = normalizeRec(data.recommendation, normalizeScore10(data.suitability_score ?? data.suitabilityScore));
         if (data.priceNumeric != null) document.getElementById('field-price-num').value = Number(data.priceNumeric) || '';
         if (data.suitability_score != null || data.suitabilityScore != null) {
           document.getElementById('field-suitability-score').value = normalizeScore10(data.suitability_score ?? data.suitabilityScore) || '';
@@ -1598,7 +1597,7 @@
           jpName: document.getElementById('field-jp-name').value.trim(),
           subtitle: document.getElementById('field-subtitle').value.trim(),
           category: document.getElementById('field-category').value.trim() || '待分類',
-          recommendation: document.getElementById('field-recommendation').value || '待評估',
+          recommendation: document.getElementById('field-recommendation').value || '推薦購買',
           priceNumeric: Number(document.getElementById('field-price-num').value) || 0,
           suitabilityScore: normalizeScore10(document.getElementById('field-suitability-score').value),
           purchaseStatus: document.getElementById('field-purchase-status').value || '尚未列入',
