@@ -36,7 +36,7 @@
       box-shadow: 0 0 0 #3E3A39;
     }
     *, *::before, *::after { box-sizing: border-box; }
-    html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+    html, body { width: 100%; max-width: 100%; overflow-x: clip; }
     @media (max-width: 640px) {
       header > div { padding-left: 12px !important; padding-right: 12px !important; }
       main { padding-left: 12px !important; padding-right: 12px !important; }
@@ -59,22 +59,21 @@
             <div class="flex flex-wrap items-center gap-2">
               <h1 class="whitespace-nowrap text-xl font-bold tracking-tight text-[#3E3A39] sm:text-2xl">♥ 旅遊記帳與分帳 ♥</h1>
               <nav aria-label="切換頁面" class="inline-flex flex-wrap rounded-2xl border-[2.5px] border-[#3E3A39] bg-[#FFFCF6] p-0.5 text-xs font-bold">
-                <a href="./index.html" class="whitespace-nowrap rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#F2A497]/40">購物評估</a>
-                <a href="./food.html" class="whitespace-nowrap rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#A8D3E6]/40">美食地圖</a>
-                <a href="./trip.html" class="whitespace-nowrap rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#B9DAA5]/40">旅遊行程</a>
+                <a href="./index.html" data-hide-in-share="true" class="whitespace-nowrap rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#F2A497]/40">購物評估</a>
+                <a href="./food.html" data-hide-in-share="true" class="whitespace-nowrap rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#A8D3E6]/40">美食地圖</a>
+                <a href="./trip.html" id="nav-trip-link" class="whitespace-nowrap rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#B9DAA5]/40">旅遊行程</a>
                 <span class="whitespace-nowrap rounded-xl bg-[#F6D27A] px-3 py-1 text-[#3E3A39]">旅遊記帳</span>
               </nav>
             </div>
             <div class="mt-0.5 flex flex-wrap items-center gap-2">
               <p class="text-xs text-[#3E3A39]/75 sm:text-sm">日圓／台幣記帳、誰先付與平分對象、自動算出結算轉帳金額</p>
-              <span id="cloud-sync-badge" class="inline-flex items-center gap-1 rounded-full border-2 border-[#3E3A39] bg-[#A8D3E6] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">本機模式</span>
             </div>
           </div>
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
           <button id="btn-cloud-sync" type="button" class="ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#A8D3E6] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm">
-            雲端同步
+            ☁️ 雲端同步（本機）
           </button>
           <button id="btn-add-expense" type="button" class="ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#F2A497] px-3.5 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm">
             ＋ 新增一筆消費
@@ -427,6 +426,8 @@
     let expenses = [];
     let activeTripId = '';
     let activeViewTab = 'expenses';
+    let shareToken = null;
+    let isShareMode = false;
     let filters = { day: 'all', payer: '全部', category: '全部', needsReview: false };
 
     function escapeHtml(str) {
@@ -504,25 +505,29 @@
     }
 
     function updateSyncBadge(customText) {
-      const badge = document.getElementById('cloud-sync-badge');
+      const btn = document.getElementById('btn-cloud-sync');
       const loggedOut = document.getElementById('cloud-logged-out');
       const loggedIn = document.getElementById('cloud-logged-in');
       const emailEl = document.getElementById('cloud-user-email');
 
-      if (customText) {
-        badge.textContent = customText;
-        badge.className = 'inline-flex items-center gap-1 rounded-full border-2 border-[#3E3A39] bg-[#F6D27A] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]';
-        return;
+      if (btn) {
+        if (customText) {
+          btn.textContent = `☁️ ${customText}`;
+          btn.className = 'ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#F6D27A] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm';
+        } else if (currentUser) {
+          btn.textContent = '☁️ 雲端已連線';
+          btn.className = 'ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#B9DAA5] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm';
+        } else {
+          btn.textContent = '☁️ 雲端同步（本機）';
+          btn.className = 'ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#A8D3E6] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm';
+        }
       }
+      if (customText) return;
       if (currentUser) {
-        badge.textContent = '已連線雲端';
-        badge.className = 'inline-flex items-center gap-1 rounded-full border-2 border-[#3E3A39] bg-[#B9DAA5] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]';
         loggedOut.classList.add('hidden');
         loggedIn.classList.remove('hidden');
         emailEl.textContent = currentUser.email || '';
       } else {
-        badge.textContent = '本機模式';
-        badge.className = 'inline-flex items-center gap-1 rounded-full border-2 border-[#3E3A39] bg-[#A8D3E6] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]';
         loggedOut.classList.remove('hidden');
         loggedIn.classList.add('hidden');
       }
@@ -533,6 +538,10 @@
       supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
         auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
       });
+      if (isShareMode) {
+        await loadSharedExpenses(shareToken);
+        return;
+      }
       supabaseClient.auth.onAuthStateChange((event, session) => {
         currentUser = session?.user || null;
         updateSyncBadge();
@@ -549,6 +558,33 @@
       currentUser = data?.session?.user || null;
       updateSyncBadge();
       if (currentUser) await syncFromCloud();
+    }
+
+    async function loadSharedExpenses(token) {
+      updateSyncBadge('載入分享記帳...');
+      try {
+        const { data, error } = await supabaseClient.rpc('get_shared_expenses', { p_token: token });
+        if (error) throw error;
+        if (!data || !data.trip) {
+          document.querySelector('main').innerHTML = `
+            <div class="ehon-box mx-auto max-w-lg bg-[#FFFCF6] p-8 text-center">
+              <h2 class="text-lg font-bold text-[#3E3A39]">🔗 此分享連結已失效或不存在</h2>
+              <p class="mt-2 text-xs text-[#3E3A39]/75">請向行程建立者索取最新的分享連結。</p>
+            </div>
+          `;
+          updateSyncBadge('唯讀分享');
+          return;
+        }
+        trips = [data.trip];
+        activeTripId = data.trip.id;
+        expenses = data.expenses || [];
+        updateSyncBadge('唯讀分享');
+        renderAll();
+      } catch (err) {
+        console.error(err);
+        updateSyncBadge('載入失敗');
+        showToast(`無法讀取分享記帳：${err.message || ''}`);
+      }
     }
 
     async function syncFromCloud() {
@@ -623,7 +659,7 @@
       document.getElementById('members-list').innerHTML = members.map(m => `
         <span class="inline-flex items-center gap-1.5 rounded-full border-2 border-[#3E3A39] bg-[#F6D27A]/60 px-3 py-1 text-xs font-bold text-[#3E3A39]">
           <span>${escapeHtml(m)}</span>
-          ${members.length > 1 ? `<button type="button" data-remove-member="${escapeHtml(m)}" class="ml-0.5 rounded-full px-1 text-[#3E3A39]/70 hover:bg-[#F2A497] hover:text-[#3E3A39]" title="移除旅伴">✕</button>` : ''}
+          ${(!isShareMode && members.length > 1) ? `<button type="button" data-remove-member="${escapeHtml(m)}" class="ml-0.5 rounded-full px-1 text-[#3E3A39]/70 hover:bg-[#F2A497] hover:text-[#3E3A39]" title="移除旅伴">✕</button>` : ''}
         </span>
       `).join('');
     }
@@ -850,11 +886,13 @@
                   <div class="text-lg font-bold text-[#3E3A39]">${origAmtStr}</div>
                   ${twdHint ? `<div class="text-[11px] font-bold text-[#3E3A39]/70">${twdHint}</div>` : ''}
                 </div>
-                <div class="flex flex-wrap items-center gap-1.5">
-                  <button type="button" data-exp-action="toggle-exclude" data-id="${escapeHtml(exp.id)}" class="ehon-btn rounded-xl ${exp.exclude_from_total ? 'bg-[#B9DAA5]' : 'bg-[#FFFCF6]'} px-2.5 py-1 text-xs font-bold">${exp.exclude_from_total ? '✅ 納入計算' : '⏸️ 暫不計算'}</button>
-                  <button type="button" data-exp-action="edit" data-id="${escapeHtml(exp.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-3 py-1 text-xs font-bold hover:bg-[#F6D27A]/40">編輯</button>
-                  <button type="button" data-exp-action="delete" data-id="${escapeHtml(exp.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-3 py-1 text-xs font-bold hover:bg-[#F2A497]/50">刪除</button>
-                </div>
+                ${isShareMode ? '' : `
+                  <div class="flex flex-wrap items-center gap-1.5">
+                    <button type="button" data-exp-action="toggle-exclude" data-id="${escapeHtml(exp.id)}" class="ehon-btn rounded-xl ${exp.exclude_from_total ? 'bg-[#B9DAA5]' : 'bg-[#FFFCF6]'} px-2.5 py-1 text-xs font-bold">${exp.exclude_from_total ? '✅ 納入計算' : '⏸️ 暫不計算'}</button>
+                    <button type="button" data-exp-action="edit" data-id="${escapeHtml(exp.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-3 py-1 text-xs font-bold hover:bg-[#F6D27A]/40">編輯</button>
+                    <button type="button" data-exp-action="delete" data-id="${escapeHtml(exp.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-3 py-1 text-xs font-bold hover:bg-[#F2A497]/50">刪除</button>
+                  </div>
+                `}
               </div>
             </div>
           </article>
@@ -993,6 +1031,19 @@
     }
 
     function renderAll() {
+      if (isShareMode) {
+        document.querySelectorAll('[data-hide-in-share="true"]').forEach(el => el.classList.add('hidden'));
+        const tripLink = document.getElementById('nav-trip-link');
+        if (tripLink) tripLink.href = `./trip.html?share=${encodeURIComponent(shareToken)}`;
+        document.getElementById('btn-cloud-sync')?.classList.add('hidden');
+        document.getElementById('btn-add-expense')?.classList.add('hidden');
+        document.getElementById('btn-add-kitty-deposit')?.classList.add('hidden');
+        document.getElementById('btn-save-rate')?.classList.add('hidden');
+        document.getElementById('btn-fetch-rate')?.classList.add('hidden');
+        document.getElementById('member-add-form')?.classList.add('hidden');
+        const rateInput = document.getElementById('input-jpy-rate');
+        if (rateInput) rateInput.readOnly = true;
+      }
       renderTripAndMembers();
       document.querySelectorAll('[data-view-tab]').forEach(btn => {
         const active = btn.dataset.viewTab === activeViewTab;
@@ -1113,11 +1164,15 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      shareToken = params.get('share');
+      isShareMode = Boolean(shareToken);
+
       trips = loadLocalTrips();
       expenses = loadLocalExpenses();
       activeTripId = trips[0]?.id || '';
       renderAll();
-      initSupabase().then(() => fetchTodayJpyRate(true)).catch(console.error);
+      initSupabase().then(() => { if (!isShareMode) fetchTodayJpyRate(true); }).catch(console.error);
 
       document.getElementById('view-tabs').addEventListener('click', e => {
         const btn = e.target.closest('[data-view-tab]');

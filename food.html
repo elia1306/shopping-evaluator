@@ -71,14 +71,13 @@
             </div>
             <div class="mt-0.5 flex flex-wrap items-center gap-2">
               <p class="text-xs text-[#3E3A39]/75 sm:text-sm">地區分類 × 食物種類 × 推薦必點 × Google Maps</p>
-              <span id="cloud-sync-badge" class="inline-flex items-center gap-1 rounded-full border-2 border-[#3E3A39] bg-[#A8D3E6] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">本機模式</span>
             </div>
           </div>
         </div>
 
         <div class="header-actions flex flex-wrap items-center gap-2">
           <button id="btn-cloud-sync" type="button" class="ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#A8D3E6] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm">
-            雲端同步
+            ☁️ 雲端同步（本機）
           </button>
           <button id="btn-add-spot" type="button" class="ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#F2A497] px-3.5 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm">
             ＋ 新增美食 / 貼上 JSON
@@ -428,16 +427,22 @@
     }
 
     function updateSyncBadge(text) {
-      const badge = document.getElementById('cloud-sync-badge');
+      const btn = document.getElementById('btn-cloud-sync');
       const state = document.getElementById('cloud-auth-state');
       const loginBtn = document.getElementById('btn-cloud-login');
       const logoutBtn = document.getElementById('btn-cloud-logout');
       const emailField = document.getElementById('cloud-email-field');
-      if (badge) {
-        badge.textContent = text || (currentUser ? 'Supabase 已連線' : '本機模式');
-        badge.className = currentUser
-          ? 'inline-flex items-center gap-1 rounded-full border-2 border-[#3E3A39] bg-[#B9DAA5] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]'
-          : 'inline-flex items-center gap-1 rounded-full border-2 border-[#3E3A39] bg-[#FFFCF6] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]';
+      if (btn) {
+        if (text) {
+          btn.textContent = `☁️ ${text}`;
+          btn.className = 'ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#F6D27A] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm';
+        } else if (currentUser) {
+          btn.textContent = '☁️ 雲端已連線';
+          btn.className = 'ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#B9DAA5] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm';
+        } else {
+          btn.textContent = '☁️ 雲端同步（本機）';
+          btn.className = 'ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#A8D3E6] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm';
+        }
       }
       if (state) state.textContent = currentUser ? `已登入：${currentUser.email || '帳號'}。美食清單已同步至雲端。` : '尚未登入。輸入電子郵件即可收到安全登入連結。';
       if (loginBtn) loginBtn.classList.toggle('hidden', !!currentUser);

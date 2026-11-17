@@ -54,7 +54,7 @@
       overflow: hidden;
     }
     *, *::before, *::after { box-sizing: border-box; }
-    html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+    html, body { width: 100%; max-width: 100%; overflow-x: clip; }
     img, input, select, textarea, button { max-width: 100%; }
     @media (max-width: 640px) {
       header .flex.flex-wrap.items-center.gap-2 > button,
@@ -99,14 +99,13 @@
             </div>
             <div class="mt-0.5 flex flex-wrap items-center gap-2">
               <p class="text-xs text-[#3E3A39]/75 sm:text-sm">圖片收藏 × 個人適合度 × 近六個月評價 × 購買通路</p>
-              <span id="sync-badge" class="inline-flex items-center gap-1 rounded-full border-2 border-[#3E3A39] bg-[#A8D3E6] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">本機模式</span>
             </div>
           </div>
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
           <button id="btn-open-cloud" type="button" class="ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#A8D3E6] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm">
-            雲端同步
+            ☁️ 雲端同步（本機）
           </button>
           <button id="btn-open-add" type="button" class="ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#F2A497] px-3.5 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm">
             ＋ 新增評估商品
@@ -566,17 +565,18 @@
     }
 
     function updateSyncBadge(stateText = '') {
-      const badge = document.getElementById('sync-badge');
-      if (!badge) return;
-      if (stateText) {
-        badge.textContent = stateText;
-        badge.className = 'inline-flex items-center gap-1 rounded-full border-2 border-[#3E3A39] bg-[#A8D3E6] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]';
-      } else if (currentUser) {
-        badge.textContent = '雲端已同步';
-        badge.className = 'inline-flex items-center gap-1 rounded-full border-2 border-[#3E3A39] bg-[#B9DAA5] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]';
-      } else {
-        badge.textContent = '尚未登入雲端';
-        badge.className = 'inline-flex items-center gap-1 rounded-full border-2 border-[#3E3A39] bg-[#FFFCF6] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]';
+      const btn = document.getElementById('btn-open-cloud');
+      if (btn) {
+        if (stateText) {
+          btn.textContent = `☁️ ${stateText}`;
+          btn.className = 'ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#F6D27A] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm';
+        } else if (currentUser) {
+          btn.textContent = '☁️ 雲端已連線';
+          btn.className = 'ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#B9DAA5] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm';
+        } else {
+          btn.textContent = '☁️ 雲端同步（本機）';
+          btn.className = 'ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#A8D3E6] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm';
+        }
       }
       const state = document.getElementById('cloud-auth-state');
       const logout = document.getElementById('btn-cloud-logout');
