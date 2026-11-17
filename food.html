@@ -147,6 +147,7 @@
           <thead class="bg-slate-50 text-xs font-semibold text-slate-600">
             <tr>
               <th scope="col" class="w-12 px-3 py-3.5 text-center">想去</th>
+              <th scope="col" class="w-20 px-3 py-3.5 text-center">縮圖</th>
               <th scope="col" class="min-w-[180px] px-4 py-3.5">店名</th>
               <th scope="col" class="min-w-[150px] px-4 py-3.5">地點（地區 / 城市 / 區域）</th>
               <th scope="col" class="w-28 px-4 py-3.5">種類</th>
@@ -192,6 +193,24 @@
             </div>
           </div>
           <textarea id="field-json-paste" rows="3" placeholder="貼上 Gemini 產生的餐廳 JSON（若一次貼入 [...] 多筆陣列，會直接為您批次新增進清單！）" class="mt-2 w-full rounded-xl border border-amber-200 bg-white px-3 py-2 font-mono text-xs outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100"></textarea>
+        </div>
+
+        <!-- Food Thumbnail Upload -->
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-slate-700">食物縮圖（上傳照片或貼上圖片網址）</label>
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div class="h-20 w-24 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-center">
+              <img id="field-image-preview" src="" alt="食物縮圖" class="hidden h-full w-full object-cover" />
+              <span id="field-image-placeholder" class="text-[11px] text-slate-400">尚無照片</span>
+            </div>
+            <div class="flex flex-1 flex-col gap-2">
+              <label for="field-image-file" class="inline-flex w-fit cursor-pointer items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800 hover:bg-amber-100">
+                上傳食物照片
+              </label>
+              <input id="field-image-file" type="file" accept="image/*" class="hidden" />
+              <input id="field-image-url" type="text" placeholder="或貼上圖片網址 (https://...)" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100" />
+            </div>
+          </div>
         </div>
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -328,12 +347,22 @@
     </div>
   </div>
 
+  <!-- Photo Lightbox -->
+  <div id="photo-lightbox" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/80 p-4 backdrop-blur-sm" role="dialog" aria-modal="true">
+    <div class="relative max-h-[90vh] max-w-2xl overflow-hidden rounded-2xl bg-white p-2 shadow-2xl">
+      <button id="btn-close-lightbox" type="button" aria-label="關閉圖片" class="absolute right-3 top-3 rounded-full bg-slate-900/70 px-2.5 py-1 text-xs font-semibold text-white hover:bg-slate-900">關閉</button>
+      <img id="lightbox-img" src="" alt="食物照片" class="max-h-[80vh] w-full rounded-xl object-contain" />
+      <p id="lightbox-caption" class="px-2 py-2 text-center text-sm font-semibold text-slate-800"></p>
+    </div>
+  </div>
+
   <!-- Toast -->
   <div id="toast" class="pointer-events-none fixed bottom-6 left-1/2 z-50 -translate-x-1/2 translate-y-4 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-medium text-white opacity-0 shadow-lg transition-all duration-300"></div>
 
   <script>
     const SUPABASE_URL = 'https://euphgazenhnurptrjazi.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_2hiYcmj_Aug9AH0VaY9M9w_vIUlzmBg';
+    const STORAGE_BUCKET = 'shopping-products';
     const LOCAL_FOOD_KEY = 'food_map_spots_v1';
     const BASE_FOOD_TYPES = ['拉麵', '居酒屋', '甜點', '咖啡廳', '燒肉', '壽司', '定食', '烏龍麵/蕎麥麵', '酒吧', '麵包烘焙', '其他'];
 
@@ -439,7 +468,16 @@
           .select('*')
           .order('created_at', { ascending: false });
         if (error) throw error;
-        spots = data || [];
+        const rows = data || [];
+        for (const s of rows) {
+          if (s.image_path) {
+            const { data: signed } = await supabaseClient.storage.from(STORAGE_BUCKET).createSignedUrl(s.image_path, 3600);
+            s.image = signed?.signedUrl || s.image_url || '';
+          } else {
+            s.image = s.image_url || '';
+          }
+        }
+        spots = rows;
         saveLocalSpots();
         renderAll();
         updateSyncBadge();
@@ -452,8 +490,31 @@
 
     async function saveSpotToCloud(spot) {
       if (!supabaseClient || !currentUser) return spot;
+      const id = spot.id && /^[0-9a-f-]{36}$/i.test(spot.id) ? spot.id : crypto.randomUUID();
+      let imagePath = spot.image_path || null;
+      let imageUrl = spot.image_url || null;
+      let displayImage = spot.image || spot.image_url || '';
+
+      if (typeof spot.image === 'string' && spot.image.startsWith('data:image/')) {
+        const res = await fetch(spot.image);
+        const blob = await res.blob();
+        const ext = blob.type.includes('png') ? 'png' : 'jpg';
+        imagePath = `${currentUser.id}/food/${id}/original.${ext}`;
+        const { error: upErr } = await supabaseClient.storage.from(STORAGE_BUCKET).upload(imagePath, blob, {
+          upsert: true, contentType: blob.type || 'image/jpeg'
+        });
+        if (upErr) throw upErr;
+        imageUrl = null;
+      } else if (typeof spot.image === 'string' && /^https?:\/\//i.test(spot.image) && !spot.image.includes('/storage/v1/object/sign/')) {
+        imageUrl = spot.image;
+        imagePath = null;
+      } else if (!spot.image) {
+        imageUrl = null;
+        imagePath = null;
+      }
+
       const row = {
-        id: spot.id && /^[0-9a-f-]{36}$/i.test(spot.id) ? spot.id : crypto.randomUUID(),
+        id,
         user_id: currentUser.id,
         name: spot.name,
         jp_name: spot.jp_name || null,
@@ -466,12 +527,20 @@
         rating: spot.rating != null && spot.rating !== '' ? Number(spot.rating) : null,
         price_range: spot.price_range || null,
         notes: spot.notes || null,
+        image_path: imagePath,
+        image_url: imageUrl,
         visited: Boolean(spot.visited),
         starred: Boolean(spot.starred),
         updated_at: new Date().toISOString()
       };
       const { data, error } = await supabaseClient.from('food_spots').upsert(row).select().single();
       if (error) throw error;
+      if (data.image_path) {
+        const { data: signed } = await supabaseClient.storage.from(STORAGE_BUCKET).createSignedUrl(data.image_path, 3600);
+        data.image = signed?.signedUrl || displayImage;
+      } else {
+        data.image = data.image_url || '';
+      }
       return data;
     }
 
@@ -558,6 +627,12 @@
                 </svg>
               </button>
             </td>
+            <td class="px-3 py-2.5 text-center">
+              ${s.image
+                ? `<button type="button" data-action="zoom-photo" data-id="${escapeHtml(s.id)}" class="mx-auto block h-14 w-14 overflow-hidden rounded-xl border border-slate-200 bg-slate-100 shadow-sm transition hover:scale-105"><img src="${escapeHtml(s.image)}" alt="${escapeHtml(s.name)}" class="h-full w-full object-cover" /></button>`
+                : `<div class="mx-auto flex h-14 w-14 items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 text-[10px] text-slate-400">無圖</div>`
+              }
+            </td>
             <td class="px-4 py-3.5">
               <div class="font-semibold text-slate-900">${escapeHtml(s.name)}</div>
               ${s.jp_name ? `<div class="text-xs text-slate-500">${escapeHtml(s.jp_name)}</div>` : ''}
@@ -603,10 +678,25 @@
       renderTable();
     }
 
+    function setFormPreview(url) {
+      const img = document.getElementById('field-image-preview');
+      const ph = document.getElementById('field-image-placeholder');
+      if (url) {
+        img.src = url;
+        img.classList.remove('hidden');
+        ph.classList.add('hidden');
+      } else {
+        img.src = '';
+        img.classList.add('hidden');
+        ph.classList.remove('hidden');
+      }
+    }
+
     function openSpotModal(editId = null) {
       document.getElementById('spot-form').reset();
       document.getElementById('field-id').value = '';
       document.getElementById('field-json-paste').value = '';
+      setFormPreview('');
       if (editId) {
         const s = spots.find(x => x.id === editId);
         if (!s) return;
@@ -623,6 +713,8 @@
         document.getElementById('field-recommended-items').value = s.recommended_items || '';
         document.getElementById('field-google-maps-url').value = s.google_maps_url || '';
         document.getElementById('field-notes').value = s.notes || '';
+        document.getElementById('field-image-url').value = s.image || '';
+        setFormPreview(s.image || '');
       } else {
         document.getElementById('spot-modal-title').textContent = '新增美食餐廳';
       }
@@ -776,19 +868,64 @@
           if (currentUser && supabaseClient) {
             await supabaseClient.from('food_spots').update({ visited: spots[idx].visited }).eq('id', id);
           }
+        } else if (action === 'zoom-photo') {
+          if (!spots[idx].image) return;
+          document.getElementById('lightbox-img').src = spots[idx].image;
+          document.getElementById('lightbox-caption').textContent = spots[idx].name;
+          const lb = document.getElementById('photo-lightbox');
+          lb.classList.remove('hidden'); lb.classList.add('flex');
         } else if (action === 'edit') {
           openSpotModal(id);
         } else if (action === 'delete') {
           if (!confirm(`確定要刪除「${spots[idx].name}」嗎？`)) return;
+          const imgPath = spots[idx].image_path;
           spots.splice(idx, 1);
           saveLocalSpots();
           renderAll();
           if (currentUser && supabaseClient) {
+            if (imgPath) await supabaseClient.storage.from(STORAGE_BUCKET).remove([imgPath]);
             await supabaseClient.from('food_spots').delete().eq('id', id);
           }
           showToast('已刪除餐廳');
         }
       });
+
+      document.getElementById('btn-close-lightbox').addEventListener('click', () => {
+        const lb = document.getElementById('photo-lightbox');
+        lb.classList.add('hidden'); lb.classList.remove('flex');
+      });
+      document.getElementById('photo-lightbox').addEventListener('click', e => {
+        if (e.target.id === 'photo-lightbox') {
+          e.currentTarget.classList.add('hidden');
+          e.currentTarget.classList.remove('flex');
+        }
+      });
+
+      document.getElementById('field-image-file').addEventListener('change', e => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          const img = new Image();
+          img.onload = () => {
+            const maxDim = 900;
+            let w = img.width, h = img.height;
+            if (w > maxDim || h > maxDim) {
+              if (w >= h) { h = Math.round(h * maxDim / w); w = maxDim; }
+              else { w = Math.round(w * maxDim / h); h = maxDim; }
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = w; canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            const compressed = canvas.toDataURL('image/jpeg', 0.82);
+            document.getElementById('field-image-url').value = compressed;
+            setFormPreview(compressed);
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+      document.getElementById('field-image-url').addEventListener('input', e => setFormPreview(e.target.value.trim()));
 
       document.getElementById('btn-add-spot').addEventListener('click', () => openSpotModal());
       document.getElementById('btn-close-spot').addEventListener('click', closeSpotModal);
@@ -823,6 +960,9 @@
           recommended_items: document.getElementById('field-recommended-items').value.trim(),
           google_maps_url: document.getElementById('field-google-maps-url').value.trim(),
           notes: document.getElementById('field-notes').value.trim(),
+          image: document.getElementById('field-image-url').value.trim(),
+          image_path: existing ? existing.image_path : null,
+          image_url: existing ? existing.image_url : null,
           visited: existing ? existing.visited : false,
           starred: existing ? existing.starred : false
         };
