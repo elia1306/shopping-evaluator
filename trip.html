@@ -56,41 +56,45 @@
 </head>
 <body class="min-h-screen antialiased selection:bg-[#F6D27A] selection:text-[#3E3A39]">
 
-  <!-- Top Header -->
+  <!-- Sticky Icon Header -->
   <header class="sticky top-0 z-30 border-b-[3px] border-[#3E3A39] bg-[#FFFCF6]">
-    <div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div class="flex items-center gap-2.5">
-          <div class="ehon-btn flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#B9DAA5] text-[#3E3A39]">
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          </div>
-          <div class="min-w-0">
-            <div class="flex flex-wrap items-center gap-2">
-              <h1 class="whitespace-nowrap text-xl font-bold tracking-tight text-[#3E3A39] sm:text-2xl">♥ 日本好好玩 ♥</h1>
-              <nav id="main-page-nav" aria-label="切換頁面" class="inline-flex flex-wrap rounded-2xl border-[2.5px] border-[#3E3A39] bg-[#FFFCF6] p-0.5 text-xs font-bold">
-                <a href="./index.html" class="whitespace-nowrap rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#F2A497]/40">購物評估</a>
-                <a href="./food.html" class="whitespace-nowrap rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#A8D3E6]/40">美食地圖</a>
-                <a href="./trip.html" id="nav-trip-link" class="whitespace-nowrap rounded-xl bg-[#F6D27A] px-3 py-1 text-[#3E3A39]">旅遊行程</a>
-                <a href="./expenses.html" class="whitespace-nowrap rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#F2A497]/40">旅遊記帳</a>
-              </nav>
-            </div>
-            <div class="mt-0.5 flex flex-wrap items-center gap-2">
-              <p id="header-subtitle" class="text-xs text-[#3E3A39]/75 sm:text-sm">選擇要查閱的旅遊行程，或建立一份全新的旅程</p>
-              <span id="cloud-sync-badge" class="inline-flex items-center gap-1 rounded-full border-2 border-[#3E3A39] bg-[#A8D3E6] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">本機模式</span>
-            </div>
-          </div>
-        </div>
+    <div class="mx-auto max-w-5xl px-3 py-2.5 sm:px-6">
+      <div class="flex items-center justify-between gap-2 overflow-x-auto">
+        <nav id="top-icon-nav" aria-label="主選單" class="flex items-center gap-1.5 sm:gap-2.5">
+          <button id="nav-trip-link" type="button" class="flex min-w-[54px] flex-col items-center justify-center rounded-2xl border-2 border-transparent px-2.5 py-1.5 text-[11px] font-bold text-[#3E3A39] transition hover:bg-[#F6D27A]/35">
+            <span class="text-base leading-none">🏠</span>
+            <span class="mt-1 whitespace-nowrap">旅程</span>
+          </button>
+          <button id="nav-itinerary-btn" type="button" class="flex min-w-[54px] flex-col items-center justify-center rounded-2xl border-[2.5px] border-[#3E3A39] bg-[#F6D27A] px-2.5 py-1.5 text-[11px] font-bold text-[#3E3A39] shadow-[0_2px_0_#3E3A39]">
+            <span class="text-base leading-none">📅</span>
+            <span class="mt-1 whitespace-nowrap">行程</span>
+          </button>
+          <button id="nav-checklist-btn" type="button" class="flex min-w-[54px] flex-col items-center justify-center rounded-2xl border-2 border-transparent px-2.5 py-1.5 text-[11px] font-bold text-[#3E3A39] transition hover:bg-[#B9DAA5]/40">
+            <span class="text-base leading-none">☑️</span>
+            <span class="mt-1 whitespace-nowrap">清單</span>
+          </button>
+          <a href="./food.html" data-hide-in-share="true" class="flex min-w-[54px] flex-col items-center justify-center rounded-2xl border-2 border-transparent px-2.5 py-1.5 text-[11px] font-bold text-[#3E3A39] transition hover:bg-[#A8D3E6]/40">
+            <span class="text-base leading-none">🍜</span>
+            <span class="mt-1 whitespace-nowrap">美食</span>
+          </a>
+          <a href="./index.html" data-hide-in-share="true" class="flex min-w-[54px] flex-col items-center justify-center rounded-2xl border-2 border-transparent px-2.5 py-1.5 text-[11px] font-bold text-[#3E3A39] transition hover:bg-[#F2A497]/40">
+            <span class="text-base leading-none">🛍️</span>
+            <span class="mt-1 whitespace-nowrap">購物</span>
+          </a>
+          <a href="./expenses.html" data-hide-in-share="true" class="flex min-w-[54px] flex-col items-center justify-center rounded-2xl border-2 border-transparent px-2.5 py-1.5 text-[11px] font-bold text-[#3E3A39] transition hover:bg-[#F6D27A]/40">
+            <span class="text-base leading-none">💴</span>
+            <span class="mt-1 whitespace-nowrap">記帳</span>
+          </a>
+        </nav>
 
-        <div class="header-actions flex flex-wrap items-center gap-2">
-          <button id="btn-cloud-sync" type="button" class="ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#A8D3E6] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm">
-            雲端同步
+        <div class="flex shrink-0 items-center gap-1.5">
+          <button id="btn-cloud-sync" type="button" class="ehon-btn inline-flex items-center gap-1 rounded-2xl bg-[#A8D3E6] px-2.5 py-1.5 text-[11px] font-bold text-[#3E3A39] hover:brightness-95">
+            ☁️ 同步
           </button>
-          <button id="btn-new-trip" type="button" class="ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#F6D27A] px-3.5 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm">
-            ＋ 建立新旅程
+          <button id="btn-new-trip" type="button" class="ehon-btn inline-flex items-center gap-1 rounded-2xl bg-[#F6D27A] px-3 py-1.5 text-[11px] font-bold text-[#3E3A39] hover:brightness-95">
+            ＋ 新旅程
           </button>
-          <button id="btn-add-item" type="button" class="ehon-btn hidden items-center gap-1.5 rounded-2xl bg-[#F2A497] px-3.5 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm">
+          <button id="btn-add-item" type="button" class="ehon-btn hidden items-center gap-1 rounded-2xl bg-[#F2A497] px-3 py-1.5 text-[11px] font-bold text-[#3E3A39] hover:brightness-95">
             ＋ 新增行程
           </button>
         </div>
@@ -98,16 +102,19 @@
     </div>
   </header>
 
-  <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+  <main class="mx-auto max-w-5xl px-3 py-5 sm:px-6">
 
     <!-- VIEW 1: Trip Selection Grid -->
     <section id="view-trip-list" aria-label="旅遊行程選擇">
       <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 class="text-lg font-bold text-[#3E3A39]">🗂️ 選擇旅遊行程</h2>
-          <p class="text-xs text-[#3E3A39]/75">點選任一張旅程卡片即可進入查閱每日行程、時間軸與 Google Maps 導航</p>
+          <h1 class="text-lg font-bold text-[#3E3A39] sm:text-xl">🗂️ 選擇旅遊行程</h1>
+          <p id="header-subtitle" class="text-xs text-[#3E3A39]/75">點選任一張旅程卡片即可進入查閱每日行程、時間軸與 Google Maps 導航</p>
         </div>
-        <span id="trip-count-badge" class="rounded-full border-2 border-[#3E3A39] bg-[#FFFCF6] px-3 py-1 text-xs font-bold text-[#3E3A39]">共 0 份行程</span>
+        <div class="flex items-center gap-2">
+          <span id="cloud-sync-badge" class="inline-flex items-center gap-1 rounded-full border-2 border-[#3E3A39] bg-[#A8D3E6] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">本機模式</span>
+          <span id="trip-count-badge" class="rounded-full border-2 border-[#3E3A39] bg-[#FFFCF6] px-3 py-1 text-xs font-bold text-[#3E3A39]">共 0 份行程</span>
+        </div>
       </div>
 
       <div id="trip-cards-grid" class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"></div>
@@ -115,29 +122,62 @@
 
     <!-- VIEW 2: Trip Detail / Itinerary Page -->
     <div id="view-trip-detail" class="hidden">
-      <!-- Trip Banner & Overview -->
+      <!-- Top Status Row: Back, Japan Time & Actions -->
+      <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <button id="btn-back-to-list" type="button" class="ehon-btn inline-flex items-center gap-1 rounded-2xl bg-[#FFFCF6] px-3 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#F6D27A]/40">
+            ← 所有旅程
+          </button>
+          <span id="jp-clock-badge" class="inline-flex items-center gap-1 rounded-full border-2 border-[#3E3A39] bg-[#FFFCF6] px-3 py-1 text-xs font-bold text-[#3E3A39]">🇯🇵 日本時間 --:--</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btn-share-trip" type="button" class="ehon-btn rounded-2xl bg-[#A8D3E6] px-3 py-1.5 text-xs font-bold text-[#3E3A39] hover:brightness-95">
+            🔗 分享行程
+          </button>
+        </div>
+      </div>
+
+      <!-- Hero Overview Card (Screenshot Style) -->
       <section aria-label="旅程總覽" class="ehon-box mb-6 bg-[#FFFCF6] p-4 sm:p-5">
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div class="flex flex-wrap items-center gap-2.5">
-            <button id="btn-back-to-list" type="button" class="ehon-btn inline-flex items-center gap-1 rounded-2xl bg-[#FFFCF6] px-3 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#F6D27A]/40">
-              ← 返回旅程選擇
-            </button>
-            <h2 id="detail-trip-title" class="text-lg font-bold text-[#3E3A39] sm:text-xl"></h2>
-            <span id="trip-dates-badge" class="inline-flex items-center rounded-full border-2 border-[#3E3A39] bg-[#F6D27A] px-3 py-1 text-xs font-bold text-[#3E3A39]"></span>
-            <span id="trip-dest-badge" class="inline-flex items-center rounded-full border-2 border-[#3E3A39] bg-[#A8D3E6]/60 px-3 py-1 text-xs font-bold text-[#3E3A39]"></span>
-          </div>
-          <div class="flex shrink-0 flex-wrap items-center gap-2">
-            <button id="btn-share-trip" type="button" class="ehon-btn rounded-2xl bg-[#A8D3E6] px-3.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:brightness-95">
-              🔗 分享行程
-            </button>
-            <button id="btn-toggle-overview" type="button" class="ehon-btn rounded-2xl bg-[#B9DAA5] px-3.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:brightness-95">
-              <span class="text-[#D94F3D]">★</span> 展開航班・住宿・行前提醒 <span class="text-[#D94F3D]">★</span> ▾
-            </button>
-          </div>
+        <div id="trip-cover-banner" class="mb-4 hidden">
+          <img id="trip-cover-img" src="" alt="旅程封面" class="max-h-56 w-full cursor-pointer rounded-2xl border-2 border-[#3E3A39] object-cover transition hover:brightness-95" title="點擊放大檢視" />
         </div>
 
-        <div id="trip-cover-banner" class="mt-4 hidden">
-          <img id="trip-cover-img" src="" alt="旅程封面" class="max-h-56 w-full cursor-pointer rounded-2xl border-2 border-[#3E3A39] object-cover transition hover:brightness-95" title="點擊放大檢視" />
+        <div class="flex flex-wrap items-center gap-2">
+          <span id="trip-dest-badge" class="inline-flex items-center rounded-full border-2 border-[#3E3A39] bg-[#F2A497]/35 px-3 py-0.5 text-xs font-bold text-[#3E3A39]"></span>
+          <span id="trip-members-badge" class="inline-flex items-center rounded-full border-2 border-[#3E3A39] bg-[#B9DAA5]/70 px-3 py-0.5 text-xs font-bold text-[#3E3A39]"></span>
+        </div>
+
+        <h2 id="detail-trip-title" class="mt-2 text-xl font-bold text-[#3E3A39] sm:text-2xl"></h2>
+        <p id="trip-dates-badge" class="mt-0.5 text-xs font-bold text-[#3E3A39]/75"></p>
+
+        <!-- Countdown Timer -->
+        <div id="countdown-box" class="mt-3.5">
+          <div class="grid grid-cols-4 gap-2 sm:max-w-sm">
+            <div class="rounded-2xl border-[2.5px] border-[#3E3A39] bg-[#F6D27A] py-2 text-center">
+              <div id="cd-days" class="text-xl font-bold leading-none text-[#3E3A39]">00</div>
+              <div class="mt-1 text-[10px] font-bold text-[#3E3A39]/80">天</div>
+            </div>
+            <div class="rounded-2xl border-[2.5px] border-[#3E3A39] bg-white py-2 text-center">
+              <div id="cd-hours" class="text-xl font-bold leading-none text-[#3E3A39]">00</div>
+              <div class="mt-1 text-[10px] font-bold text-[#3E3A39]/80">時</div>
+            </div>
+            <div class="rounded-2xl border-[2.5px] border-[#3E3A39] bg-white py-2 text-center">
+              <div id="cd-mins" class="text-xl font-bold leading-none text-[#3E3A39]">00</div>
+              <div class="mt-1 text-[10px] font-bold text-[#3E3A39]/80">分</div>
+            </div>
+            <div class="rounded-2xl border-[2.5px] border-[#3E3A39] bg-white py-2 text-center">
+              <div id="cd-secs" class="text-xl font-bold leading-none text-[#3E3A39]">00</div>
+              <div class="mt-1 text-[10px] font-bold text-[#3E3A39]/80">秒</div>
+            </div>
+          </div>
+          <p id="cd-label" class="mt-1.5 text-[11px] font-bold text-[#3E3A39]/75"></p>
+        </div>
+
+        <div class="mt-4 flex flex-wrap items-center gap-2">
+          <button id="btn-toggle-overview" type="button" class="ehon-btn rounded-2xl bg-[#B9DAA5] px-4 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95">
+            <span class="text-[#D94F3D]">★</span> 展開航班・住宿・行前提醒與清單 <span class="text-[#D94F3D]">★</span> ▾
+          </button>
         </div>
 
         <!-- Collapsible Overview Content -->
@@ -604,6 +644,7 @@
     let shareToken = null;
     let isShareMode = false;
     let expandedParentIds = new Set();
+    let expandedCardIds = new Set();
     let filters = { day: 'all', hideDone: false, hideOptional: false };
 
     function escapeHtml(str) {
@@ -954,20 +995,72 @@
       grid.innerHTML = cardsHtml + addCardHtml;
     }
 
+    function updateJapanClock() {
+      const el = document.getElementById('jp-clock-badge');
+      if (!el) return;
+      try {
+        const nowStr = new Intl.DateTimeFormat('zh-TW', {
+          timeZone: 'Asia/Tokyo',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false
+        }).format(new Date());
+        el.textContent = `🇯🇵 日本時間 ${nowStr}`;
+      } catch {}
+    }
+
+    function updateCountdown() {
+      const trip = getActiveTrip();
+      const box = document.getElementById('countdown-box');
+      if (!trip || !box) return;
+      if (!trip.start_date) { box.classList.add('hidden'); return; }
+      box.classList.remove('hidden');
+
+      const firstItem = getTripItems(trip.id).find(i => i.day_number === 1 && i.start_time);
+      const startTime = firstItem?.start_time || '10:10';
+      const target = new Date(`${trip.start_date}T${startTime}:00+08:00`);
+      const now = new Date();
+      const diff = target - now;
+      const labelEl = document.getElementById('cd-label');
+
+      if (isNaN(target.getTime()) || diff <= 0) {
+        document.getElementById('cd-days').textContent = '00';
+        document.getElementById('cd-hours').textContent = '00';
+        document.getElementById('cd-mins').textContent = '00';
+        document.getElementById('cd-secs').textContent = '00';
+        labelEl.textContent = '✨ 旅途進行中／已出發！祝旅途愉快！';
+        return;
+      }
+
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      document.getElementById('cd-days').textContent = String(d).padStart(2, '0');
+      document.getElementById('cd-hours').textContent = String(h).padStart(2, '0');
+      document.getElementById('cd-mins').textContent = String(m).padStart(2, '0');
+      document.getElementById('cd-secs').textContent = String(s).padStart(2, '0');
+      labelEl.textContent = `距離出發還有 ${d} 天（${trip.start_date} ${startTime}）`;
+    }
+
     function renderTripHeader() {
       const trip = getActiveTrip();
       if (!trip) return;
 
       const items = getTripItems(trip.id);
       const daysCount = calcDaysCount(trip, items);
+      const ov = trip.overview || {};
+      const membersCount = Array.isArray(ov.members) && ov.members.length ? ov.members.length : 7;
+
       document.getElementById('detail-trip-title').textContent = trip.title;
       document.getElementById('trip-dates-badge').textContent =
         trip.start_date && trip.end_date
           ? `${trip.start_date} ~ ${trip.end_date}・${daysCount}天`
           : `${daysCount}天`;
       document.getElementById('trip-dest-badge').textContent = trip.destination || '未設定目的地';
-
-      const ov = trip.overview || {};
+      document.getElementById('trip-members-badge').textContent = `${membersCount} 位旅伴`;
+      updateJapanClock();
+      updateCountdown();
       const coverBanner = document.getElementById('trip-cover-banner');
       const coverImg = document.getElementById('trip-cover-img');
       if (ov.cover_image) {
@@ -1086,83 +1179,98 @@
       const catColor = CATEGORY_COLORS[item.category] || 'bg-[#FFFCF6]';
       const catIcon = CATEGORY_ICONS[item.category] || '📌';
       const timeStr = item.start_time
-        ? (item.end_time ? `${item.start_time} – ${item.end_time}` : item.start_time)
+        ? (item.end_time ? `${item.start_time}–${item.end_time}` : item.start_time)
         : '彈性時間';
       const mapsUrl = buildMapsUrl(item);
+      const isCardOpen = expandedCardIds.has(item.id);
 
       const cardClass = item.is_optional
         ? 'ehon-box-optional'
         : (isSub ? 'ehon-box-sub' : 'ehon-box bg-[#FFFCF6]');
       const planBadge = item.is_optional
-        ? '<span class="rounded-xl border-2 border-[#3E3A39] bg-[#F2A497] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">💡 備選方案</span>'
+        ? '<span class="rounded-xl border-2 border-[#3E3A39] bg-[#F2A497] px-2 py-0.5 text-[10px] font-bold text-[#3E3A39]">💡 備選</span>'
         : (isSub
-          ? '<span class="rounded-xl border-2 border-[#3E3A39] bg-[#B9DAA5] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">↳ 子行程</span>'
-          : '<span class="rounded-xl border-2 border-[#3E3A39] bg-[#F6D27A] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">★ 主行程</span>');
+          ? '<span class="rounded-xl border-2 border-[#3E3A39] bg-[#B9DAA5] px-2 py-0.5 text-[10px] font-bold text-[#3E3A39]">↳ 子行程</span>'
+          : '<span class="rounded-xl border-2 border-[#3E3A39] bg-[#F6D27A] px-2 py-0.5 text-[10px] font-bold text-[#3E3A39]">★ 主行程</span>');
+
+      const hasDetails = Boolean(item.transit_info || item.notes || item.image_url || item.image || !isShareMode);
 
       return `
-        <article class="${cardClass} ${isSub ? 'p-3.5' : 'p-4'} transition ${item.is_done ? 'opacity-65' : ''}">
-          <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div class="min-w-0 flex-1 space-y-2">
-              <div class="flex flex-wrap items-center gap-2">
-                ${isShareMode ? '' : `
-                  <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border-2 border-[#3E3A39] bg-white px-2 py-0.5 text-[11px] font-bold">
-                    <input type="checkbox" data-action="toggle-done" data-id="${escapeHtml(item.id)}" ${item.is_done ? 'checked' : ''} class="accent-[#3E3A39]" />
-                    <span>${item.is_done ? '已完成' : '待進行'}</span>
-                  </label>
-                `}
+        <article class="${cardClass} ${isSub ? 'p-3' : 'p-3.5 sm:p-4'} transition ${item.is_done ? 'opacity-65' : ''}">
+          <!-- Compact Header Row -->
+          <div class="flex items-start justify-between gap-2">
+            <div class="min-w-0 flex-1 cursor-pointer" data-action="toggle-card" data-id="${escapeHtml(item.id)}">
+              <div class="flex flex-wrap items-center gap-1.5">
                 ${planBadge}
-                <span class="rounded-xl border-2 border-[#3E3A39] bg-[#FFFCF6] px-2.5 py-0.5 text-xs font-bold text-[#3E3A39]">🕒 ${escapeHtml(timeStr)}</span>
-                <span class="rounded-xl border-2 border-[#3E3A39] ${catColor} px-2.5 py-0.5 text-xs font-bold text-[#3E3A39]">${catIcon} ${escapeHtml(item.category || '景點')}</span>
-                ${item.reservation_code ? `<button type="button" data-action="copy-code" data-code="${escapeHtml(item.reservation_code)}" class="rounded-xl border-2 border-[#3E3A39] bg-[#F2A497]/50 px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]" title="點擊複製預約碼">🎫 預約：${escapeHtml(item.reservation_code)}</button>` : ''}
-                ${item.cost_note ? `<span class="rounded-xl border-2 border-[#3E3A39] bg-[#F6D27A]/50 px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">💴 ${escapeHtml(item.cost_note)}</span>` : ''}
-                ${(!isSub && subCount > 0) ? `
-                  <button type="button" data-action="toggle-subs" data-id="${escapeHtml(item.id)}" class="rounded-xl border-2 border-[#3E3A39] bg-[#B9DAA5]/65 px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39] hover:brightness-95">
-                    ${expandedParentIds.has(item.id) ? `▾ 收合子行程 (${subCount})` : `▸ 展開子行程 (${subCount})`}
-                  </button>
-                ` : ''}
+                <span class="rounded-xl border-2 border-[#3E3A39] ${catColor} px-2 py-0.5 text-[10px] font-bold text-[#3E3A39]">${catIcon} ${escapeHtml(item.category || '景點')}</span>
+                <span class="text-[11px] font-bold text-[#3E3A39]/75">🕒 ${escapeHtml(timeStr)}</span>
+                ${item.reservation_code ? `<button type="button" data-action="copy-code" data-code="${escapeHtml(item.reservation_code)}" onclick="event.stopPropagation()" class="rounded-xl border-2 border-[#3E3A39] bg-[#F2A497]/50 px-2 py-0.5 text-[10px] font-bold text-[#3E3A39]" title="點擊複製預約碼">🎫 ${escapeHtml(item.reservation_code)}</button>` : ''}
+                ${item.cost_note ? `<span class="rounded-xl border-2 border-[#3E3A39] bg-[#F6D27A]/50 px-2 py-0.5 text-[10px] font-bold text-[#3E3A39]">💴 ${escapeHtml(item.cost_note)}</span>` : ''}
               </div>
-
-              <div>
-                <h3 class="${isSub ? 'text-sm' : 'text-base'} font-bold text-[#3E3A39] ${item.is_done ? 'line-through' : ''}">${escapeHtml(item.title)}</h3>
-                ${(item.location_name || item.address) ? `
-                  <p class="mt-0.5 text-xs text-[#3E3A39]/75">
-                    📍 ${escapeHtml(item.location_name || '')}${item.location_name && item.address ? ' ・ ' : ''}${escapeHtml(item.address || '')}
-                  </p>
-                ` : ''}
-              </div>
-
-              ${item.transit_info ? `
-                <div class="rounded-xl border-2 border-[#3E3A39]/25 bg-[#A8D3E6]/20 px-3 py-2 text-xs text-[#3E3A39]">
-                  <div class="font-bold">🚇 交通</div>
-                  ${formatReadableBlock(item.transit_info)}
-                </div>
-              ` : ''}
-              ${item.notes ? `
-                <div class="rounded-xl border-2 border-[#3E3A39]/20 bg-[#F6D27A]/15 px-3 py-2 text-xs text-[#3E3A39]">
-                  <div class="font-bold">📝 備註</div>
-                  ${formatReadableBlock(item.notes)}
-                </div>
-              ` : ''}
-              ${(item.image_url || item.image) ? `
-                <div class="pt-1">
-                  <button type="button" data-action="zoom-photo" data-id="${escapeHtml(item.id)}" class="group inline-flex flex-col items-start gap-1 rounded-2xl border-2 border-[#3E3A39] bg-white p-2 text-left transition hover:bg-[#F6D27A]/20">
-                    <span class="text-[11px] font-bold text-[#3E3A39]">🗺️ 導覽地圖（點擊放大）</span>
-                    <img src="${escapeHtml(item.image_url || item.image)}" alt="${escapeHtml(item.title)} 地圖" loading="lazy" class="max-h-40 rounded-xl border border-[#3E3A39]/30 object-contain" />
-                  </button>
-                </div>
+              <h3 class="mt-1.5 ${isSub ? 'text-sm' : 'text-base'} font-bold text-[#3E3A39] ${item.is_done ? 'line-through' : ''}">${escapeHtml(item.title)}</h3>
+              ${(item.location_name || item.address) ? `
+                <p class="mt-0.5 truncate text-xs text-[#3E3A39]/75">
+                  📍 ${escapeHtml(item.location_name || '')}${item.location_name && item.address ? ' ・ ' : ''}${escapeHtml(item.address || '')}
+                </p>
               ` : ''}
             </div>
 
-            <div class="flex shrink-0 flex-wrap items-center gap-1.5 sm:justify-end">
-              <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" class="ehon-btn inline-flex items-center gap-1 rounded-xl bg-[#B9DAA5] px-2.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:brightness-95">
-                📍 Google Maps
+            <div class="flex shrink-0 items-center gap-1.5">
+              <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" class="ehon-btn inline-flex items-center gap-1 rounded-full bg-[#B9DAA5] px-2.5 py-1 text-[11px] font-bold text-[#3E3A39] hover:brightness-95">
+                📍 地圖
               </a>
-              ${isShareMode ? '' : `
-                ${!isSub ? `<button type="button" data-action="add-sub" data-id="${escapeHtml(item.id)}" data-day="${item.day_number || 1}" class="ehon-btn rounded-xl bg-[#A8D3E6]/70 px-2.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:brightness-95">＋ 子行程</button>` : ''}
-                <button type="button" data-action="edit" data-id="${escapeHtml(item.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-2.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#F6D27A]/40">編輯</button>
-                <button type="button" data-action="delete" data-id="${escapeHtml(item.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-2.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#F2A497]/50">刪除</button>
-              `}
+              ${hasDetails ? `
+                <button type="button" data-action="toggle-card" data-id="${escapeHtml(item.id)}" class="flex h-7 w-7 items-center justify-center rounded-full border-2 border-[#3E3A39] bg-[#FFFCF6] text-xs font-bold text-[#3E3A39] hover:bg-[#F6D27A]/40" title="展開或收合詳情">
+                  ${isCardOpen ? '⌃' : '⌄'}
+                </button>
+              ` : ''}
             </div>
+          </div>
+
+          ${(!isSub && subCount > 0) ? `
+            <div class="mt-2.5">
+              <button type="button" data-action="toggle-subs" data-id="${escapeHtml(item.id)}" class="rounded-xl border-2 border-[#3E3A39] bg-[#B9DAA5]/65 px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39] hover:brightness-95">
+                ${expandedParentIds.has(item.id) ? `▾ 收合子行程 (${subCount})` : `▸ 展開子行程 (${subCount})`}
+              </button>
+            </div>
+          ` : ''}
+
+          <!-- Expandable Detail Body -->
+          <div class="${isCardOpen ? 'mt-3 space-y-2 border-t-2 border-dashed border-[#3E3A39]/20 pt-3' : 'hidden'}">
+            ${item.transit_info ? `
+              <div class="rounded-xl border-2 border-[#3E3A39]/25 bg-[#A8D3E6]/20 px-3 py-2 text-xs text-[#3E3A39]">
+                <div class="font-bold">🚇 交通</div>
+                ${formatReadableBlock(item.transit_info)}
+              </div>
+            ` : ''}
+            ${item.notes ? `
+              <div class="rounded-xl border-2 border-[#3E3A39]/20 bg-[#F6D27A]/15 px-3 py-2 text-xs text-[#3E3A39]">
+                <div class="font-bold">📝 備註</div>
+                ${formatReadableBlock(item.notes)}
+              </div>
+            ` : ''}
+            ${(item.image_url || item.image) ? `
+              <div>
+                <button type="button" data-action="zoom-photo" data-id="${escapeHtml(item.id)}" class="group inline-flex flex-col items-start gap-1 rounded-2xl border-2 border-[#3E3A39] bg-white p-2 text-left transition hover:bg-[#F6D27A]/20">
+                  <span class="text-[11px] font-bold text-[#3E3A39]">🗺️ 導覽地圖（點擊放大）</span>
+                  <img src="${escapeHtml(item.image_url || item.image)}" alt="${escapeHtml(item.title)} 地圖" loading="lazy" class="max-h-40 rounded-xl border border-[#3E3A39]/30 object-contain" />
+                </button>
+              </div>
+            ` : ''}
+
+            ${isShareMode ? '' : `
+              <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+                <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border-2 border-[#3E3A39] bg-white px-2.5 py-1 text-[11px] font-bold">
+                  <input type="checkbox" data-action="toggle-done" data-id="${escapeHtml(item.id)}" ${item.is_done ? 'checked' : ''} class="accent-[#3E3A39]" />
+                  <span>${item.is_done ? '已完成' : '待進行'}</span>
+                </label>
+                <div class="flex flex-wrap items-center gap-1.5">
+                  ${!isSub ? `<button type="button" data-action="add-sub" data-id="${escapeHtml(item.id)}" data-day="${item.day_number || 1}" class="ehon-btn rounded-xl bg-[#A8D3E6]/70 px-2.5 py-1 text-xs font-bold text-[#3E3A39] hover:brightness-95">＋ 子行程</button>` : ''}
+                  <button type="button" data-action="edit" data-id="${escapeHtml(item.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-2.5 py-1 text-xs font-bold text-[#3E3A39] hover:bg-[#F6D27A]/40">編輯</button>
+                  <button type="button" data-action="delete" data-id="${escapeHtml(item.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-2.5 py-1 text-xs font-bold text-[#3E3A39] hover:bg-[#F2A497]/50">刪除</button>
+                </div>
+              </div>
+            `}
           </div>
         </article>
       `;
@@ -1225,18 +1333,30 @@
               ${isShareMode ? '' : `<button data-action="add-day" data-day="${dayNum}" type="button" class="ehon-btn rounded-xl bg-[#F2A497] px-3 py-1 text-xs font-bold text-[#3E3A39]">＋ 新增 Day ${dayNum} 行程</button>`}
             </div>
 
-            <div class="space-y-4 pl-1 sm:pl-3">
+            <div class="space-y-4">
               ${topLevel.map(parent => {
                 const subs = childrenByParent.get(parent.id) || [];
                 const isExpanded = expandedParentIds.has(parent.id);
                 return `
-                  <div>
-                    ${renderItemCard(parent, false, subs.length)}
-                    ${(subs.length && isExpanded) ? `
-                      <div class="mt-2.5 ml-3 space-y-2.5 border-l-[3px] border-[#3E3A39]/30 pl-3 sm:ml-6 sm:pl-4">
-                        ${subs.map(sub => renderItemCard(sub, true, 0)).join('')}
+                  <div class="flex items-stretch gap-2.5 sm:gap-3.5">
+                    <!-- Left Vertical Timeline Rail -->
+                    <div class="flex w-11 shrink-0 flex-col items-center pt-1 text-[10px] font-bold text-[#3E3A39]/75 sm:w-14">
+                      <span>${escapeHtml(parent.start_time || '--:--')}</span>
+                      <div class="my-1 flex flex-1 flex-col items-center">
+                        <span class="h-2.5 w-2.5 rounded-full border-2 border-[#3E3A39] bg-white"></span>
+                        <div class="mt-0.5 w-2 flex-1 rounded-full border-2 border-[#3E3A39] ${parent.is_optional ? 'bg-[#F2A497]' : 'bg-[#B9DAA5]'}"></div>
                       </div>
-                    ` : ''}
+                      ${parent.end_time ? `<span>${escapeHtml(parent.end_time)}</span>` : ''}
+                    </div>
+
+                    <div class="min-w-0 flex-1">
+                      ${renderItemCard(parent, false, subs.length)}
+                      ${(subs.length && isExpanded) ? `
+                        <div class="mt-2.5 ml-2 space-y-2.5 border-l-[3px] border-[#3E3A39]/30 pl-3 sm:ml-4 sm:pl-4">
+                          ${subs.map(sub => renderItemCard(sub, true, 0)).join('')}
+                        </div>
+                      ` : ''}
+                    </div>
                   </div>
                 `;
               }).join('')}
@@ -1269,7 +1389,7 @@
       const subtitle = document.getElementById('header-subtitle');
 
       if (isShareMode) {
-        document.getElementById('main-page-nav')?.classList.add('hidden');
+        document.querySelectorAll('[data-hide-in-share="true"]').forEach(el => el.classList.add('hidden'));
         btnCloudSync.classList.add('hidden');
         btnNewTrip.classList.add('hidden');
         btnAddItem.classList.add('hidden');
@@ -1518,14 +1638,38 @@
 
       document.getElementById('nav-trip-link').addEventListener('click', e => {
         if (isShareMode) {
-          e.preventDefault();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
           return;
         }
         if (activeTripId) {
-          e.preventDefault();
           goHome();
         }
       });
+
+      document.getElementById('nav-itinerary-btn').addEventListener('click', () => {
+        const el = document.getElementById('itinerary-container');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+
+      document.getElementById('nav-checklist-btn').addEventListener('click', () => {
+        if (!getActiveTrip() && state.trips[0]) {
+          enterTrip(state.trips[0].id);
+        }
+        const panel = document.getElementById('overview-panel');
+        if (panel && panel.classList.contains('hidden')) {
+          panel.classList.remove('hidden');
+          document.getElementById('btn-toggle-overview').innerHTML =
+            '<span class="text-[#D94F3D]">★</span> 收合航班・住宿・行前提醒與清單 <span class="text-[#D94F3D]">★</span> ▴';
+        }
+        const cl = document.getElementById('overview-checklist');
+        if (cl) cl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+
+      updateJapanClock();
+      setInterval(() => {
+        updateJapanClock();
+        updateCountdown();
+      }, 1000);
 
       document.getElementById('btn-back-to-list').addEventListener('click', () => goHome());
 
@@ -1566,8 +1710,8 @@
         const panel = document.getElementById('overview-panel');
         const hidden = panel.classList.toggle('hidden');
         e.currentTarget.innerHTML = hidden
-          ? '<span class="text-[#D94F3D]">★</span> 展開航班・住宿・行前提醒 <span class="text-[#D94F3D]">★</span> ▾'
-          : '<span class="text-[#D94F3D]">★</span> 收合航班・住宿・行前提醒 <span class="text-[#D94F3D]">★</span> ▴';
+          ? '<span class="text-[#D94F3D]">★</span> 展開航班・住宿・行前提醒與清單 <span class="text-[#D94F3D]">★</span> ▾'
+          : '<span class="text-[#D94F3D]">★</span> 收合航班・住宿・行前提醒與清單 <span class="text-[#D94F3D]">★</span> ▴';
       });
 
       // Editable Tips
@@ -1682,6 +1826,13 @@
         }
         if (action === 'add-sub') {
           openItemModal(null, Number(target.dataset.day), target.dataset.id);
+          return;
+        }
+        if (action === 'toggle-card') {
+          const cid = target.dataset.id;
+          if (expandedCardIds.has(cid)) expandedCardIds.delete(cid);
+          else expandedCardIds.add(cid);
+          renderTimeline();
           return;
         }
         if (action === 'toggle-subs') {
