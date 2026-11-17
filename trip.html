@@ -445,12 +445,19 @@
     (function () {
       const btn = document.getElementById('btn-scroll-top');
       if (!btn) return;
+      const getScrollTop = () => Math.max(window.scrollY || 0, document.documentElement.scrollTop || 0, document.body.scrollTop || 0);
       const toggle = () => {
-        if (window.scrollY > 240) { btn.classList.remove('hidden'); btn.classList.add('inline-flex'); }
+        if (getScrollTop() > 120) { btn.classList.remove('hidden'); btn.classList.add('inline-flex'); }
         else { btn.classList.add('hidden'); btn.classList.remove('inline-flex'); }
       };
       window.addEventListener('scroll', toggle, { passive: true });
-      btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+      document.addEventListener('scroll', toggle, { passive: true });
+      toggle();
+      btn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.documentElement.scrollTo({ top: 0, behavior: 'smooth' });
+        document.body.scrollTo({ top: 0, behavior: 'smooth' });
+      });
     })();
   </script>
 
