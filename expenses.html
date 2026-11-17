@@ -262,16 +262,12 @@
 
       <form id="expense-form" class="space-y-3.5 text-xs">
         <input id="field-id" type="hidden" />
-        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
-            <label for="field-day" class="mb-1 block font-bold">第幾天 (Day) *</label>
-            <input id="field-day" type="number" min="1" max="30" required class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm outline-none" />
+            <label for="field-date" class="mb-1 block font-bold">日期 *</label>
+            <input id="field-date" type="date" required class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm outline-none" />
           </div>
           <div>
-            <label for="field-date" class="mb-1 block font-bold">日期</label>
-            <input id="field-date" type="date" class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm outline-none" />
-          </div>
-          <div class="col-span-2 sm:col-span-1">
             <label for="field-category" class="mb-1 block font-bold">分類 *</label>
             <select id="field-category" class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm outline-none">
               <option value="餐飲">🍽️ 餐飲</option>
@@ -689,6 +685,16 @@
       }
     }
 
+    function computeDayFromDate(trip, dateStr) {
+      if (!trip?.start_date || !dateStr) return 1;
+      const s = trip.start_date.split('-').map(Number);
+      const t = dateStr.split('-').map(Number);
+      if (s.length !== 3 || t.length !== 3) return 1;
+      const startUtc = Date.UTC(s[0], s[1] - 1, s[2]);
+      const targetUtc = Date.UTC(t[0], t[1] - 1, t[2]);
+      return Math.max(1, Math.round((targetUtc - startUtc) / 86400000) + 1);
+    }
+
     function renderTripAndMembers() {
       const sel = document.getElementById('trip-selector');
       sel.innerHTML = trips.map(t => `<option value="${escapeHtml(t.id)}">${escapeHtml(t.title)}</option>`).join('');
@@ -879,7 +885,11 @@
         .filter(e => filters.payer === '全部' || e.paid_by === filters.payer)
         .filter(e => filters.category === '全部' || e.category === filters.category)
         .filter(e => !filters.needsReview || Boolean(e.needs_review))
-        .sort((a, b) => (a.day_number - b.day_number) || (b.created_at || '').localeCompare(a.created_at || ''));
+        .sort((a, b) =>
+          (a.day_number - b.day_number) ||
+          (a.title || '').localeCompare(b.title || '', 'zh-Hant', { numeric: true }) ||
+          (b.created_at || '').localeCompare(a.created_at || '')
+        );
 
       if (!filtered.length) {
         container.innerHTML = `
@@ -1225,7 +1235,6 @@
         if (!exp) return;
         document.getElementById('expense-modal-title').textContent = '編輯消費紀錄';
         document.getElementById('field-id').value = exp.id;
-        document.getElementById('field-day').value = exp.day_number || 1;
         document.getElementById('field-date').value = exp.expense_date || computeDateForDay(trip, exp.day_number || 1);
         document.getElementById('field-category').value = exp.category || '餐飲';
         document.getElementById('field-title').value = exp.title || '';
@@ -1242,7 +1251,6 @@
       } else {
         const d = filters.day !== 'all' ? Number(filters.day) : 1;
         document.getElementById('expense-modal-title').textContent = '新增消費紀錄';
-        document.getElementById('field-day').value = d;
         document.getElementById('field-date').value = computeDateForDay(trip, d);
         document.getElementById('field-currency').value = 'JPY';
         renderModalMemberOptions(null, null);
@@ -1458,11 +1466,6 @@
       document.getElementById('btn-close-expense').addEventListener('click', closeExpenseModal);
       document.getElementById('btn-cancel-expense').addEventListener('click', closeExpenseModal);
       document.getElementById('expense-modal').addEventListener('click', e => { if (e.target.id === 'expense-modal') closeExpenseModal(); });
-      document.getElementById('field-day').addEventListener('change', e => {
-        const d = Number(e.target.value) || 1;
-        const dateEl = document.getElementById('field-date');
-        if (!dateEl.value) dateEl.value = computeDateForDay(getActiveTrip(), d);
-      });
       document.getElementById('btn-split-all').addEventListener('click', () => {
         document.querySelectorAll('#form-split-options input[type="checkbox"]').forEach(cb => { cb.checked = true; });
       });
@@ -1473,7 +1476,8 @@
         if (!trip) return;
         const id = document.getElementById('field-id').value;
         const existing = id ? expenses.find(x => x.id === id) : null;
-        const dayNum = Number(document.getElementById('field-day').value) || 1;
+        const dateVal = document.getElementById('field-date').value;
+        const dayNum = computeDayFromDate(trip, dateVal);
         const paidBy = document.querySelector('#form-payer-options input[name="paid_by"]:checked')?.value || getTripMembers(trip)[0];
         const splitAmong = Array.from(document.querySelectorAll('#form-split-options input[name="split_among"]:checked')).map(cb => cb.value);
         if (!splitAmong.length) { showToast('請至少勾選一位分攤對象'); return; }
