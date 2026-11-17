@@ -1016,11 +1016,11 @@
         const showBadge = score10 != null || isSuitable;
         const badgeBg = isSuitable ? 'bg-emerald-500 text-white' : 'bg-slate-800/90 text-white';
         return `
-          <article class="group flex flex-col overflow-hidden rounded-2xl border ${isSuitable ? 'border-emerald-300 ring-1 ring-emerald-200/70' : 'border-slate-200'} bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+          <article class="group flex flex-col overflow-hidden rounded-2xl border ${isSuitable ? 'border-emerald-300 ring-1 ring-emerald-200/70' : 'border-slate-200'} bg-white shadow-sm">
             <!-- Large Product Image -->
             <div class="relative aspect-[4/3] w-full overflow-hidden bg-slate-100">
               ${hasImg
-                ? `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" class="h-full w-full cursor-pointer object-cover transition duration-300 group-hover:scale-105" data-action="detail" data-id="${escapeHtml(item.id)}" />`
+                ? `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" class="h-full w-full cursor-pointer object-cover" data-action="detail" data-id="${escapeHtml(item.id)}" />`
                 : `<div class="flex h-full w-full cursor-pointer items-center justify-center text-sm text-slate-400" data-action="detail" data-id="${escapeHtml(item.id)}">尚無圖片</div>`
               }
               <div class="pointer-events-none absolute left-3 top-3 flex flex-wrap gap-1.5">
