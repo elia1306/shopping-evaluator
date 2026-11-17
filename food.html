@@ -458,8 +458,11 @@
     }
 
     function buildMapsUrl(spot) {
-      if (spot.google_maps_url) return spot.google_maps_url;
-      const query = [spot.jp_name || spot.name, spot.area, spot.city, spot.region].filter(Boolean).join(' ');
+      const url = String(spot.google_maps_url || '').trim();
+      if (url && (url.includes('maps.app.goo.gl') || url.includes('/maps/place/'))) {
+        return url;
+      }
+      const query = [spot.jp_name || spot.name, spot.area, spot.city].filter(Boolean).join(' ');
       return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
     }
 
