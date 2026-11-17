@@ -124,9 +124,8 @@
             <h2 id="detail-trip-title" class="text-lg font-bold text-[#3E3A39] sm:text-xl"></h2>
             <span id="trip-dates-badge" class="inline-flex items-center rounded-full border-2 border-[#3E3A39] bg-[#F6D27A] px-3 py-1 text-xs font-bold text-[#3E3A39]"></span>
             <span id="trip-dest-badge" class="inline-flex items-center rounded-full border-2 border-[#3E3A39] bg-[#A8D3E6]/60 px-3 py-1 text-xs font-bold text-[#3E3A39]"></span>
-            <span id="trip-days-badge" class="inline-flex items-center rounded-full border-2 border-[#3E3A39] bg-[#B9DAA5]/70 px-3 py-1 text-xs font-bold text-[#3E3A39]"></span>
           </div>
-          <div class="flex flex-wrap items-center gap-2">
+          <div class="flex shrink-0 flex-wrap items-center gap-2">
             <button id="btn-share-trip" type="button" class="ehon-btn rounded-2xl bg-[#A8D3E6] px-3.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:brightness-95">
               🔗 分享行程
             </button>
@@ -280,6 +279,18 @@
           <textarea id="field-notes" rows="3" placeholder="開放時間、必買御守、注意事項..." class="w-full rounded-xl border-2 border-[#3E3A39] bg-white p-3 text-sm outline-none"></textarea>
         </div>
 
+        <div class="rounded-2xl border-2 border-[#3E3A39]/25 bg-[#B9DAA5]/15 p-3">
+          <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+            <label class="font-bold text-[#3E3A39]">🗺️ 附加導覽地圖／路線圖（選填，公開唯讀分享也可看）</label>
+            <button id="btn-clear-image" type="button" class="hidden rounded-xl border-2 border-[#3E3A39] bg-white px-2.5 py-0.5 text-[11px] font-bold">清除圖片</button>
+          </div>
+          <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <input id="field-image-file" type="file" accept="image/*" class="text-xs" />
+            <input id="field-image-url" type="text" placeholder="或貼上圖片網址 https://..." class="flex-1 rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-1.5 text-xs outline-none" />
+          </div>
+          <img id="form-image-preview" alt="地圖預覽" class="mt-2 hidden max-h-44 rounded-xl border-2 border-[#3E3A39] object-contain bg-white" />
+        </div>
+
         <div class="flex flex-wrap items-center gap-4 pt-1">
           <label class="inline-flex cursor-pointer items-center gap-2 font-bold">
             <input id="field-is-optional" type="checkbox" class="h-4 w-4 accent-[#3E3A39]" />
@@ -381,12 +392,22 @@
     </div>
   </div>
 
+  <!-- Photo Lightbox -->
+  <div id="photo-lightbox" class="fixed inset-0 z-50 hidden flex-col items-center justify-center bg-[#3E3A39]/85 p-4">
+    <div class="mb-3 flex w-full max-w-4xl items-center justify-between text-[#FFFCF6]">
+      <span id="lightbox-caption" class="text-sm font-bold"></span>
+      <button id="btn-close-lightbox" type="button" class="ehon-btn rounded-xl bg-[#FFFCF6] px-3 py-1 text-xs font-bold text-[#3E3A39]">✕ 關閉</button>
+    </div>
+    <img id="lightbox-img" alt="地圖放大檢視" class="max-h-[82vh] max-w-full rounded-2xl border-[3px] border-[#FFFCF6] bg-white object-contain" />
+  </div>
+
   <!-- Toast -->
   <div id="toast" class="pointer-events-none fixed bottom-5 left-1/2 z-50 hidden -translate-x-1/2 rounded-2xl border-[2.5px] border-[#3E3A39] bg-[#F6D27A] px-4 py-2 text-xs font-bold text-[#3E3A39] shadow-[0_3px_0_#3E3A39]"></div>
 
   <script>
     const SUPABASE_URL = 'https://euphgazenhnurptrjazi.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_2hiYcmj_Aug9AH0VaY9M9w_vIUlzmBg';
+    const MAP_BUCKET = 'trip-maps';
     const LOCAL_KEY = 'ehon_trip_planner_v1';
 
     const CATEGORY_COLORS = {
@@ -718,6 +739,31 @@
       if (!supabaseClient || !currentUser) return item;
       const isUuid = id => typeof id === 'string' && /^[0-9a-f-]{36}$/i.test(id);
       const id = isUuid(item.id) ? item.id : crypto.randomUUID();
+      let imagePath = item.image_path || null;
+      let imageUrl = item.image_url || null;
+
+      if (typeof item.image === 'string' && item.image.startsWith('data:image/')) {
+        const res = await fetch(item.image);
+        const blob = await res.blob();
+        const ext = blob.type.includes('png') ? 'png' : 'jpg';
+        imagePath = `${currentUser.id}/${id}/original.${ext}`;
+        const { error: upErr } = await supabaseClient.storage.from(MAP_BUCKET).upload(imagePath, blob, {
+          upsert: true,
+          contentType: blob.type || 'image/jpeg'
+        });
+        if (upErr) throw upErr;
+        const { data: pub } = supabaseClient.storage.from(MAP_BUCKET).getPublicUrl(imagePath);
+        imageUrl = pub?.publicUrl ? `${pub.publicUrl}?t=${Date.now()}` : null;
+      } else if (typeof item.image === 'string' && /^https?:\/\//i.test(item.image)) {
+        imageUrl = item.image;
+      } else if (!item.image) {
+        if (imagePath) {
+          await supabaseClient.storage.from(MAP_BUCKET).remove([imagePath]);
+        }
+        imagePath = null;
+        imageUrl = null;
+      }
+
       const row = {
         id,
         trip_id: item.trip_id,
@@ -737,6 +783,8 @@
         reservation_code: item.reservation_code || null,
         cost_note: item.cost_note || null,
         notes: item.notes || null,
+        image_path: imagePath,
+        image_url: imageUrl,
         is_optional: Boolean(item.is_optional),
         is_done: Boolean(item.is_done),
         updated_at: new Date().toISOString()
@@ -826,13 +874,14 @@
       const trip = getActiveTrip();
       if (!trip) return;
 
+      const items = getTripItems(trip.id);
+      const daysCount = calcDaysCount(trip, items);
       document.getElementById('detail-trip-title').textContent = trip.title;
       document.getElementById('trip-dates-badge').textContent =
-        trip.start_date && trip.end_date ? `${trip.start_date} ～ ${trip.end_date}` : '未設定日期';
+        trip.start_date && trip.end_date
+          ? `${trip.start_date} ~ ${trip.end_date}・${daysCount}天`
+          : `${daysCount}天`;
       document.getElementById('trip-dest-badge').textContent = trip.destination || '未設定目的地';
-
-      const items = getTripItems(trip.id);
-      document.getElementById('trip-days-badge').textContent = `${calcDaysCount(trip, items)} 天`;
 
       const ov = trip.overview || {};
       document.getElementById('overview-flights').innerHTML = (ov.flights || []).length
@@ -939,6 +988,14 @@
                 <div class="rounded-xl border-2 border-[#3E3A39]/20 bg-[#F6D27A]/15 px-3 py-2 text-xs text-[#3E3A39]">
                   <div class="font-bold">📝 備註</div>
                   ${formatReadableBlock(item.notes)}
+                </div>
+              ` : ''}
+              ${(item.image_url || item.image) ? `
+                <div class="pt-1">
+                  <button type="button" data-action="zoom-photo" data-id="${escapeHtml(item.id)}" class="group inline-flex flex-col items-start gap-1 rounded-2xl border-2 border-[#3E3A39] bg-white p-2 text-left transition hover:bg-[#F6D27A]/20">
+                    <span class="text-[11px] font-bold text-[#3E3A39]">🗺️ 導覽地圖（點擊放大）</span>
+                    <img src="${escapeHtml(item.image_url || item.image)}" alt="${escapeHtml(item.title)} 地圖" loading="lazy" class="max-h-40 rounded-xl border border-[#3E3A39]/30 object-contain" />
+                  </button>
                 </div>
               ` : ''}
             </div>
@@ -1111,6 +1168,20 @@
       sel.value = selectedParentId || '';
     }
 
+    function setFormImagePreview(src) {
+      const img = document.getElementById('form-image-preview');
+      const clearBtn = document.getElementById('btn-clear-image');
+      if (src) {
+        img.src = src;
+        img.classList.remove('hidden');
+        clearBtn.classList.remove('hidden');
+      } else {
+        img.src = '';
+        img.classList.add('hidden');
+        clearBtn.classList.add('hidden');
+      }
+    }
+
     function openItemModal(itemId = null, defaultDay = null, defaultParentId = null) {
       const trip = getActiveTrip();
       if (!trip) return;
@@ -1118,6 +1189,7 @@
       form.reset();
       document.getElementById('field-id').value = '';
       document.getElementById('field-json-paste').value = '';
+      setFormImagePreview('');
 
       if (itemId) {
         const item = state.items.find(x => x.id === itemId);
@@ -1137,6 +1209,9 @@
         document.getElementById('field-reservation-code').value = item.reservation_code || '';
         document.getElementById('field-cost-note').value = item.cost_note || '';
         document.getElementById('field-notes').value = item.notes || '';
+        const imgSrc = item.image_url || item.image || '';
+        document.getElementById('field-image-url').value = imgSrc;
+        setFormImagePreview(imgSrc);
         document.getElementById('field-is-optional').checked = Boolean(item.is_optional);
         populateParentSelect(item.day_number || 1, item.id, item.parent_id || '');
       } else {
@@ -1376,14 +1451,23 @@
           if (currentUser && supabaseClient) {
             await supabaseClient.from('trip_items').update({ is_done: state.items[idx].is_done }).eq('id', id);
           }
+        } else if (action === 'zoom-photo') {
+          const src = state.items[idx].image_url || state.items[idx].image;
+          if (!src) return;
+          document.getElementById('lightbox-img').src = src;
+          document.getElementById('lightbox-caption').textContent = state.items[idx].title;
+          const lb = document.getElementById('photo-lightbox');
+          lb.classList.remove('hidden'); lb.classList.add('flex');
         } else if (action === 'edit') {
           openItemModal(id);
         } else if (action === 'delete') {
           if (!confirm(`確定要刪除「${state.items[idx].title}」嗎？`)) return;
+          const imgPath = state.items[idx].image_path;
           state.items.splice(idx, 1);
           saveLocalData();
           renderView();
           if (currentUser && supabaseClient) {
+            if (imgPath) await supabaseClient.storage.from(MAP_BUCKET).remove([imgPath]);
             await supabaseClient.from('trip_items').delete().eq('id', id);
           }
           showToast('已刪除行程');
@@ -1433,6 +1517,9 @@
           reservation_code: document.getElementById('field-reservation-code').value.trim(),
           cost_note: document.getElementById('field-cost-note').value.trim(),
           notes: document.getElementById('field-notes').value.trim(),
+          image: document.getElementById('field-image-url').value.trim(),
+          image_path: existing ? existing.image_path : null,
+          image_url: document.getElementById('field-image-url').value.trim() || null,
           is_optional: document.getElementById('field-is-optional').checked,
           is_done: existing ? existing.is_done : false
         };
@@ -1514,6 +1601,48 @@
         } catch (err) {
           showToast(`儲存失敗：${err.message || ''}`);
         }
+      });
+
+      // Lightbox & Map Image Upload
+      document.getElementById('btn-close-lightbox').addEventListener('click', () => {
+        const lb = document.getElementById('photo-lightbox');
+        lb.classList.add('hidden'); lb.classList.remove('flex');
+      });
+      document.getElementById('photo-lightbox').addEventListener('click', e => {
+        if (e.target.id === 'photo-lightbox') {
+          e.currentTarget.classList.add('hidden');
+          e.currentTarget.classList.remove('flex');
+        }
+      });
+      document.getElementById('field-image-file').addEventListener('change', e => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          const img = new Image();
+          img.onload = () => {
+            const maxDim = 1600;
+            let w = img.width, h = img.height;
+            if (w > maxDim || h > maxDim) {
+              if (w >= h) { h = Math.round(h * maxDim / w); w = maxDim; }
+              else { w = Math.round(w * maxDim / h); h = maxDim; }
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = w; canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            const compressed = canvas.toDataURL('image/jpeg', 0.86);
+            document.getElementById('field-image-url').value = compressed;
+            setFormImagePreview(compressed);
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+      document.getElementById('field-image-url').addEventListener('input', e => setFormImagePreview(e.target.value.trim()));
+      document.getElementById('btn-clear-image').addEventListener('click', () => {
+        document.getElementById('field-image-file').value = '';
+        document.getElementById('field-image-url').value = '';
+        setFormImagePreview('');
       });
 
       // Share Modal
