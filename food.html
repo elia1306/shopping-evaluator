@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>我的美食地圖｜Supabase 雲端版</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Noto Sans TC', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-stone-50 text-slate-800 antialiased">
+
+  <!-- Top Header -->
+  <header class="sticky top-0 z-30 border-b border-stone-200/90 bg-white/90 backdrop-blur-md">
+    <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3.5 sm:px-6 lg:px-8">
+      <div class="flex flex-wrap items-center gap-3">
+        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500 text-white shadow-sm">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex flex-wrap items-center gap-2">
+            <h1 class="text-lg font-bold tracking-tight text-slate-900 sm:text-xl">我的美食地圖</h1>
+            <nav aria-label="切換頁面" class="inline-flex rounded-xl border border-slate-200 bg-slate-100 p-0.5 text-xs font-medium">
+              <a href="./index.html" class="rounded-lg px-2.5 py-1 text-slate-600 transition hover:text-slate-900">購物評估</a>
+              <span class="rounded-lg bg-white px-2.5 py-1 font-semibold text-amber-700 shadow-sm">美食地圖</span>
+            </nav>
+            <span id="cloud-sync-badge" class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-medium text-slate-500">本機模式</span>
+          </div>
+          <p class="text-xs text-slate-500">表格式整理餐廳、大地區／城市／區域聯動篩選、推薦必點與 Google Maps 直連</p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <button id="btn-cloud-sync" type="button" class="inline-flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+          </svg>
+          雲端同步
+        </button>
+        <button id="btn-add-spot" type="button" class="inline-flex items-center gap-1.5 rounded-xl bg-amber-600 px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-amber-700">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          新增美食 / 貼上 JSON
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+
+    <!-- KPI Summary Cards -->
+    <section aria-label="美食統計" class="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <span class="text-xs font-medium text-slate-500">全部收藏餐廳</span>
+        <div id="stat-total" class="mt-1 text-2xl font-bold text-slate-900">0</div>
+      </div>
+      <div class="rounded-2xl border border-amber-200/80 bg-amber-50/50 p-4 shadow-sm">
+        <span class="text-xs font-medium text-amber-800">★ 星號想去</span>
+        <div id="stat-starred" class="mt-1 text-2xl font-bold text-amber-700">0</div>
+      </div>
+      <div class="rounded-2xl border border-emerald-200/80 bg-emerald-50/40 p-4 shadow-sm">
+        <span class="text-xs font-medium text-emerald-700">已吃過</span>
+        <div id="stat-visited" class="mt-1 text-2xl font-bold text-emerald-700">0</div>
+      </div>
+      <div class="rounded-2xl border border-indigo-200/80 bg-indigo-50/40 p-4 shadow-sm">
+        <span class="text-xs font-medium text-indigo-700">涵蓋城市數</span>
+        <div id="stat-cities" class="mt-1 text-2xl font-bold text-indigo-700">0</div>
+      </div>
+    </section>
+
+    <!-- Cascading Location + Food Type Filter Bar -->
+    <section aria-label="篩選與搜尋" class="mb-6 space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      <!-- Row 1: Cascading Location Filters + Search -->
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <div>
+          <label for="filter-region" class="mb-1 block text-xs font-semibold text-slate-500">1. 大地區</label>
+          <select id="filter-region" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-100">
+            <option value="全部">全部大地區</option>
+          </select>
+        </div>
+        <div>
+          <label for="filter-city" class="mb-1 block text-xs font-semibold text-slate-500">2. 城市</label>
+          <select id="filter-city" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-100">
+            <option value="全部">全部城市</option>
+          </select>
+        </div>
+        <div>
+          <label for="filter-area" class="mb-1 block text-xs font-semibold text-slate-500">3. 區域（如新宿、原宿）</label>
+          <select id="filter-area" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-100">
+            <option value="全部">全部區域</option>
+          </select>
+        </div>
+        <div class="lg:col-span-2">
+          <label for="input-search" class="mb-1 block text-xs font-semibold text-slate-500">關鍵字搜尋</label>
+          <div class="flex gap-2">
+            <div class="relative flex-1">
+              <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input id="input-search" type="search" placeholder="搜尋店名、推薦品項、備註..." class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-100" />
+            </div>
+            <button id="btn-reset-filters" type="button" class="shrink-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-600 transition hover:bg-slate-100">重設</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 2: Food Type Pills + Quick Toggles -->
+      <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-3">
+        <div class="flex flex-wrap items-center gap-1.5">
+          <span class="mr-1 text-xs font-semibold text-slate-400">種類</span>
+          <div id="food-type-pills" class="flex flex-wrap gap-1.5"></div>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="btn-filter-star" type="button" class="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50/70 px-3 py-1 text-xs font-medium text-amber-800 transition hover:bg-amber-100">
+            <span>★</span> 只看星號想去
+          </button>
+          <select id="filter-visited" aria-label="造訪狀態" class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-700 outline-none">
+            <option value="all">全部狀態</option>
+            <option value="unvisited">尚未去吃</option>
+            <option value="visited">已吃過</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- Table View -->
+    <section aria-label="美食餐廳表格" class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
+          <thead class="bg-slate-50 text-xs font-semibold text-slate-600">
+            <tr>
+              <th scope="col" class="w-12 px-3 py-3.5 text-center">想去</th>
+              <th scope="col" class="min-w-[180px] px-4 py-3.5">店名</th>
+              <th scope="col" class="min-w-[150px] px-4 py-3.5">地點（地區 / 城市 / 區域）</th>
+              <th scope="col" class="w-28 px-4 py-3.5">種類</th>
+              <th scope="col" class="min-w-[200px] px-4 py-3.5">推薦品項</th>
+              <th scope="col" class="min-w-[170px] px-4 py-3.5">價位 / 備註</th>
+              <th scope="col" class="w-28 px-4 py-3.5 text-center">地圖</th>
+              <th scope="col" class="w-24 px-3 py-3.5 text-center">造訪</th>
+              <th scope="col" class="w-28 px-4 py-3.5 text-right">操作</th>
+            </tr>
+          </thead>
+          <tbody id="food-table-body" class="divide-y divide-slate-100 bg-white"></tbody>
+        </table>
+      </div>
+      <div id="empty-state" class="hidden p-12 text-center">
+        <h3 class="text-base font-semibold text-slate-800">目前沒有符合條件的餐廳</h3>
+        <p class="mt-1 text-sm text-slate-500">試著重設篩選條件，或點擊右上角「新增美食 / 貼上 JSON」建立第一筆收藏。</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Add / Edit Spot Modal -->
+  <div id="spot-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="spot-modal-title">
+    <div class="relative max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl">
+      <div class="mb-4 flex items-center justify-between border-b border-slate-100 pb-3">
+        <h2 id="spot-modal-title" class="text-lg font-bold text-slate-900">新增美食餐廳</h2>
+        <button id="btn-close-spot" type="button" aria-label="關閉視窗" class="inline-flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form id="spot-form" class="space-y-4">
+        <input type="hidden" id="field-id" />
+
+        <!-- Quick JSON Paste -->
+        <div class="rounded-xl border border-amber-200 bg-amber-50/60 p-3.5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <label for="field-json-paste" class="text-sm font-semibold text-amber-950">貼上 Gemini JSON 快速填入（支援單筆或一次多筆陣列）</label>
+            <div class="flex gap-2">
+              <button id="btn-paste-json" type="button" class="rounded-lg border border-amber-300 bg-white px-2.5 py-1 text-xs font-medium text-amber-800 hover:bg-amber-100">從剪貼簿貼上並套用</button>
+              <button id="btn-apply-json" type="button" class="rounded-lg bg-amber-600 px-3 py-1 text-xs font-semibold text-white hover:bg-amber-700">套用 JSON</button>
+            </div>
+          </div>
+          <textarea id="field-json-paste" rows="3" placeholder="貼上 Gemini 產生的餐廳 JSON（若一次貼入 [...] 多筆陣列，會直接為您批次新增進清單！）" class="mt-2 w-full rounded-xl border border-amber-200 bg-white px-3 py-2 font-mono text-xs outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100"></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label for="field-name" class="mb-1 block text-sm font-medium text-slate-700">店名 *</label>
+            <input id="field-name" type="text" required placeholder="例：麵屋武蔵 新宿總本店" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100" />
+          </div>
+          <div>
+            <label for="field-jp-name" class="mb-1 block text-sm font-medium text-slate-700">日文 / 原文店名</label>
+            <input id="field-jp-name" type="text" placeholder="例：麺屋武蔵 新宿総本店" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div>
+            <label for="field-region" class="mb-1 block text-sm font-medium text-slate-700">大地區</label>
+            <input id="field-region" type="text" list="region-suggestions" placeholder="例：關東 / 關西" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100" />
+            <datalist id="region-suggestions">
+              <option value="關東"></option>
+              <option value="關西"></option>
+              <option value="九州"></option>
+              <option value="北陸甲信越"></option>
+              <option value="北海道"></option>
+              <option value="東北"></option>
+              <option value="中部"></option>
+              <option value="四國"></option>
+              <option value="沖繩"></option>
+              <option value="台灣"></option>
+            </datalist>
+          </div>
+          <div>
+            <label for="field-city" class="mb-1 block text-sm font-medium text-slate-700">城市</label>
+            <input id="field-city" type="text" list="city-suggestions" placeholder="例：東京 / 新潟 / 福岡" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100" />
+            <datalist id="city-suggestions">
+              <option value="東京"></option>
+              <option value="橫濱"></option>
+              <option value="鎌倉"></option>
+              <option value="大阪"></option>
+              <option value="京都"></option>
+              <option value="神戶"></option>
+              <option value="新潟"></option>
+              <option value="福岡"></option>
+              <option value="札幌"></option>
+              <option value="名古屋"></option>
+              <option value="那霸"></option>
+              <option value="台北"></option>
+            </datalist>
+          </div>
+          <div>
+            <label for="field-area" class="mb-1 block text-sm font-medium text-slate-700">區域</label>
+            <input id="field-area" type="text" placeholder="例：新宿 / 原宿 / 博多" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div>
+            <label for="field-food-type" class="mb-1 block text-sm font-medium text-slate-700">食物種類</label>
+            <input id="field-food-type" type="text" list="food-type-suggestions" placeholder="例：拉麵 / 居酒屋" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100" />
+            <datalist id="food-type-suggestions">
+              <option value="拉麵"></option>
+              <option value="居酒屋"></option>
+              <option value="甜點"></option>
+              <option value="咖啡廳"></option>
+              <option value="燒肉"></option>
+              <option value="壽司"></option>
+              <option value="定食"></option>
+              <option value="烏龍麵/蕎麥麵"></option>
+              <option value="酒吧"></option>
+              <option value="麵包烘焙"></option>
+              <option value="其他"></option>
+            </datalist>
+          </div>
+          <div>
+            <label for="field-price-range" class="mb-1 block text-sm font-medium text-slate-700">參考價位</label>
+            <input id="field-price-range" type="text" placeholder="例：¥1,000~2,000" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100" />
+          </div>
+          <div>
+            <label for="field-rating" class="mb-1 block text-sm font-medium text-slate-700">推薦指數 (1–10)</label>
+            <input id="field-rating" type="number" min="1" max="10" step="0.5" placeholder="例：8.5" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100" />
+          </div>
+        </div>
+
+        <div>
+          <label for="field-recommended-items" class="mb-1 block text-sm font-medium text-slate-700">推薦必點品項</label>
+          <input id="field-recommended-items" type="text" placeholder="例：濃厚沾麵、角煮叉燒飯" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100" />
+        </div>
+
+        <div>
+          <label for="field-google-maps-url" class="mb-1 block text-sm font-medium text-slate-700">Google Maps 連結（選填，留空會自動依店名+地點產生搜尋連結）</label>
+          <input id="field-google-maps-url" type="url" placeholder="https://maps.app.goo.gl/..." class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100" />
+        </div>
+
+        <div>
+          <label for="field-notes" class="mb-1 block text-sm font-medium text-slate-700">備註（營業時間、排隊提醒、預約資訊）</label>
+          <textarea id="field-notes" rows="2" placeholder="例：建議開門前 15 分鐘排隊，週三公休" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100"></textarea>
+        </div>
+
+        <div class="flex justify-end gap-2 border-t border-slate-100 pt-4">
+          <button id="btn-cancel-spot" type="button" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">取消</button>
+          <button type="submit" class="rounded-xl bg-amber-600 px-5 py-2 text-sm font-semibold text-white hover:bg-amber-700">儲存餐廳</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Supabase Cloud Sync Modal -->
+  <div id="cloud-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="cloud-modal-title">
+    <div class="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+      <div class="mb-4 flex items-center justify-between border-b border-slate-100 pb-3">
+        <div>
+          <h2 id="cloud-modal-title" class="text-lg font-bold text-slate-900">Supabase 雲端同步</h2>
+          <p class="text-xs text-slate-500">與購物評估共用同一個帳號，登入一次即自動同步</p>
+        </div>
+        <button id="btn-close-cloud" type="button" aria-label="關閉雲端設定" class="inline-flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="space-y-4">
+        <div id="cloud-auth-state" class="rounded-xl bg-slate-50 p-3 text-sm text-slate-600">尚未登入</div>
+        <div id="cloud-email-field">
+          <label for="field-cloud-email" class="mb-1 block text-sm font-medium text-slate-700">電子郵件（Magic Link 登入）</label>
+          <input id="field-cloud-email" type="email" placeholder="name@example.com" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100" />
+        </div>
+        <div class="flex flex-wrap items-center justify-between gap-2 pt-2">
+          <button id="btn-cloud-logout" type="button" class="hidden rounded-xl border border-rose-200 px-3 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50">登出帳號</button>
+          <div class="ml-auto flex gap-2">
+            <button id="btn-cloud-refresh" type="button" class="rounded-xl border border-slate-200 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">立即同步</button>
+            <button id="btn-cloud-login" type="button" class="rounded-xl bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-700">寄送登入連結</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="pointer-events-none fixed bottom-6 left-1/2 z-50 -translate-x-1/2 translate-y-4 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-medium text-white opacity-0 shadow-lg transition-all duration-300"></div>
+
+  <script>
+    const SUPABASE_URL = 'https://euphgazenhnurptrjazi.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_2hiYcmj_Aug9AH0VaY9M9w_vIUlzmBg';
+    const LOCAL_FOOD_KEY = 'food_map_spots_v1';
+    const BASE_FOOD_TYPES = ['拉麵', '居酒屋', '甜點', '咖啡廳', '燒肉', '壽司', '定食', '烏龍麵/蕎麥麵', '酒吧', '麵包烘焙', '其他'];
+
+    let supabaseClient = null;
+    let currentUser = null;
+    let spots = [];
+    let filters = {
+      region: '全部',
+      city: '全部',
+      area: '全部',
+      foodType: '全部',
+      onlyStarred: false,
+      visited: 'all',
+      search: ''
+    };
+
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    let toastTimer = null;
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.remove('opacity-0', 'translate-y-4');
+      el.classList.add('opacity-100', 'translate-y-0');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        el.classList.add('opacity-0', 'translate-y-4');
+        el.classList.remove('opacity-100', 'translate-y-0');
+      }, 2800);
+    }
+
+    function updateSyncBadge(text) {
+      const badge = document.getElementById('cloud-sync-badge');
+      const state = document.getElementById('cloud-auth-state');
+      const loginBtn = document.getElementById('btn-cloud-login');
+      const logoutBtn = document.getElementById('btn-cloud-logout');
+      const emailField = document.getElementById('cloud-email-field');
+      if (badge) {
+        badge.textContent = text || (currentUser ? 'Supabase 已連線' : '本機模式');
+        badge.className = currentUser
+          ? 'inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-medium text-emerald-700'
+          : 'inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-medium text-slate-500';
+      }
+      if (state) state.textContent = currentUser ? `已登入：${currentUser.email || '帳號'}。美食清單已同步至雲端。` : '尚未登入。輸入電子郵件即可收到安全登入連結。';
+      if (loginBtn) loginBtn.classList.toggle('hidden', !!currentUser);
+      if (logoutBtn) logoutBtn.classList.toggle('hidden', !currentUser);
+      if (emailField) emailField.classList.toggle('hidden', !!currentUser);
+    }
+
+    function loadLocalSpots() {
+      try {
+        const raw = localStorage.getItem(LOCAL_FOOD_KEY);
+        const parsed = raw ? JSON.parse(raw) : null;
+        if (Array.isArray(parsed)) return parsed;
+      } catch (e) {}
+      return [];
+    }
+
+    function saveLocalSpots() {
+      try { localStorage.setItem(LOCAL_FOOD_KEY, JSON.stringify(spots)); } catch (e) {}
+    }
+
+    function buildMapsUrl(spot) {
+      if (spot.google_maps_url) return spot.google_maps_url;
+      const query = [spot.jp_name || spot.name, spot.area, spot.city, spot.region].filter(Boolean).join(' ');
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+    }
+
+    async function initSupabase() {
+      if (!window.supabase?.createClient) return;
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+      });
+      supabaseClient.auth.onAuthStateChange((event, session) => {
+        currentUser = session?.user || null;
+        updateSyncBadge();
+        if (currentUser && event !== 'INITIAL_SESSION') {
+          setTimeout(() => syncFromCloud(), 0);
+        } else if (!currentUser && event !== 'INITIAL_SESSION') {
+          spots = loadLocalSpots();
+          renderAll();
+        }
+      });
+      const { data } = await supabaseClient.auth.getSession();
+      currentUser = data?.session?.user || null;
+      updateSyncBadge();
+      if (currentUser) await syncFromCloud();
+    }
+
+    async function syncFromCloud() {
+      if (!supabaseClient || !currentUser) return;
+      updateSyncBadge('同步中...');
+      try {
+        const { data, error } = await supabaseClient
+          .from('food_spots')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        spots = data || [];
+        saveLocalSpots();
+        renderAll();
+        updateSyncBadge();
+      } catch (err) {
+        console.error(err);
+        updateSyncBadge();
+        showToast(`雲端同步失敗：${err.message || ''}`);
+      }
+    }
+
+    async function saveSpotToCloud(spot) {
+      if (!supabaseClient || !currentUser) return spot;
+      const row = {
+        id: spot.id && /^[0-9a-f-]{36}$/i.test(spot.id) ? spot.id : crypto.randomUUID(),
+        user_id: currentUser.id,
+        name: spot.name,
+        jp_name: spot.jp_name || null,
+        region: spot.region || null,
+        city: spot.city || null,
+        area: spot.area || null,
+        food_type: spot.food_type || '其他',
+        recommended_items: spot.recommended_items || null,
+        google_maps_url: spot.google_maps_url || null,
+        rating: spot.rating != null && spot.rating !== '' ? Number(spot.rating) : null,
+        price_range: spot.price_range || null,
+        notes: spot.notes || null,
+        visited: Boolean(spot.visited),
+        starred: Boolean(spot.starred),
+        updated_at: new Date().toISOString()
+      };
+      const { data, error } = await supabaseClient.from('food_spots').upsert(row).select().single();
+      if (error) throw error;
+      return data;
+    }
+
+    function getFilteredSpots() {
+      const q = filters.search.trim().toLowerCase();
+      return spots.filter(s => {
+        if (filters.region !== '全部' && (s.region || '') !== filters.region) return false;
+        if (filters.city !== '全部' && (s.city || '') !== filters.city) return false;
+        if (filters.area !== '全部' && (s.area || '') !== filters.area) return false;
+        if (filters.foodType !== '全部' && (s.food_type || '其他') !== filters.foodType) return false;
+        if (filters.onlyStarred && !s.starred) return false;
+        if (filters.visited === 'visited' && !s.visited) return false;
+        if (filters.visited === 'unvisited' && s.visited) return false;
+        if (q) {
+          const hay = [s.name, s.jp_name, s.region, s.city, s.area, s.food_type, s.recommended_items, s.notes].join(' ').toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+    }
+
+    function renderStats() {
+      document.getElementById('stat-total').textContent = spots.length;
+      document.getElementById('stat-starred').textContent = spots.filter(s => s.starred).length;
+      document.getElementById('stat-visited').textContent = spots.filter(s => s.visited).length;
+      document.getElementById('stat-cities').textContent = new Set(spots.map(s => s.city).filter(Boolean)).size;
+    }
+
+    function renderFilters() {
+      const regions = Array.from(new Set(spots.map(s => (s.region || '').trim()).filter(Boolean))).sort();
+      const regionSel = document.getElementById('filter-region');
+      if (filters.region !== '全部' && !regions.includes(filters.region)) filters.region = '全部';
+      regionSel.innerHTML = `<option value="全部">全部大地區</option>` + regions.map(r => `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join('');
+      regionSel.value = filters.region;
+
+      const citySource = filters.region === '全部' ? spots : spots.filter(s => s.region === filters.region);
+      const cities = Array.from(new Set(citySource.map(s => (s.city || '').trim()).filter(Boolean))).sort();
+      const citySel = document.getElementById('filter-city');
+      if (filters.city !== '全部' && !cities.includes(filters.city)) filters.city = '全部';
+      citySel.innerHTML = `<option value="全部">全部城市</option>` + cities.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+      citySel.value = filters.city;
+
+      const areaSource = filters.city === '全部' ? citySource : citySource.filter(s => s.city === filters.city);
+      const areas = Array.from(new Set(areaSource.map(s => (s.area || '').trim()).filter(Boolean))).sort();
+      const areaSel = document.getElementById('filter-area');
+      if (filters.area !== '全部' && !areas.includes(filters.area)) filters.area = '全部';
+      areaSel.innerHTML = `<option value="全部">全部區域</option>` + areas.map(a => `<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`).join('');
+      areaSel.value = filters.area;
+
+      const extraTypes = spots.map(s => s.food_type).filter(t => t && !BASE_FOOD_TYPES.includes(t));
+      const types = ['全部', ...BASE_FOOD_TYPES, ...Array.from(new Set(extraTypes))];
+      const pillsEl = document.getElementById('food-type-pills');
+      pillsEl.innerHTML = types.map(t => {
+        const active = filters.foodType === t;
+        return `<button type="button" data-food-type="${escapeHtml(t)}" class="rounded-full px-3 py-1 text-xs font-medium transition ${
+          active ? 'bg-amber-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+        }">${escapeHtml(t)}</button>`;
+      }).join('');
+
+      const starBtn = document.getElementById('btn-filter-star');
+      starBtn.className = filters.onlyStarred
+        ? 'inline-flex items-center gap-1 rounded-full bg-amber-500 px-3 py-1 text-xs font-semibold text-white shadow-sm transition'
+        : 'inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50/70 px-3 py-1 text-xs font-medium text-amber-800 transition hover:bg-amber-100';
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('food-table-body');
+      const empty = document.getElementById('empty-state');
+      const list = getFilteredSpots();
+      if (list.length === 0) {
+        tbody.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+      empty.classList.add('hidden');
+      tbody.innerHTML = list.map(s => {
+        const mapsUrl = buildMapsUrl(s);
+        return `
+          <tr class="transition hover:bg-amber-50/30">
+            <td class="px-3 py-3.5 text-center">
+              <button type="button" data-action="toggle-star" data-id="${escapeHtml(s.id)}" title="加星號列入想去" class="rounded-full p-1 transition ${s.starred ? 'text-amber-500' : 'text-slate-300 hover:text-amber-400'}">
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="${s.starred ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.8">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+                </svg>
+              </button>
+            </td>
+            <td class="px-4 py-3.5">
+              <div class="font-semibold text-slate-900">${escapeHtml(s.name)}</div>
+              ${s.jp_name ? `<div class="text-xs text-slate-500">${escapeHtml(s.jp_name)}</div>` : ''}
+              ${s.rating != null ? `<span class="mt-1 inline-block rounded bg-emerald-50 px-1.5 py-0.5 text-[11px] font-semibold text-emerald-700">★ ${escapeHtml(s.rating)}/10</span>` : ''}
+            </td>
+            <td class="px-4 py-3.5">
+              <div class="flex flex-wrap gap-1 text-xs">
+                ${s.region ? `<span class="rounded bg-slate-100 px-2 py-0.5 font-medium text-slate-700">${escapeHtml(s.region)}</span>` : ''}
+                ${s.city ? `<span class="rounded bg-indigo-50 px-2 py-0.5 font-medium text-indigo-700">${escapeHtml(s.city)}</span>` : ''}
+                ${s.area ? `<span class="rounded bg-amber-50 px-2 py-0.5 font-medium text-amber-800">${escapeHtml(s.area)}</span>` : ''}
+              </div>
+            </td>
+            <td class="px-4 py-3.5">
+              <span class="inline-block rounded-full bg-stone-100 px-2.5 py-1 text-xs font-medium text-stone-700">${escapeHtml(s.food_type || '其他')}</span>
+            </td>
+            <td class="px-4 py-3.5 text-xs text-slate-700">${escapeHtml(s.recommended_items || '—')}</td>
+            <td class="px-4 py-3.5 text-xs text-slate-600">
+              ${s.price_range ? `<div class="font-medium text-slate-800">${escapeHtml(s.price_range)}</div>` : ''}
+              ${s.notes ? `<div class="line-clamp-2 text-slate-500">${escapeHtml(s.notes)}</div>` : ''}
+            </td>
+            <td class="px-4 py-3.5 text-center">
+              <a href="${escapeHtml(mapsUrl)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 rounded-lg border border-sky-200 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700 hover:bg-sky-100">
+                開啟地圖
+              </a>
+            </td>
+            <td class="px-3 py-3.5 text-center">
+              <button type="button" data-action="toggle-visited" data-id="${escapeHtml(s.id)}" class="rounded-full px-2.5 py-1 text-xs font-medium transition ${
+                s.visited ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+              }">${s.visited ? '已吃過' : '想去'}</button>
+            </td>
+            <td class="px-4 py-3.5 text-right text-xs">
+              <button type="button" data-action="edit" data-id="${escapeHtml(s.id)}" class="mr-2 font-medium text-slate-600 hover:text-slate-900">編輯</button>
+              <button type="button" data-action="delete" data-id="${escapeHtml(s.id)}" class="font-medium text-rose-600 hover:text-rose-800">刪除</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderAll() {
+      renderStats();
+      renderFilters();
+      renderTable();
+    }
+
+    function openSpotModal(editId = null) {
+      document.getElementById('spot-form').reset();
+      document.getElementById('field-id').value = '';
+      document.getElementById('field-json-paste').value = '';
+      if (editId) {
+        const s = spots.find(x => x.id === editId);
+        if (!s) return;
+        document.getElementById('spot-modal-title').textContent = '編輯美食餐廳';
+        document.getElementById('field-id').value = s.id;
+        document.getElementById('field-name').value = s.name || '';
+        document.getElementById('field-jp-name').value = s.jp_name || '';
+        document.getElementById('field-region').value = s.region || '';
+        document.getElementById('field-city').value = s.city || '';
+        document.getElementById('field-area').value = s.area || '';
+        document.getElementById('field-food-type').value = s.food_type || '';
+        document.getElementById('field-price-range').value = s.price_range || '';
+        document.getElementById('field-rating').value = s.rating ?? '';
+        document.getElementById('field-recommended-items').value = s.recommended_items || '';
+        document.getElementById('field-google-maps-url').value = s.google_maps_url || '';
+        document.getElementById('field-notes').value = s.notes || '';
+      } else {
+        document.getElementById('spot-modal-title').textContent = '新增美食餐廳';
+      }
+      const m = document.getElementById('spot-modal');
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+    }
+
+    function closeSpotModal() {
+      const m = document.getElementById('spot-modal');
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    }
+
+    function parseJsonText(raw) {
+      const t = String(raw || '').trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+      const arrStart = t.indexOf('[');
+      const objStart = t.indexOf('{');
+      let s = -1, e = -1;
+      if (arrStart !== -1 && (objStart === -1 || arrStart < objStart)) {
+        s = arrStart; e = t.lastIndexOf(']');
+      } else if (objStart !== -1) {
+        s = objStart; e = t.lastIndexOf('}');
+      }
+      return JSON.parse(s !== -1 && e > s ? t.slice(s, e + 1) : t);
+    }
+
+    async function applyJsonInput(raw) {
+      let parsed;
+      try { parsed = parseJsonText(raw); } catch (e) {
+        showToast('JSON 格式有誤，請確認複製完整內容');
+        return;
+      }
+      if (Array.isArray(parsed)) {
+        let added = 0;
+        for (const item of parsed) {
+          if (!item || !item.name) continue;
+          const spot = {
+            id: crypto.randomUUID(),
+            name: String(item.name),
+            jp_name: item.jp_name || item.jpName || '',
+            region: item.region || '',
+            city: item.city || '',
+            area: item.area || '',
+            food_type: item.food_type || item.foodType || '其他',
+            recommended_items: Array.isArray(item.recommended_items) ? item.recommended_items.join('、') : (item.recommended_items || item.recommendedItems || ''),
+            google_maps_url: item.google_maps_url || item.googleMapsUrl || '',
+            rating: item.rating ?? null,
+            price_range: item.price_range || item.priceRange || '',
+            notes: item.notes || '',
+            visited: Boolean(item.visited),
+            starred: Boolean(item.starred)
+          };
+          const saved = currentUser ? await saveSpotToCloud(spot) : spot;
+          spots.unshift(saved);
+          added++;
+        }
+        saveLocalSpots();
+        renderAll();
+        closeSpotModal();
+        showToast(`已批次新增 ${added} 間餐廳！`);
+        return;
+      }
+      const d = parsed || {};
+      if (d.name) document.getElementById('field-name').value = d.name;
+      if (d.jp_name || d.jpName) document.getElementById('field-jp-name').value = d.jp_name || d.jpName;
+      if (d.region) document.getElementById('field-region').value = d.region;
+      if (d.city) document.getElementById('field-city').value = d.city;
+      if (d.area) document.getElementById('field-area').value = d.area;
+      if (d.food_type || d.foodType) document.getElementById('field-food-type').value = d.food_type || d.foodType;
+      if (d.price_range || d.priceRange) document.getElementById('field-price-range').value = d.price_range || d.priceRange;
+      if (d.rating != null) document.getElementById('field-rating').value = d.rating;
+      if (d.recommended_items || d.recommendedItems) {
+        const rec = d.recommended_items || d.recommendedItems;
+        document.getElementById('field-recommended-items').value = Array.isArray(rec) ? rec.join('、') : rec;
+      }
+      if (d.google_maps_url || d.googleMapsUrl) document.getElementById('field-google-maps-url').value = d.google_maps_url || d.googleMapsUrl;
+      if (d.notes) document.getElementById('field-notes').value = d.notes;
+      showToast('已成功填入 JSON，請確認後按「儲存餐廳」');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      spots = loadLocalSpots();
+      renderAll();
+      initSupabase().catch(console.error);
+
+      document.getElementById('filter-region').addEventListener('change', e => {
+        filters.region = e.target.value;
+        filters.city = '全部';
+        filters.area = '全部';
+        renderFilters();
+        renderTable();
+      });
+      document.getElementById('filter-city').addEventListener('change', e => {
+        filters.city = e.target.value;
+        filters.area = '全部';
+        renderFilters();
+        renderTable();
+      });
+      document.getElementById('filter-area').addEventListener('change', e => {
+        filters.area = e.target.value;
+        renderTable();
+      });
+      document.getElementById('input-search').addEventListener('input', e => {
+        filters.search = e.target.value;
+        renderTable();
+      });
+      document.getElementById('food-type-pills').addEventListener('click', e => {
+        const btn = e.target.closest('[data-food-type]');
+        if (!btn) return;
+        filters.foodType = btn.dataset.foodType;
+        renderFilters();
+        renderTable();
+      });
+      document.getElementById('btn-filter-star').addEventListener('click', () => {
+        filters.onlyStarred = !filters.onlyStarred;
+        renderFilters();
+        renderTable();
+      });
+      document.getElementById('filter-visited').addEventListener('change', e => {
+        filters.visited = e.target.value;
+        renderTable();
+      });
+      document.getElementById('btn-reset-filters').addEventListener('click', () => {
+        filters = { region: '全部', city: '全部', area: '全部', foodType: '全部', onlyStarred: false, visited: 'all', search: '' };
+        document.getElementById('input-search').value = '';
+        document.getElementById('filter-visited').value = 'all';
+        renderAll();
+      });
+
+      document.getElementById('food-table-body').addEventListener('click', async e => {
+        const btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        const { action, id } = btn.dataset;
+        const idx = spots.findIndex(x => x.id === id);
+        if (idx === -1) return;
+
+        if (action === 'toggle-star') {
+          spots[idx].starred = !spots[idx].starred;
+          saveLocalSpots();
+          renderStats();
+          renderTable();
+          if (currentUser && supabaseClient) {
+            await supabaseClient.from('food_spots').update({ starred: spots[idx].starred }).eq('id', id);
+          }
+        } else if (action === 'toggle-visited') {
+          spots[idx].visited = !spots[idx].visited;
+          saveLocalSpots();
+          renderStats();
+          renderTable();
+          if (currentUser && supabaseClient) {
+            await supabaseClient.from('food_spots').update({ visited: spots[idx].visited }).eq('id', id);
+          }
+        } else if (action === 'edit') {
+          openSpotModal(id);
+        } else if (action === 'delete') {
+          if (!confirm(`確定要刪除「${spots[idx].name}」嗎？`)) return;
+          spots.splice(idx, 1);
+          saveLocalSpots();
+          renderAll();
+          if (currentUser && supabaseClient) {
+            await supabaseClient.from('food_spots').delete().eq('id', id);
+          }
+          showToast('已刪除餐廳');
+        }
+      });
+
+      document.getElementById('btn-add-spot').addEventListener('click', () => openSpotModal());
+      document.getElementById('btn-close-spot').addEventListener('click', closeSpotModal);
+      document.getElementById('btn-cancel-spot').addEventListener('click', closeSpotModal);
+      document.getElementById('spot-modal').addEventListener('click', e => { if (e.target.id === 'spot-modal') closeSpotModal(); });
+
+      document.getElementById('btn-apply-json').addEventListener('click', () => applyJsonInput(document.getElementById('field-json-paste').value));
+      document.getElementById('btn-paste-json').addEventListener('click', async () => {
+        try {
+          const text = await navigator.clipboard.readText();
+          document.getElementById('field-json-paste').value = text;
+          await applyJsonInput(text);
+        } catch {
+          showToast('瀏覽器未授權讀取剪貼簿，請長按貼入下方文字框後點「套用 JSON」');
+        }
+      });
+
+      document.getElementById('spot-form').addEventListener('submit', async e => {
+        e.preventDefault();
+        const id = document.getElementById('field-id').value;
+        const existing = id ? spots.find(x => x.id === id) : null;
+        const spot = {
+          id: id || crypto.randomUUID(),
+          name: document.getElementById('field-name').value.trim(),
+          jp_name: document.getElementById('field-jp-name').value.trim(),
+          region: document.getElementById('field-region').value.trim(),
+          city: document.getElementById('field-city').value.trim(),
+          area: document.getElementById('field-area').value.trim(),
+          food_type: document.getElementById('field-food-type').value.trim() || '其他',
+          price_range: document.getElementById('field-price-range').value.trim(),
+          rating: document.getElementById('field-rating').value ? Number(document.getElementById('field-rating').value) : null,
+          recommended_items: document.getElementById('field-recommended-items').value.trim(),
+          google_maps_url: document.getElementById('field-google-maps-url').value.trim(),
+          notes: document.getElementById('field-notes').value.trim(),
+          visited: existing ? existing.visited : false,
+          starred: existing ? existing.starred : false
+        };
+        try {
+          const saved = currentUser ? await saveSpotToCloud(spot) : spot;
+          if (existing) {
+            const idx = spots.findIndex(x => x.id === id);
+            if (idx !== -1) spots[idx] = saved;
+          } else {
+            spots.unshift(saved);
+          }
+          saveLocalSpots();
+          renderAll();
+          closeSpotModal();
+          showToast('餐廳已儲存！');
+        } catch (err) {
+          showToast(`儲存失敗：${err.message || ''}`);
+        }
+      });
+
+      // Cloud Modal
+      document.getElementById('btn-cloud-sync').addEventListener('click', () => {
+        const m = document.getElementById('cloud-modal');
+        m.classList.remove('hidden'); m.classList.add('flex');
+      });
+      document.getElementById('btn-close-cloud').addEventListener('click', () => {
+        const m = document.getElementById('cloud-modal');
+        m.classList.add('hidden'); m.classList.remove('flex');
+      });
+      document.getElementById('btn-cloud-refresh').addEventListener('click', () => syncFromCloud());
+      document.getElementById('btn-cloud-login').addEventListener('click', async () => {
+        const email = document.getElementById('field-cloud-email').value.trim();
+        if (!email) { showToast('請輸入電子郵件'); return; }
+        const { error } = await supabaseClient.auth.signInWithOtp({
+          email,
+          options: { emailRedirectTo: `${window.location.origin}${window.location.pathname}` }
+        });
+        if (error) showToast(`寄送失敗：${error.message}`);
+        else showToast('登入連結已寄出，請至信箱點擊連結！');
+      });
+      document.getElementById('btn-cloud-logout').addEventListener('click', async () => {
+        await supabaseClient.auth.signOut();
+        currentUser = null;
+        spots = loadLocalSpots();
+        updateSyncBadge();
+        renderAll();
+        showToast('已登出帳號');
+      });
+    });
+  </script>
+</body>
+</html>
