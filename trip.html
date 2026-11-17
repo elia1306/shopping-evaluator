@@ -1177,7 +1177,7 @@
 
           <!-- Expandable Detail Body -->
           <div class="${isCardOpen ? 'mt-3 space-y-2 border-t-2 border-dashed border-[#3E3A39]/20 pt-3' : 'hidden'}">
-            ${item.transit_info ? `
+            ${(item.transit_info && (isSub || item.category === '交通')) ? `
               <div class="rounded-xl border-2 border-[#3E3A39]/25 bg-[#A8D3E6]/20 px-3 py-2 text-xs text-[#3E3A39]">
                 <div class="font-bold">🚇 交通</div>
                 ${formatReadableBlock(item.transit_info)}
@@ -1277,7 +1277,7 @@
               ${topLevel.map(parent => {
                 const subs = childrenByParent.get(parent.id) || [];
                 const isExpanded = expandedParentIds.has(parent.id);
-                const transitPillHtml = parent.transit_info ? `
+                const transitPillHtml = (parent.transit_info && parent.category !== '交通') ? `
                   <div class="flex items-center gap-2.5 sm:gap-3.5">
                     <div class="flex w-10 shrink-0 justify-center sm:w-12">
                       <div class="h-5 border-l-2 border-dashed border-[#3E3A39]/35"></div>
