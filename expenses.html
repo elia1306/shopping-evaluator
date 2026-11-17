@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>♥ 旅遊記帳與分帳 ♥｜日系繪本版</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    @font-face {
+      font-family: 'jf-openhuninn';
+      src: url('https://cdn.jsdelivr.net/gh/justfont/open-huninn-font@master/font/jf-openhuninn-2.1.woff2') format('woff2'),
+           url('https://cdn.jsdelivr.net/gh/justfont/open-huninn-font@master/font/jf-openhuninn-2.0.woff2') format('woff2');
+      font-display: swap;
+    }
+    body {
+      font-family: 'jf-openhuninn', 'Noto Sans TC', system-ui, -apple-system, sans-serif;
+      background-color: #FFFCF6;
+      color: #3E3A39;
+    }
+    .ehon-box {
+      border: 3px solid #3E3A39 !important;
+      border-radius: 24px !important;
+      box-shadow: 0 4px 0 #3E3A39;
+    }
+    .ehon-btn {
+      border: 2.5px solid #3E3A39 !important;
+      box-shadow: 0 2px 0 #3E3A39;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+    .ehon-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 0 0 #3E3A39;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+    @media (max-width: 640px) {
+      header > div { padding-left: 12px !important; padding-right: 12px !important; }
+      main { padding-left: 12px !important; padding-right: 12px !important; }
+    }
+  </style>
+</head>
+<body class="min-h-screen antialiased selection:bg-[#F6D27A] selection:text-[#3E3A39]">
+
+  <!-- Top Header -->
+  <header class="sticky top-0 z-30 border-b-[3px] border-[#3E3A39] bg-[#FFFCF6]">
+    <div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="ehon-btn flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#F6D27A] text-[#3E3A39]">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div class="min-w-0">
+            <div class="flex flex-wrap items-center gap-2">
+              <h1 class="whitespace-nowrap text-xl font-bold tracking-tight text-[#3E3A39] sm:text-2xl">♥ 旅遊記帳與分帳 ♥</h1>
+              <nav aria-label="切換頁面" class="inline-flex flex-wrap rounded-2xl border-[2.5px] border-[#3E3A39] bg-[#FFFCF6] p-0.5 text-xs font-bold">
+                <a href="./index.html" class="whitespace-nowrap rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#F2A497]/40">購物評估</a>
+                <a href="./food.html" class="whitespace-nowrap rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#A8D3E6]/40">美食地圖</a>
+                <a href="./trip.html" class="whitespace-nowrap rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#B9DAA5]/40">旅遊行程</a>
+                <span class="whitespace-nowrap rounded-xl bg-[#F6D27A] px-3 py-1 text-[#3E3A39]">旅遊記帳</span>
+              </nav>
+            </div>
+            <div class="mt-0.5 flex flex-wrap items-center gap-2">
+              <p class="text-xs text-[#3E3A39]/75 sm:text-sm">日圓／台幣記帳、誰先付與平分對象、自動算出結算轉帳金額</p>
+              <span id="cloud-sync-badge" class="inline-flex items-center gap-1 rounded-full border-2 border-[#3E3A39] bg-[#A8D3E6] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">本機模式</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="btn-cloud-sync" type="button" class="ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#A8D3E6] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm">
+            雲端同步
+          </button>
+          <button id="btn-add-expense" type="button" class="ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#F2A497] px-3.5 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm">
+            ＋ 新增一筆消費
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 space-y-6">
+
+    <!-- Trip Selector, Members & Exchange Rate -->
+    <section aria-label="旅程與旅伴設定" class="ehon-box bg-[#FFFCF6] p-4 sm:p-5 space-y-4">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex flex-wrap items-center gap-2.5">
+          <label for="trip-selector" class="text-xs font-bold text-[#3E3A39]">選擇旅程：</label>
+          <select id="trip-selector" class="rounded-2xl border-[2.5px] border-[#3E3A39] bg-[#F6D27A] px-3.5 py-1.5 text-sm font-bold text-[#3E3A39] outline-none"></select>
+        </div>
+        <div class="flex flex-wrap items-center gap-2 text-xs">
+          <label for="input-jpy-rate" class="font-bold text-[#3E3A39]">💱 預設匯率 1 JPY ＝</label>
+          <input id="input-jpy-rate" type="number" step="0.001" min="0.01" class="w-24 rounded-xl border-2 border-[#3E3A39] bg-white px-2.5 py-1 text-center font-bold outline-none" />
+          <span class="font-bold text-[#3E3A39]">TWD</span>
+          <button id="btn-save-rate" type="button" class="ehon-btn rounded-xl bg-[#B9DAA5] px-2.5 py-1 font-bold text-[#3E3A39]">套用</button>
+        </div>
+      </div>
+
+      <!-- Companion Members -->
+      <div class="border-t-2 border-dashed border-[#3E3A39]/25 pt-3.5">
+        <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+          <span class="text-xs font-bold text-[#3E3A39]">👥 分帳旅伴名單（可自由增減）：</span>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <div id="members-list" class="flex flex-wrap items-center gap-2"></div>
+          <form id="member-add-form" class="inline-flex items-center gap-1.5">
+            <input id="member-new-input" type="text" placeholder="新增旅伴名字" class="w-32 rounded-xl border-2 border-[#3E3A39] bg-white px-2.5 py-1 text-xs outline-none" />
+            <button type="submit" class="ehon-btn rounded-xl bg-[#A8D3E6] px-2.5 py-1 text-xs font-bold text-[#3E3A39]">＋ 加入</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Summary & Settlement -->
+    <section aria-label="花費統計與分帳結算" class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+      <!-- Total Spending -->
+      <div class="ehon-box bg-[#FFFCF6] p-4 sm:p-5 space-y-3">
+        <h2 class="text-base font-bold text-[#3E3A39]">📊 總花費統計</h2>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="rounded-2xl border-2 border-[#3E3A39] bg-[#F6D27A]/50 p-3">
+            <span class="text-[11px] font-bold text-[#3E3A39]/80">折合台幣總計</span>
+            <div id="stat-total-twd" class="mt-0.5 text-xl font-bold text-[#3E3A39]">NT$ 0</div>
+          </div>
+          <div class="rounded-2xl border-2 border-[#3E3A39] bg-[#A8D3E6]/45 p-3">
+            <span class="text-[11px] font-bold text-[#3E3A39]/80">日圓消費原幣總計</span>
+            <div id="stat-total-jpy" class="mt-0.5 text-xl font-bold text-[#3E3A39]">¥0</div>
+          </div>
+        </div>
+        <div id="payment-breakdown" class="flex flex-wrap gap-2 text-xs"></div>
+        <div id="category-breakdown" class="flex flex-wrap gap-2 text-xs"></div>
+      </div>
+
+      <!-- Settlement -->
+      <div class="ehon-box bg-[#B9DAA5]/25 p-4 sm:p-5 space-y-3">
+        <div class="flex items-center justify-between gap-2">
+          <h2 class="text-base font-bold text-[#3E3A39]">🤝 旅伴分帳結算</h2>
+          <span class="text-[11px] font-bold text-[#3E3A39]/70">已自動折算為台幣計算</span>
+        </div>
+        <div id="settlement-transfers" class="space-y-2 text-xs"></div>
+        <div id="member-balances" class="grid grid-cols-1 gap-2 sm:grid-cols-2 text-xs"></div>
+      </div>
+    </section>
+
+    <!-- Filters -->
+    <section aria-label="篩選消費" class="ehon-box bg-[#FFFCF6] p-4 space-y-3">
+      <div class="flex flex-wrap items-center gap-2" id="day-tabs"></div>
+      <div class="flex flex-wrap items-center gap-2">
+        <select id="filter-payer" class="rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-1.5 text-xs font-bold outline-none">
+          <option value="全部">全部付款人</option>
+        </select>
+        <select id="filter-category" class="rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-1.5 text-xs font-bold outline-none">
+          <option value="全部">全部分類</option>
+          <option value="餐飲">餐飲</option>
+          <option value="交通">交通</option>
+          <option value="購物">購物</option>
+          <option value="門票">門票</option>
+          <option value="住宿">住宿</option>
+          <option value="其他">其他</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Expense List -->
+    <section id="expenses-container" aria-label="消費明細" class="space-y-3.5"></section>
+
+  </main>
+
+  <!-- Add/Edit Expense Modal -->
+  <div id="expense-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#3E3A39]/50 p-3 sm:p-6">
+    <div class="ehon-box max-h-[92vh] w-full max-w-xl overflow-y-auto bg-[#FFFCF6] p-5 sm:p-6">
+      <div class="mb-4 flex items-center justify-between border-b-2 border-[#3E3A39]/15 pb-3">
+        <h2 id="expense-modal-title" class="text-lg font-bold text-[#3E3A39]">新增消費紀錄</h2>
+        <button id="btn-close-expense" type="button" class="ehon-btn rounded-xl bg-[#FFFCF6] px-2.5 py-1 text-xs font-bold">✕</button>
+      </div>
+
+      <form id="expense-form" class="space-y-3.5 text-xs">
+        <input id="field-id" type="hidden" />
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div>
+            <label for="field-day" class="mb-1 block font-bold">第幾天 (Day) *</label>
+            <input id="field-day" type="number" min="1" max="30" required class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm outline-none" />
+          </div>
+          <div>
+            <label for="field-date" class="mb-1 block font-bold">日期</label>
+            <input id="field-date" type="date" class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm outline-none" />
+          </div>
+          <div class="col-span-2 sm:col-span-1">
+            <label for="field-category" class="mb-1 block font-bold">分類 *</label>
+            <select id="field-category" class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm outline-none">
+              <option value="餐飲">🍽️ 餐飲</option>
+              <option value="交通">🚆 交通</option>
+              <option value="購物">🛍️ 購物</option>
+              <option value="門票">🎫 門票</option>
+              <option value="住宿">🏨 住宿</option>
+              <option value="其他">📌 其他</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label for="field-title" class="mb-1 block font-bold">消費項目名稱 *</label>
+          <input id="field-title" type="text" required placeholder="例：肉屋横丁晚餐、西瓜卡儲值" class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm outline-none" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div>
+            <label for="field-amount" class="mb-1 block font-bold">金額 *</label>
+            <input id="field-amount" type="number" step="0.01" min="0" required placeholder="0" class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm font-bold outline-none" />
+          </div>
+          <div>
+            <label for="field-currency" class="mb-1 block font-bold">幣別 *</label>
+            <select id="field-currency" class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm font-bold outline-none">
+              <option value="JPY">JPY (日圓 ¥)</option>
+              <option value="TWD">TWD (台幣 NT$)</option>
+            </select>
+          </div>
+          <div class="col-span-2 sm:col-span-1">
+            <label for="field-payment" class="mb-1 block font-bold">付款方式 *</label>
+            <select id="field-payment" class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm outline-none">
+              <option value="現金">💵 現金</option>
+              <option value="信用卡">💳 信用卡</option>
+              <option value="IC卡">🪪 IC卡 / Suica</option>
+              <option value="其他">📌 其他</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Paid By -->
+        <div class="rounded-2xl border-2 border-[#3E3A39]/25 bg-[#F6D27A]/20 p-3">
+          <div class="mb-2 font-bold text-[#3E3A39]">🙋 誰先付錢？（必選）</div>
+          <div id="form-payer-options" class="flex flex-wrap gap-2"></div>
+        </div>
+
+        <!-- Split Among -->
+        <div class="rounded-2xl border-2 border-[#3E3A39]/25 bg-[#A8D3E6]/20 p-3">
+          <div class="mb-2 flex items-center justify-between">
+            <span class="font-bold text-[#3E3A39]">👥 這筆要算誰的？（勾選者平分）</span>
+            <button id="btn-split-all" type="button" class="rounded-lg border border-[#3E3A39] bg-white px-2 py-0.5 text-[11px] font-bold">全選</button>
+          </div>
+          <div id="form-split-options" class="flex flex-wrap gap-2"></div>
+        </div>
+
+        <div>
+          <label for="field-notes" class="mb-1 block font-bold">備註（選填）</label>
+          <input id="field-notes" type="text" placeholder="刷哪張卡、收據備註..." class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm outline-none" />
+        </div>
+
+        <div class="flex justify-end gap-2 border-t-2 border-[#3E3A39]/15 pt-4">
+          <button id="btn-cancel-expense" type="button" class="ehon-btn rounded-2xl bg-[#FFFCF6] px-4 py-2 text-xs font-bold">取消</button>
+          <button type="submit" class="ehon-btn rounded-2xl bg-[#F2A497] px-5 py-2 text-xs font-bold">儲存消費</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Cloud Sync Modal -->
+  <div id="cloud-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#3E3A39]/50 p-4">
+    <div class="ehon-box w-full max-w-md bg-[#FFFCF6] p-5 sm:p-6">
+      <div class="mb-3 flex items-center justify-between">
+        <h2 class="text-lg font-bold text-[#3E3A39]">☁️ Supabase 雲端同步</h2>
+        <button id="btn-close-cloud" type="button" class="ehon-btn rounded-xl bg-[#FFFCF6] px-2.5 py-1 text-xs font-bold">✕</button>
+      </div>
+      <p class="mb-3 text-xs leading-relaxed text-[#3E3A39]/80">
+        使用與「購物評估」、「美食地圖」、「旅遊行程」相同的 Email Magic Link 登入，登入後記帳與分帳資料會自動同步至雲端。
+      </p>
+      <div id="cloud-logged-out" class="space-y-3">
+        <input id="field-cloud-email" type="email" placeholder="輸入您的 Email（如 elia1306@gmail.com）" class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm outline-none" />
+        <button id="btn-cloud-login" type="button" class="ehon-btn w-full rounded-2xl bg-[#A8D3E6] py-2.5 text-xs font-bold text-[#3E3A39]">寄送登入連結 (Magic Link)</button>
+      </div>
+      <div id="cloud-logged-in" class="hidden space-y-3">
+        <div class="rounded-2xl border-2 border-[#3E3A39] bg-[#B9DAA5]/40 p-3 text-xs">
+          <div class="font-bold">已登入帳號：</div>
+          <div id="cloud-user-email" class="mt-0.5 break-all font-bold text-[#3E3A39]"></div>
+        </div>
+        <div class="flex gap-2">
+          <button id="btn-cloud-refresh" type="button" class="ehon-btn flex-1 rounded-2xl bg-[#A8D3E6] py-2 text-xs font-bold">立即從雲端同步</button>
+          <button id="btn-cloud-logout" type="button" class="ehon-btn rounded-2xl bg-[#F2A497] px-4 py-2 text-xs font-bold">登出</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="pointer-events-none fixed bottom-5 left-1/2 z-50 hidden -translate-x-1/2 rounded-2xl border-[2.5px] border-[#3E3A39] bg-[#F6D27A] px-4 py-2 text-xs font-bold text-[#3E3A39] shadow-[0_3px_0_#3E3A39]"></div>
+
+  <script>
+    const SUPABASE_URL = 'https://euphgazenhnurptrjazi.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_2hiYcmj_Aug9AH0VaY9M9w_vIUlzmBg';
+    const TRIP_LOCAL_KEY = 'ehon_trip_planner_v1';
+    const EXP_LOCAL_KEY = 'ehon_trip_expenses_v1';
+    const DEFAULT_MEMBERS = ['Elia', 'Winnie'];
+    const DEFAULT_JPY_RATE = 0.22;
+
+    const CAT_COLORS = {
+      '餐飲': 'bg-[#F2A497]',
+      '交通': 'bg-[#A8D3E6]',
+      '購物': 'bg-[#F6D27A]',
+      '門票': 'bg-[#B9DAA5]',
+      '住宿': 'bg-[#F6D27A]/75',
+      '其他': 'bg-[#FFFCF6]'
+    };
+
+    let supabaseClient = null;
+    let currentUser = null;
+    let trips = [];
+    let expenses = [];
+    let activeTripId = '';
+    let filters = { day: 'all', payer: '全部', category: '全部' };
+
+    function escapeHtml(str) {
+      return String(str ?? '').replace(/[&<>"']/g, s => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[s]));
+    }
+
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.remove('hidden');
+      clearTimeout(el._timer);
+      el._timer = setTimeout(() => el.classList.add('hidden'), 2800);
+    }
+
+    function loadLocalTrips() {
+      try {
+        const raw = localStorage.getItem(TRIP_LOCAL_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed?.trips) && parsed.trips.length) return parsed.trips;
+        }
+      } catch {}
+      return [{
+        id: 'default-fuji-2026',
+        title: '2026 富士山賞楓之旅',
+        destination: '東京・河口湖',
+        start_date: '2026-11-22',
+        end_date: '2026-11-27',
+        overview: { members: [...DEFAULT_MEMBERS], jpy_rate: DEFAULT_JPY_RATE }
+      }];
+    }
+
+    function loadLocalExpenses() {
+      try {
+        const raw = localStorage.getItem(EXP_LOCAL_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) return parsed;
+        }
+      } catch {}
+      return [];
+    }
+
+    function saveLocalExpenses() {
+      localStorage.setItem(EXP_LOCAL_KEY, JSON.stringify(expenses));
+    }
+
+    function getActiveTrip() {
+      return trips.find(t => t.id === activeTripId) || trips[0] || null;
+    }
+
+    function getTripMembers(trip) {
+      const m = trip?.overview?.members;
+      return Array.isArray(m) && m.length ? m : [...DEFAULT_MEMBERS];
+    }
+
+    function getTripRate(trip) {
+      const r = Number(trip?.overview?.jpy_rate);
+      return r > 0 ? r : DEFAULT_JPY_RATE;
+    }
+
+    function toTwd(exp) {
+      const amt = Number(exp.amount) || 0;
+      if (exp.currency === 'TWD') return amt;
+      const rate = Number(exp.exchange_rate) || getTripRate(getActiveTrip());
+      return amt * rate;
+    }
+
+    function computeDateForDay(trip, dayNum) {
+      if (!trip?.start_date) return '';
+      const d = new Date(trip.start_date + 'T00:00:00');
+      if (isNaN(d)) return '';
+      d.setDate(d.getDate() + (dayNum - 1));
+      return d.toISOString().slice(0, 10);
+    }
+
+    function updateSyncBadge(customText) {
+      const badge = document.getElementById('cloud-sync-badge');
+      const loggedOut = document.getElementById('cloud-logged-out');
+      const loggedIn = document.getElementById('cloud-logged-in');
+      const emailEl = document.getElementById('cloud-user-email');
+
+      if (customText) {
+        badge.textContent = customText;
+        badge.className = 'inline-flex items-center gap-1 rounded-full border-2 border-[#3E3A39] bg-[#F6D27A] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]';
+        return;
+      }
+      if (currentUser) {
+        badge.textContent = '已連線雲端';
+        badge.className = 'inline-flex items-center gap-1 rounded-full border-2 border-[#3E3A39] bg-[#B9DAA5] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]';
+        loggedOut.classList.add('hidden');
+        loggedIn.classList.remove('hidden');
+        emailEl.textContent = currentUser.email || '';
+      } else {
+        badge.textContent = '本機模式';
+        badge.className = 'inline-flex items-center gap-1 rounded-full border-2 border-[#3E3A39] bg-[#A8D3E6] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]';
+        loggedOut.classList.remove('hidden');
+        loggedIn.classList.add('hidden');
+      }
+    }
+
+    async function initSupabase() {
+      if (!window.supabase?.createClient) return;
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+      });
+      supabaseClient.auth.onAuthStateChange((event, session) => {
+        currentUser = session?.user || null;
+        updateSyncBadge();
+        if (currentUser && event !== 'INITIAL_SESSION') {
+          setTimeout(() => syncFromCloud(), 0);
+        } else if (!currentUser && event !== 'INITIAL_SESSION') {
+          trips = loadLocalTrips();
+          expenses = loadLocalExpenses();
+          if (!trips.some(t => t.id === activeTripId)) activeTripId = trips[0]?.id || '';
+          renderAll();
+        }
+      });
+      const { data } = await supabaseClient.auth.getSession();
+      currentUser = data?.session?.user || null;
+      updateSyncBadge();
+      if (currentUser) await syncFromCloud();
+    }
+
+    async function syncFromCloud() {
+      if (!supabaseClient || !currentUser) return;
+      updateSyncBadge('同步中...');
+      try {
+        const [{ data: tripsData, error: tErr }, { data: expData, error: eErr }] = await Promise.all([
+          supabaseClient.from('trips').select('*').order('start_date', { ascending: true }),
+          supabaseClient.from('trip_expenses').select('*').order('day_number', { ascending: true }).order('created_at', { ascending: false })
+        ]);
+        if (tErr) throw tErr;
+        if (eErr) throw eErr;
+
+        if (tripsData && tripsData.length > 0) {
+          trips = tripsData;
+          if (!trips.some(t => t.id === activeTripId)) activeTripId = trips[0].id;
+        }
+        expenses = expData || [];
+        saveLocalExpenses();
+        renderAll();
+        updateSyncBadge();
+      } catch (err) {
+        console.error(err);
+        updateSyncBadge();
+        showToast(`雲端同步失敗：${err.message || ''}`);
+      }
+    }
+
+    async function saveTripSettings(trip, patchOverview) {
+      const idx = trips.findIndex(t => t.id === trip.id);
+      if (idx === -1) return;
+      const newOv = { ...(trips[idx].overview || {}), ...patchOverview };
+      trips[idx] = { ...trips[idx], overview: newOv };
+      if (currentUser && supabaseClient) {
+        const { data, error } = await supabaseClient
+          .from('trips')
+          .update({ overview: newOv, updated_at: new Date().toISOString() })
+          .eq('id', trip.id)
+          .select()
+          .single();
+        if (error) throw error;
+        trips[idx] = data;
+      } else {
+        try {
+          const raw = JSON.parse(localStorage.getItem(TRIP_LOCAL_KEY) || '{}');
+          raw.trips = trips;
+          localStorage.setItem(TRIP_LOCAL_KEY, JSON.stringify(raw));
+        } catch {}
+      }
+    }
+
+    function renderTripAndMembers() {
+      const sel = document.getElementById('trip-selector');
+      sel.innerHTML = trips.map(t => `<option value="${escapeHtml(t.id)}">${escapeHtml(t.title)}</option>`).join('');
+      const trip = getActiveTrip();
+      if (!trip) return;
+      sel.value = trip.id;
+
+      const rate = getTripRate(trip);
+      document.getElementById('input-jpy-rate').value = rate;
+
+      const members = getTripMembers(trip);
+      document.getElementById('members-list').innerHTML = members.map(m => `
+        <span class="inline-flex items-center gap-1.5 rounded-full border-2 border-[#3E3A39] bg-[#F6D27A]/60 px-3 py-1 text-xs font-bold text-[#3E3A39]">
+          <span>${escapeHtml(m)}</span>
+          ${members.length > 1 ? `<button type="button" data-remove-member="${escapeHtml(m)}" class="ml-0.5 rounded-full px-1 text-[#3E3A39]/70 hover:bg-[#F2A497] hover:text-[#3E3A39]" title="移除旅伴">✕</button>` : ''}
+        </span>
+      `).join('');
+    }
+
+    function renderSummaryAndSettlement() {
+      const trip = getActiveTrip();
+      if (!trip) return;
+      const tripExps = expenses.filter(e => e.trip_id === trip.id);
+      const members = getTripMembers(trip);
+      const rate = getTripRate(trip);
+
+      let totalTwd = 0;
+      let totalJpy = 0;
+      const byPayment = {};
+      const byCat = {};
+      const paidMap = {};
+      const shareMap = {};
+      members.forEach(m => { paidMap[m] = 0; shareMap[m] = 0; });
+
+      for (const exp of tripExps) {
+        const amt = Number(exp.amount) || 0;
+        const twd = toTwd(exp);
+        totalTwd += twd;
+        if (exp.currency === 'JPY') totalJpy += amt;
+
+        const pm = exp.payment_method || '其他';
+        byPayment[pm] = (byPayment[pm] || 0) + twd;
+
+        const cat = exp.category || '其他';
+        byCat[cat] = (byCat[cat] || 0) + twd;
+
+        const payer = exp.paid_by || members[0];
+        paidMap[payer] = (paidMap[payer] || 0) + twd;
+
+        const splitList = Array.isArray(exp.split_among) && exp.split_among.length ? exp.split_among : [payer];
+        const perHead = twd / splitList.length;
+        for (const s of splitList) {
+          shareMap[s] = (shareMap[s] || 0) + perHead;
+        }
+      }
+
+      document.getElementById('stat-total-twd').textContent = `NT$ ${Math.round(totalTwd).toLocaleString()}`;
+      document.getElementById('stat-total-jpy').textContent = `¥${Math.round(totalJpy).toLocaleString()}`;
+
+      document.getElementById('payment-breakdown').innerHTML = Object.entries(byPayment).map(([k, v]) =>
+        `<span class="rounded-xl border border-[#3E3A39]/40 bg-[#FFFCF6] px-2.5 py-1 font-bold">${escapeHtml(k)}：NT$ ${Math.round(v).toLocaleString()}</span>`
+      ).join('');
+
+      document.getElementById('category-breakdown').innerHTML = Object.entries(byCat).map(([k, v]) =>
+        `<span class="rounded-xl border border-[#3E3A39]/40 ${CAT_COLORS[k] || 'bg-white'} px-2.5 py-1 font-bold">${escapeHtml(k)}：NT$ ${Math.round(v).toLocaleString()}</span>`
+      ).join('');
+
+      // Balances & Greedy Settlement
+      const allPeople = Array.from(new Set([...members, ...Object.keys(paidMap), ...Object.keys(shareMap)]));
+      const balances = allPeople.map(name => ({
+        name,
+        paid: paidMap[name] || 0,
+        share: shareMap[name] || 0,
+        net: (paidMap[name] || 0) - (shareMap[name] || 0)
+      }));
+
+      document.getElementById('member-balances').innerHTML = balances.map(b => {
+        const netRounded = Math.round(b.net);
+        const netLabel = netRounded > 0
+          ? `<span class="text-[#15803D]">多付 NT$ ${netRounded.toLocaleString()}</span>`
+          : netRounded < 0
+            ? `<span class="text-[#B91C1C]">待補 NT$ ${Math.abs(netRounded).toLocaleString()}</span>`
+            : `<span class="text-[#3E3A39]/60">已結清</span>`;
+        return `
+          <div class="rounded-xl border-2 border-[#3E3A39]/30 bg-white/85 p-2.5">
+            <div class="flex items-center justify-between font-bold">
+              <span>${escapeHtml(b.name)}</span>
+              ${netLabel}
+            </div>
+            <div class="mt-1 text-[11px] text-[#3E3A39]/75">
+              已代墊 NT$ ${Math.round(b.paid).toLocaleString()} ・ 應分攤 NT$ ${Math.round(b.share).toLocaleString()}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const debtors = balances.filter(b => b.net < -1).map(b => ({ name: b.name, amt: -b.net })).sort((a, b) => b.amt - a.amt);
+      const creditors = balances.filter(b => b.net > 1).map(b => ({ name: b.name, amt: b.net })).sort((a, b) => b.amt - a.amt);
+      const transfers = [];
+      let i = 0, j = 0;
+      while (i < debtors.length && j < creditors.length) {
+        const give = Math.min(debtors[i].amt, creditors[j].amt);
+        if (give >= 1) {
+          transfers.push({ from: debtors[i].name, to: creditors[j].name, twd: give });
+        }
+        debtors[i].amt -= give;
+        creditors[j].amt -= give;
+        if (debtors[i].amt < 1) i++;
+        if (creditors[j].amt < 1) j++;
+      }
+
+      document.getElementById('settlement-transfers').innerHTML = transfers.length
+        ? transfers.map(t => `
+          <div class="flex flex-wrap items-center justify-between gap-2 rounded-xl border-2 border-[#3E3A39] bg-[#FFFCF6] px-3 py-2 font-bold">
+            <span>💸 ${escapeHtml(t.from)} → 給 ${escapeHtml(t.to)}</span>
+            <span class="text-[#B91C1C]">NT$ ${Math.round(t.twd).toLocaleString()}（約 ¥${Math.round(t.twd / rate).toLocaleString()}）</span>
+          </div>
+        `).join('')
+        : '<div class="rounded-xl border border-[#3E3A39]/30 bg-white/80 px-3 py-2 font-bold text-[#3E3A39]/70">目前帳目已平衡，無需轉帳！</div>';
+    }
+
+    function renderFilters() {
+      const trip = getActiveTrip();
+      if (!trip) return;
+      const tripExps = expenses.filter(e => e.trip_id === trip.id);
+      const daySet = new Set(tripExps.map(e => e.day_number || 1));
+      if (trip.start_date && trip.end_date) {
+        const totalDays = Math.round((new Date(trip.end_date) - new Date(trip.start_date)) / 86400000) + 1;
+        for (let d = 1; d <= totalDays; d++) daySet.add(d);
+      }
+      const days = Array.from(daySet).sort((a, b) => a - b);
+
+      document.getElementById('day-tabs').innerHTML = `
+        <button data-day="all" class="ehon-btn rounded-2xl px-3 py-1.5 text-xs font-bold ${filters.day === 'all' ? 'bg-[#F6D27A]' : 'bg-[#FFFCF6]'}">全部天數</button>
+        ${days.map(d => {
+          const dateStr = computeDateForDay(trip, d);
+          const label = dateStr ? `Day ${d} (${dateStr.slice(5).replace('-', '/')})` : `Day ${d}`;
+          const active = String(filters.day) === String(d);
+          return `<button data-day="${d}" class="ehon-btn rounded-2xl px-3 py-1.5 text-xs font-bold ${active ? 'bg-[#F6D27A]' : 'bg-[#FFFCF6]'}">${escapeHtml(label)}</button>`;
+        }).join('')}
+      `;
+
+      const members = getTripMembers(trip);
+      const payerSel = document.getElementById('filter-payer');
+      payerSel.innerHTML = `<option value="全部">全部付款人</option>` + members.map(m => `<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`).join('');
+      payerSel.value = filters.payer;
+    }
+
+    function renderExpensesList() {
+      const trip = getActiveTrip();
+      if (!trip) return;
+      const container = document.getElementById('expenses-container');
+      const filtered = expenses
+        .filter(e => e.trip_id === trip.id)
+        .filter(e => filters.day === 'all' || String(e.day_number) === String(filters.day))
+        .filter(e => filters.payer === '全部' || e.paid_by === filters.payer)
+        .filter(e => filters.category === '全部' || e.category === filters.category)
+        .sort((a, b) => (a.day_number - b.day_number) || (b.created_at || '').localeCompare(a.created_at || ''));
+
+      if (!filtered.length) {
+        container.innerHTML = `
+          <div class="ehon-box bg-[#FFFCF6] p-8 text-center">
+            <p class="text-sm font-bold text-[#3E3A39]">目前還沒有符合條件的消費紀錄</p>
+            <p class="mt-1 text-xs text-[#3E3A39]/70">點擊右上角「＋ 新增一筆消費」開始記帳與分帳！</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(exp => {
+        const amt = Number(exp.amount) || 0;
+        const twd = Math.round(toTwd(exp));
+        const splitList = Array.isArray(exp.split_among) && exp.split_among.length ? exp.split_among : [exp.paid_by];
+        const perHeadTwd = Math.round(twd / splitList.length);
+        const origAmtStr = exp.currency === 'JPY' ? `¥${amt.toLocaleString()}` : `NT$ ${amt.toLocaleString()}`;
+        const twdHint = exp.currency === 'JPY' ? `（≈ NT$ ${twd.toLocaleString()}）` : '';
+
+        return `
+          <article class="ehon-box bg-[#FFFCF6] p-4">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div class="min-w-0 flex-1 space-y-1.5">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="rounded-xl border-2 border-[#3E3A39] bg-[#F6D27A] px-2.5 py-0.5 text-xs font-bold">Day ${exp.day_number}${exp.expense_date ? ` (${exp.expense_date.slice(5).replace('-', '/')})` : ''}</span>
+                  <span class="rounded-xl border-2 border-[#3E3A39] ${CAT_COLORS[exp.category] || 'bg-white'} px-2.5 py-0.5 text-xs font-bold">${escapeHtml(exp.category)}</span>
+                  <span class="rounded-xl border-2 border-[#3E3A39] bg-white px-2.5 py-0.5 text-xs font-bold">${escapeHtml(exp.payment_method || '現金')}</span>
+                </div>
+                <h3 class="text-base font-bold text-[#3E3A39]">${escapeHtml(exp.title)}</h3>
+                <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#3E3A39]/80">
+                  <span>🙋 <strong>${escapeHtml(exp.paid_by)}</strong> 先付</span>
+                  <span>👥 分攤：${escapeHtml(splitList.join('、'))}（每人約 NT$ ${perHeadTwd.toLocaleString()}）</span>
+                </div>
+                ${exp.notes ? `<p class="text-xs text-[#3E3A39]/75">📝 ${escapeHtml(exp.notes)}</p>` : ''}
+              </div>
+
+              <div class="flex shrink-0 flex-wrap items-center justify-between gap-3 sm:flex-col sm:items-end">
+                <div class="text-right">
+                  <div class="text-lg font-bold text-[#3E3A39]">${origAmtStr}</div>
+                  ${twdHint ? `<div class="text-[11px] font-bold text-[#3E3A39]/70">${twdHint}</div>` : ''}
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <button type="button" data-exp-action="edit" data-id="${escapeHtml(exp.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-3 py-1 text-xs font-bold hover:bg-[#F6D27A]/40">編輯</button>
+                  <button type="button" data-exp-action="delete" data-id="${escapeHtml(exp.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-3 py-1 text-xs font-bold hover:bg-[#F2A497]/50">刪除</button>
+                </div>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function renderAll() {
+      renderTripAndMembers();
+      renderSummaryAndSettlement();
+      renderFilters();
+      renderExpensesList();
+    }
+
+    function renderModalMemberOptions(selectedPayer, selectedSplits) {
+      const trip = getActiveTrip();
+      const members = getTripMembers(trip);
+      const payer = selectedPayer && members.includes(selectedPayer) ? selectedPayer : members[0];
+      const splits = Array.isArray(selectedSplits) && selectedSplits.length ? selectedSplits : [...members];
+
+      document.getElementById('form-payer-options').innerHTML = members.map(m => `
+        <label class="cursor-pointer">
+          <input type="radio" name="paid_by" value="${escapeHtml(m)}" ${m === payer ? 'checked' : ''} class="peer hidden" />
+          <span class="inline-block rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-1 text-xs font-bold peer-checked:bg-[#F6D27A]">${escapeHtml(m)}</span>
+        </label>
+      `).join('');
+
+      document.getElementById('form-split-options').innerHTML = members.map(m => `
+        <label class="cursor-pointer">
+          <input type="checkbox" name="split_among" value="${escapeHtml(m)}" ${splits.includes(m) ? 'checked' : ''} class="peer hidden" />
+          <span class="inline-block rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-1 text-xs font-bold peer-checked:bg-[#A8D3E6]">✓ ${escapeHtml(m)}</span>
+        </label>
+      `).join('');
+    }
+
+    function openExpenseModal(expId = null) {
+      const trip = getActiveTrip();
+      if (!trip) return;
+      document.getElementById('expense-form').reset();
+      document.getElementById('field-id').value = '';
+
+      if (expId) {
+        const exp = expenses.find(x => x.id === expId);
+        if (!exp) return;
+        document.getElementById('expense-modal-title').textContent = '編輯消費紀錄';
+        document.getElementById('field-id').value = exp.id;
+        document.getElementById('field-day').value = exp.day_number || 1;
+        document.getElementById('field-date').value = exp.expense_date || computeDateForDay(trip, exp.day_number || 1);
+        document.getElementById('field-category').value = exp.category || '餐飲';
+        document.getElementById('field-title').value = exp.title || '';
+        document.getElementById('field-amount').value = exp.amount ?? '';
+        document.getElementById('field-currency').value = exp.currency || 'JPY';
+        document.getElementById('field-payment').value = exp.payment_method || '現金';
+        document.getElementById('field-notes').value = exp.notes || '';
+        renderModalMemberOptions(exp.paid_by, exp.split_among);
+      } else {
+        const d = filters.day !== 'all' ? Number(filters.day) : 1;
+        document.getElementById('expense-modal-title').textContent = '新增消費紀錄';
+        document.getElementById('field-day').value = d;
+        document.getElementById('field-date').value = computeDateForDay(trip, d);
+        document.getElementById('field-currency').value = 'JPY';
+        renderModalMemberOptions(null, null);
+      }
+
+      const m = document.getElementById('expense-modal');
+      m.classList.remove('hidden'); m.classList.add('flex');
+    }
+
+    function closeExpenseModal() {
+      const m = document.getElementById('expense-modal');
+      m.classList.add('hidden'); m.classList.remove('flex');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      trips = loadLocalTrips();
+      expenses = loadLocalExpenses();
+      activeTripId = trips[0]?.id || '';
+      renderAll();
+      initSupabase().catch(console.error);
+
+      document.getElementById('trip-selector').addEventListener('change', e => {
+        activeTripId = e.target.value;
+        filters = { day: 'all', payer: '全部', category: '全部' };
+        renderAll();
+      });
+
+      document.getElementById('btn-save-rate').addEventListener('click', async () => {
+        const trip = getActiveTrip();
+        const rate = Number(document.getElementById('input-jpy-rate').value);
+        if (!trip || !(rate > 0)) { showToast('請輸入有效匯率'); return; }
+        try {
+          await saveTripSettings(trip, { jpy_rate: rate });
+          renderSummaryAndSettlement();
+          showToast(`已更新預設匯率：1 JPY = ${rate} TWD`);
+        } catch (err) {
+          showToast(`更新失敗：${err.message || ''}`);
+        }
+      });
+
+      document.getElementById('member-add-form').addEventListener('submit', async e => {
+        e.preventDefault();
+        const trip = getActiveTrip();
+        const input = document.getElementById('member-new-input');
+        const name = input.value.trim();
+        if (!trip || !name) return;
+        const members = getTripMembers(trip);
+        if (members.includes(name)) { showToast('此旅伴已在名單中'); return; }
+        try {
+          await saveTripSettings(trip, { members: [...members, name] });
+          input.value = '';
+          renderAll();
+          showToast(`已加入旅伴：${name}`);
+        } catch (err) {
+          showToast(`新增失敗：${err.message || ''}`);
+        }
+      });
+
+      document.getElementById('members-list').addEventListener('click', async e => {
+        const btn = e.target.closest('[data-remove-member]');
+        if (!btn) return;
+        const trip = getActiveTrip();
+        const name = btn.dataset.removeMember;
+        const members = getTripMembers(trip).filter(m => m !== name);
+        if (!members.length) return;
+        try {
+          await saveTripSettings(trip, { members });
+          renderAll();
+          showToast(`已移除旅伴：${name}`);
+        } catch (err) {
+          showToast(`移除失敗：${err.message || ''}`);
+        }
+      });
+
+      document.getElementById('day-tabs').addEventListener('click', e => {
+        const btn = e.target.closest('[data-day]');
+        if (!btn) return;
+        filters.day = btn.dataset.day;
+        renderFilters();
+        renderExpensesList();
+      });
+      document.getElementById('filter-payer').addEventListener('change', e => {
+        filters.payer = e.target.value;
+        renderExpensesList();
+      });
+      document.getElementById('filter-category').addEventListener('change', e => {
+        filters.category = e.target.value;
+        renderExpensesList();
+      });
+
+      document.getElementById('expenses-container').addEventListener('click', async e => {
+        const btn = e.target.closest('[data-exp-action]');
+        if (!btn) return;
+        const act = btn.dataset.expAction;
+        const id = btn.dataset.id;
+        const idx = expenses.findIndex(x => x.id === id);
+        if (idx === -1) return;
+
+        if (act === 'edit') {
+          openExpenseModal(id);
+        } else if (act === 'delete') {
+          if (!confirm(`確定要刪除「${expenses[idx].title}」嗎？`)) return;
+          expenses.splice(idx, 1);
+          saveLocalExpenses();
+          renderAll();
+          if (currentUser && supabaseClient) {
+            await supabaseClient.from('trip_expenses').delete().eq('id', id);
+          }
+          showToast('已刪除消費紀錄');
+        }
+      });
+
+      // Modal
+      document.getElementById('btn-add-expense').addEventListener('click', () => openExpenseModal());
+      document.getElementById('btn-close-expense').addEventListener('click', closeExpenseModal);
+      document.getElementById('btn-cancel-expense').addEventListener('click', closeExpenseModal);
+      document.getElementById('expense-modal').addEventListener('click', e => { if (e.target.id === 'expense-modal') closeExpenseModal(); });
+      document.getElementById('field-day').addEventListener('change', e => {
+        const d = Number(e.target.value) || 1;
+        const dateEl = document.getElementById('field-date');
+        if (!dateEl.value) dateEl.value = computeDateForDay(getActiveTrip(), d);
+      });
+      document.getElementById('btn-split-all').addEventListener('click', () => {
+        document.querySelectorAll('#form-split-options input[type="checkbox"]').forEach(cb => { cb.checked = true; });
+      });
+
+      document.getElementById('expense-form').addEventListener('submit', async e => {
+        e.preventDefault();
+        const trip = getActiveTrip();
+        if (!trip) return;
+        const id = document.getElementById('field-id').value;
+        const existing = id ? expenses.find(x => x.id === id) : null;
+        const dayNum = Number(document.getElementById('field-day').value) || 1;
+        const paidBy = document.querySelector('#form-payer-options input[name="paid_by"]:checked')?.value || getTripMembers(trip)[0];
+        const splitAmong = Array.from(document.querySelectorAll('#form-split-options input[name="split_among"]:checked')).map(cb => cb.value);
+        if (!splitAmong.length) { showToast('請至少勾選一位分攤對象'); return; }
+
+        const row = {
+          id: (id && /^[0-9a-f-]{36}$/i.test(id)) ? id : crypto.randomUUID(),
+          trip_id: trip.id,
+          day_number: dayNum,
+          expense_date: document.getElementById('field-date').value || computeDateForDay(trip, dayNum) || null,
+          title: document.getElementById('field-title').value.trim(),
+          category: document.getElementById('field-category').value,
+          amount: Number(document.getElementById('field-amount').value) || 0,
+          currency: document.getElementById('field-currency').value,
+          exchange_rate: getTripRate(trip),
+          payment_method: document.getElementById('field-payment').value,
+          paid_by: paidBy,
+          split_among: splitAmong,
+          notes: document.getElementById('field-notes').value.trim() || null
+        };
+
+        try {
+          let saved = row;
+          if (currentUser && supabaseClient) {
+            const { data, error } = await supabaseClient.from('trip_expenses').upsert({
+              ...row,
+              user_id: currentUser.id,
+              updated_at: new Date().toISOString()
+            }).select().single();
+            if (error) throw error;
+            saved = data;
+          }
+          if (existing) {
+            const idx = expenses.findIndex(x => x.id === id);
+            if (idx !== -1) expenses[idx] = saved;
+          } else {
+            expenses.unshift(saved);
+          }
+          saveLocalExpenses();
+          renderAll();
+          closeExpenseModal();
+          showToast('消費紀錄已儲存！');
+        } catch (err) {
+          showToast(`儲存失敗：${err.message || ''}`);
+        }
+      });
+
+      // Cloud Modal
+      document.getElementById('btn-cloud-sync').addEventListener('click', () => {
+        const m = document.getElementById('cloud-modal');
+        m.classList.remove('hidden'); m.classList.add('flex');
+      });
+      document.getElementById('btn-close-cloud').addEventListener('click', () => {
+        const m = document.getElementById('cloud-modal');
+        m.classList.add('hidden'); m.classList.remove('flex');
+      });
+      document.getElementById('btn-cloud-refresh').addEventListener('click', () => syncFromCloud());
+      document.getElementById('btn-cloud-login').addEventListener('click', async () => {
+        const email = document.getElementById('field-cloud-email').value.trim();
+        if (!email) { showToast('請輸入電子郵件'); return; }
+        const { error } = await supabaseClient.auth.signInWithOtp({
+          email,
+          options: { emailRedirectTo: `${window.location.origin}${window.location.pathname}` }
+        });
+        if (error) showToast(`寄送失敗：${error.message}`);
+        else showToast('登入連結已寄出，請至信箱點擊連結！');
+      });
+      document.getElementById('btn-cloud-logout').addEventListener('click', async () => {
+        await supabaseClient.auth.signOut();
+        currentUser = null;
+        trips = loadLocalTrips();
+        expenses = loadLocalExpenses();
+        updateSyncBadge();
+        renderAll();
+        showToast('已登出帳號');
+      });
+    });
+  </script>
+</body>
+</html>
