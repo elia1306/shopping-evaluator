@@ -617,7 +617,7 @@
       el._timer = setTimeout(() => el.classList.add('hidden'), 2800);
     }
 
-    function formatReadableBlock(text) {
+    function formatReadableBlock(text, alwaysBullet = false) {
       const raw = String(text ?? '').trim();
       if (!raw) return '';
       const normalized = raw
@@ -627,7 +627,7 @@
         .replace(/。(?=[^\s」』）)])/g, '。\n')
         .replace(/([^\n])(\s*(?:周邊逛街|選項|流程|路線|必玩|必吃|提醒|注意|共 \d+ 個地點|沿途餐廳參考|晚餐後可逛|外拍路線|回程)：)/g, '$1\n$2');
       const lines = normalized.split('\n').map(l => l.trim()).filter(Boolean);
-      if (lines.length <= 1) {
+      if (lines.length <= 1 && !alwaysBullet) {
         return `<div class="mt-0.5 whitespace-pre-line leading-relaxed">${escapeHtml(lines[0] || raw)}</div>`;
       }
       return `<ul class="mt-1 space-y-1 leading-relaxed">${lines.map(line =>
@@ -1023,7 +1023,7 @@
           <div class="rounded-xl border border-[#3E3A39]/35 bg-white/85 p-3">
             ${g.title ? `<div class="mb-1.5 inline-flex items-center rounded-lg border-2 border-[#3E3A39] bg-[#F6D27A] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">${escapeHtml(g.title)}</div>` : ''}
             <div class="space-y-1">
-              ${g.items.map(it => formatReadableBlock(it)).join('')}
+              ${g.items.map(it => formatReadableBlock(it, true)).join('')}
             </div>
           </div>
         `).join('');
