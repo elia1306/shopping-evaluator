@@ -127,6 +127,9 @@
             <span id="trip-days-badge" class="inline-flex items-center rounded-full border-2 border-[#3E3A39] bg-[#B9DAA5]/70 px-3 py-1 text-xs font-bold text-[#3E3A39]"></span>
           </div>
           <div class="flex flex-wrap items-center gap-2">
+            <button id="btn-share-trip" type="button" class="ehon-btn rounded-2xl bg-[#A8D3E6] px-3.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:brightness-95">
+              🔗 分享行程
+            </button>
             <button id="btn-toggle-overview" type="button" class="ehon-btn rounded-2xl bg-[#B9DAA5] px-3.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:brightness-95">
               展開航班・住宿・行前提醒 ▾
             </button>
@@ -327,6 +330,30 @@
     </div>
   </div>
 
+  <!-- Share Trip Modal -->
+  <div id="share-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#3E3A39]/50 p-4">
+    <div class="ehon-box w-full max-w-md bg-[#FFFCF6] p-5 sm:p-6">
+      <div class="mb-3 flex items-center justify-between">
+        <h2 class="text-lg font-bold text-[#3E3A39]">🔗 唯讀分享連結</h2>
+        <button id="btn-close-share" type="button" class="ehon-btn rounded-xl bg-[#FFFCF6] px-2.5 py-1 text-xs font-bold">✕</button>
+      </div>
+      <p class="mb-4 text-xs leading-relaxed text-[#3E3A39]/80">
+        將連結傳給旅伴後，對方不需登入即可查閱您<strong>最新雲端版</strong>的行程與 Google Maps 導航（唯讀模式，無法修改或刪除資料，連結不會過期）。
+      </p>
+      <div id="share-inactive" class="space-y-3">
+        <button id="btn-create-share" type="button" class="ehon-btn w-full rounded-2xl bg-[#B9DAA5] py-2.5 text-xs font-bold text-[#3E3A39]">產生唯讀分享連結</button>
+      </div>
+      <div id="share-active" class="hidden space-y-3">
+        <input id="share-url-input" type="text" readonly class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-xs font-bold text-[#3E3A39] outline-none" />
+        <button id="btn-copy-share" type="button" class="ehon-btn w-full rounded-2xl bg-[#F6D27A] py-2.5 text-xs font-bold text-[#3E3A39]">📋 複製分享連結</button>
+        <div class="flex gap-2 pt-1">
+          <button id="btn-regen-share" type="button" class="ehon-btn flex-1 rounded-2xl bg-[#FFFCF6] py-2 text-xs font-bold text-[#3E3A39]">🔄 重新產生（舊連結失效）</button>
+          <button id="btn-disable-share" type="button" class="ehon-btn rounded-2xl bg-[#F2A497] px-3.5 py-2 text-xs font-bold text-[#3E3A39]">停止分享</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Cloud Sync Modal -->
   <div id="cloud-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#3E3A39]/50 p-4">
     <div class="ehon-box w-full max-w-md bg-[#FFFCF6] p-5 sm:p-6">
@@ -473,7 +500,9 @@
     let currentUser = null;
     let state = { trips: [], items: [] };
     let activeTripId = null; // null => Trip Selection View; string => Detail View
-    let filters = { day: 'all', category: '全部', search: '', hideDone: false, hideOptional: false };
+    let shareToken = null;
+    let isShareMode = false;
+    let filters = { day: 'all', hideDone: false, hideOptional: false };
 
     function escapeHtml(str) {
       return String(str ?? '').replace(/[&<>"']/g, s => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[s]));
@@ -606,6 +635,10 @@
       supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
         auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
       });
+      if (isShareMode) {
+        await loadSharedTrip(shareToken);
+        return;
+      }
       supabaseClient.auth.onAuthStateChange((event, session) => {
         currentUser = session?.user || null;
         updateSyncBadge();
@@ -621,6 +654,36 @@
       currentUser = data?.session?.user || null;
       updateSyncBadge();
       if (currentUser) await syncFromCloud();
+    }
+
+    async function loadSharedTrip(token) {
+      updateSyncBadge('載入分享行程...');
+      try {
+        const { data, error } = await supabaseClient.rpc('get_shared_trip', { p_token: token });
+        if (error) throw error;
+        if (!data || !data.trip) {
+          document.getElementById('view-trip-list').classList.add('hidden');
+          document.getElementById('view-trip-detail').classList.add('hidden');
+          const main = document.querySelector('main');
+          main.innerHTML = `
+            <div class="ehon-box mx-auto max-w-lg bg-[#FFFCF6] p-8 text-center">
+              <h2 class="text-lg font-bold text-[#3E3A39]">🔗 此分享連結已失效或不存在</h2>
+              <p class="mt-2 text-xs text-[#3E3A39]/75">請向行程建立者索取最新的分享連結。</p>
+            </div>
+          `;
+          updateSyncBadge('唯讀分享');
+          return;
+        }
+        state.trips = [data.trip];
+        state.items = data.items || [];
+        activeTripId = data.trip.id;
+        updateSyncBadge('唯讀分享');
+        renderView();
+      } catch (err) {
+        console.error(err);
+        updateSyncBadge('載入失敗');
+        showToast(`無法讀取分享行程：${err.message || ''}`);
+      }
     }
 
     async function syncFromCloud() {
@@ -844,10 +907,12 @@
           <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div class="min-w-0 flex-1 space-y-2">
               <div class="flex flex-wrap items-center gap-2">
-                <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border-2 border-[#3E3A39] bg-white px-2 py-0.5 text-[11px] font-bold">
-                  <input type="checkbox" data-action="toggle-done" data-id="${escapeHtml(item.id)}" ${item.is_done ? 'checked' : ''} class="accent-[#3E3A39]" />
-                  <span>${item.is_done ? '已完成' : '待進行'}</span>
-                </label>
+                ${isShareMode ? '' : `
+                  <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border-2 border-[#3E3A39] bg-white px-2 py-0.5 text-[11px] font-bold">
+                    <input type="checkbox" data-action="toggle-done" data-id="${escapeHtml(item.id)}" ${item.is_done ? 'checked' : ''} class="accent-[#3E3A39]" />
+                    <span>${item.is_done ? '已完成' : '待進行'}</span>
+                  </label>
+                `}
                 ${planBadge}
                 <span class="rounded-xl border-2 border-[#3E3A39] bg-[#FFFCF6] px-2.5 py-0.5 text-xs font-bold text-[#3E3A39]">🕒 ${escapeHtml(timeStr)}</span>
                 <span class="rounded-xl border-2 border-[#3E3A39] ${catColor} px-2.5 py-0.5 text-xs font-bold text-[#3E3A39]">${catIcon} ${escapeHtml(item.category || '景點')}</span>
@@ -882,9 +947,11 @@
               <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" class="ehon-btn inline-flex items-center gap-1 rounded-xl bg-[#B9DAA5] px-2.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:brightness-95">
                 📍 Google Maps
               </a>
-              ${!isSub ? `<button type="button" data-action="add-sub" data-id="${escapeHtml(item.id)}" data-day="${item.day_number || 1}" class="ehon-btn rounded-xl bg-[#A8D3E6]/70 px-2.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:brightness-95">＋ 子行程</button>` : ''}
-              <button type="button" data-action="edit" data-id="${escapeHtml(item.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-2.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#F6D27A]/40">編輯</button>
-              <button type="button" data-action="delete" data-id="${escapeHtml(item.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-2.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#F2A497]/50">刪除</button>
+              ${isShareMode ? '' : `
+                ${!isSub ? `<button type="button" data-action="add-sub" data-id="${escapeHtml(item.id)}" data-day="${item.day_number || 1}" class="ehon-btn rounded-xl bg-[#A8D3E6]/70 px-2.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:brightness-95">＋ 子行程</button>` : ''}
+                <button type="button" data-action="edit" data-id="${escapeHtml(item.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-2.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#F6D27A]/40">編輯</button>
+                <button type="button" data-action="delete" data-id="${escapeHtml(item.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-2.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#F2A497]/50">刪除</button>
+              `}
             </div>
           </div>
         </article>
@@ -945,7 +1012,7 @@
                 ${dateLabel ? `<span class="text-sm font-bold text-[#3E3A39]">${escapeHtml(dateLabel)}</span>` : ''}
                 <span class="text-xs font-bold text-[#3E3A39]/60">(${dayItems.length} 項)</span>
               </div>
-              <button data-action="add-day" data-day="${dayNum}" type="button" class="ehon-btn rounded-xl bg-[#F2A497] px-3 py-1 text-xs font-bold text-[#3E3A39]">＋ 新增 Day ${dayNum} 行程</button>
+              ${isShareMode ? '' : `<button data-action="add-day" data-day="${dayNum}" type="button" class="ehon-btn rounded-xl bg-[#F2A497] px-3 py-1 text-xs font-bold text-[#3E3A39]">＋ 新增 Day ${dayNum} 行程</button>`}
             </div>
 
             <div class="space-y-4 pl-1 sm:pl-3">
@@ -973,7 +1040,28 @@
       const detailView = document.getElementById('view-trip-detail');
       const btnNewTrip = document.getElementById('btn-new-trip');
       const btnAddItem = document.getElementById('btn-add-item');
+      const btnCloudSync = document.getElementById('btn-cloud-sync');
+      const btnBackToList = document.getElementById('btn-back-to-list');
+      const btnShareTrip = document.getElementById('btn-share-trip');
       const subtitle = document.getElementById('header-subtitle');
+
+      if (isShareMode) {
+        btnCloudSync.classList.add('hidden');
+        btnNewTrip.classList.add('hidden');
+        btnAddItem.classList.add('hidden');
+        btnBackToList.classList.add('hidden');
+        btnShareTrip.classList.add('hidden');
+        listView.classList.add('hidden');
+        const trip = getActiveTrip();
+        if (trip) {
+          detailView.classList.remove('hidden');
+          subtitle.textContent = '唯讀分享行程・可直接點擊 Google Maps 導航';
+          renderTripHeader();
+          renderFilters();
+          renderTimeline();
+        }
+        return;
+      }
 
       const trip = getActiveTrip();
       if (!trip) {
@@ -1170,13 +1258,16 @@
     document.addEventListener('DOMContentLoaded', () => {
       state = loadLocalData();
       const params = new URLSearchParams(window.location.search);
+      shareToken = params.get('share');
+      isShareMode = Boolean(shareToken);
       const urlTrip = params.get('trip');
-      activeTripId = (urlTrip && state.trips.some(t => t.id === urlTrip)) ? urlTrip : null;
+      activeTripId = (!isShareMode && urlTrip && state.trips.some(t => t.id === urlTrip)) ? urlTrip : null;
 
       renderView();
       initSupabase().catch(console.error);
 
       window.addEventListener('popstate', () => {
+        if (isShareMode) return;
         const p = new URLSearchParams(window.location.search);
         const tid = p.get('trip');
         activeTripId = (tid && state.trips.some(t => t.id === tid)) ? tid : null;
@@ -1184,6 +1275,10 @@
       });
 
       document.getElementById('nav-trip-link').addEventListener('click', e => {
+        if (isShareMode) {
+          e.preventDefault();
+          return;
+        }
         if (activeTripId) {
           e.preventDefault();
           goHome();
@@ -1418,6 +1513,96 @@
           }
         } catch (err) {
           showToast(`儲存失敗：${err.message || ''}`);
+        }
+      });
+
+      // Share Modal
+      function renderShareModalState(trip) {
+        const inactive = document.getElementById('share-inactive');
+        const active = document.getElementById('share-active');
+        const urlInput = document.getElementById('share-url-input');
+        if (trip?.share_token) {
+          inactive.classList.add('hidden');
+          active.classList.remove('hidden');
+          urlInput.value = `${window.location.origin}${window.location.pathname}?share=${trip.share_token}`;
+        } else {
+          inactive.classList.remove('hidden');
+          active.classList.add('hidden');
+          urlInput.value = '';
+        }
+      }
+
+      async function updateShareToken(newToken) {
+        const trip = getActiveTrip();
+        if (!trip || !supabaseClient || !currentUser) return;
+        const { data, error } = await supabaseClient
+          .from('trips')
+          .update({ share_token: newToken, updated_at: new Date().toISOString() })
+          .eq('id', trip.id)
+          .select()
+          .single();
+        if (error) throw error;
+        const idx = state.trips.findIndex(t => t.id === trip.id);
+        if (idx !== -1) state.trips[idx] = data;
+        saveLocalData();
+        renderShareModalState(data);
+      }
+
+      document.getElementById('btn-share-trip').addEventListener('click', () => {
+        if (!currentUser) {
+          showToast('請先點右上角「雲端同步」登入帳號，才能產生雲端分享連結！');
+          return;
+        }
+        renderShareModalState(getActiveTrip());
+        const m = document.getElementById('share-modal');
+        m.classList.remove('hidden'); m.classList.add('flex');
+      });
+      document.getElementById('btn-close-share').addEventListener('click', () => {
+        const m = document.getElementById('share-modal');
+        m.classList.add('hidden'); m.classList.remove('flex');
+      });
+      document.getElementById('share-modal').addEventListener('click', e => {
+        if (e.target.id === 'share-modal') {
+          e.currentTarget.classList.add('hidden');
+          e.currentTarget.classList.remove('flex');
+        }
+      });
+      document.getElementById('btn-create-share').addEventListener('click', async () => {
+        try {
+          const token = crypto.randomUUID().replace(/-/g, '').slice(0, 16);
+          await updateShareToken(token);
+          showToast('已產生唯讀分享連結！');
+        } catch (err) {
+          showToast(`產生失敗：${err.message || ''}`);
+        }
+      });
+      document.getElementById('btn-copy-share').addEventListener('click', async () => {
+        const url = document.getElementById('share-url-input').value;
+        try {
+          await navigator.clipboard.writeText(url);
+          showToast('已複製分享連結！');
+        } catch {
+          document.getElementById('share-url-input').select();
+          showToast('請長按或按 Ctrl+C 複製連結');
+        }
+      });
+      document.getElementById('btn-regen-share').addEventListener('click', async () => {
+        if (!confirm('重新產生後，原本的舊連結會立刻失效，確定要重設嗎？')) return;
+        try {
+          const token = crypto.randomUUID().replace(/-/g, '').slice(0, 16);
+          await updateShareToken(token);
+          showToast('已重新產生分享連結！');
+        } catch (err) {
+          showToast(`重設失敗：${err.message || ''}`);
+        }
+      });
+      document.getElementById('btn-disable-share').addEventListener('click', async () => {
+        if (!confirm('停止分享後，已發出去的連結將無法再查看行程，確定嗎？')) return;
+        try {
+          await updateShareToken(null);
+          showToast('已停止分享');
+        } catch (err) {
+          showToast(`操作失敗：${err.message || ''}`);
         }
       });
 
