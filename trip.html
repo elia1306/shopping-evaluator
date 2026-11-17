@@ -118,31 +118,12 @@
             <h2 id="detail-trip-title" class="text-lg font-bold text-[#3E3A39] sm:text-xl"></h2>
             <span id="trip-dates-badge" class="inline-flex items-center rounded-full border-2 border-[#3E3A39] bg-[#F6D27A] px-3 py-1 text-xs font-bold text-[#3E3A39]"></span>
             <span id="trip-dest-badge" class="inline-flex items-center rounded-full border-2 border-[#3E3A39] bg-[#A8D3E6]/60 px-3 py-1 text-xs font-bold text-[#3E3A39]"></span>
+            <span id="trip-days-badge" class="inline-flex items-center rounded-full border-2 border-[#3E3A39] bg-[#B9DAA5]/70 px-3 py-1 text-xs font-bold text-[#3E3A39]"></span>
           </div>
           <div class="flex flex-wrap items-center gap-2">
             <button id="btn-toggle-overview" type="button" class="ehon-btn rounded-2xl bg-[#B9DAA5] px-3.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:brightness-95">
               展開航班・住宿・行前提醒 ▾
             </button>
-          </div>
-        </div>
-
-        <!-- KPI Mini Row -->
-        <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <div class="rounded-2xl border-2 border-[#3E3A39] bg-[#FFFCF6] p-3">
-            <span class="text-[11px] font-bold text-[#3E3A39]/70">總行程數</span>
-            <div id="stat-total" class="mt-0.5 text-xl font-bold text-[#3E3A39]">0</div>
-          </div>
-          <div class="rounded-2xl border-2 border-[#3E3A39] bg-[#F6D27A]/60 p-3">
-            <span class="text-[11px] font-bold text-[#3E3A39]/80">旅遊天數</span>
-            <div id="stat-days" class="mt-0.5 text-xl font-bold text-[#3E3A39]">0 天</div>
-          </div>
-          <div class="rounded-2xl border-2 border-[#3E3A39] bg-[#B9DAA5]/60 p-3">
-            <span class="text-[11px] font-bold text-[#3E3A39]/80">已完成</span>
-            <div id="stat-done" class="mt-0.5 text-xl font-bold text-[#3E3A39]">0</div>
-          </div>
-          <div class="rounded-2xl border-2 border-[#3E3A39] bg-[#A8D3E6]/50 p-3">
-            <span class="text-[11px] font-bold text-[#3E3A39]/80">備選方案</span>
-            <div id="stat-optional" class="mt-0.5 text-xl font-bold text-[#3E3A39]">0</div>
           </div>
         </div>
 
@@ -165,23 +146,18 @@
         </div>
       </section>
 
-      <!-- Day Selector & Filters -->
-      <section aria-label="天數與分類篩選" class="ehon-box mb-6 space-y-3.5 bg-[#FFFCF6] p-4">
+      <!-- Day Selector -->
+      <section aria-label="天數切換" class="ehon-box mb-6 flex flex-col gap-3 bg-[#FFFCF6] p-4 sm:flex-row sm:items-center sm:justify-between">
         <div class="flex flex-wrap items-center gap-2" id="day-tabs"></div>
-
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div class="flex flex-wrap items-center gap-1.5" id="category-pills"></div>
-          <div class="flex flex-wrap items-center gap-2">
-            <input id="input-search" type="search" placeholder="搜尋景點、地名、交通、預約碼..." class="w-full rounded-xl border-2 border-[#3E3A39] bg-[#FFFCF6] px-3 py-1.5 text-xs text-[#3E3A39] outline-none focus:bg-white sm:w-60" />
-            <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border-2 border-[#3E3A39] bg-[#FFFCF6] px-2.5 py-1.5 text-xs font-bold">
-              <input id="toggle-hide-done" type="checkbox" class="accent-[#3E3A39]" />
-              <span>隱藏已完成</span>
-            </label>
-            <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border-2 border-[#3E3A39] bg-[#FFFCF6] px-2.5 py-1.5 text-xs font-bold">
-              <input id="toggle-hide-optional" type="checkbox" class="accent-[#3E3A39]" />
-              <span>隱藏備選</span>
-            </label>
-          </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border-2 border-[#3E3A39] bg-[#FFFCF6] px-2.5 py-1.5 text-xs font-bold">
+            <input id="toggle-hide-done" type="checkbox" class="accent-[#3E3A39]" />
+            <span>隱藏已完成</span>
+          </label>
+          <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border-2 border-[#3E3A39] bg-[#FFFCF6] px-2.5 py-1.5 text-xs font-bold">
+            <input id="toggle-hide-optional" type="checkbox" class="accent-[#3E3A39]" />
+            <span>隱藏備選</span>
+          </label>
         </div>
       </section>
 
@@ -558,8 +534,7 @@
         return;
       }
       activeTripId = tripId;
-      filters = { day: 'all', category: '全部', search: '', hideDone: false, hideOptional: false };
-      document.getElementById('input-search').value = '';
+      filters = { day: 'all', hideDone: false, hideOptional: false };
       document.getElementById('toggle-hide-done').checked = false;
       document.getElementById('toggle-hide-optional').checked = false;
       if (pushHistory) {
@@ -774,10 +749,7 @@
       document.getElementById('trip-dest-badge').textContent = trip.destination || '未設定目的地';
 
       const items = getTripItems(trip.id);
-      document.getElementById('stat-total').textContent = items.length;
-      document.getElementById('stat-days').textContent = `${calcDaysCount(trip, items)} 天`;
-      document.getElementById('stat-done').textContent = items.filter(i => i.is_done).length;
-      document.getElementById('stat-optional').textContent = items.filter(i => i.is_optional).length;
+      document.getElementById('trip-days-badge').textContent = `${calcDaysCount(trip, items)} 天`;
 
       const ov = trip.overview || {};
       document.getElementById('overview-flights').innerHTML = (ov.flights || []).length
@@ -828,12 +800,6 @@
           return `<button data-day="${d}" class="ehon-btn rounded-2xl px-3 py-1.5 text-xs font-bold ${active ? 'bg-[#F6D27A]' : 'bg-[#FFFCF6]'}">${escapeHtml(label)}</button>`;
         }).join('')}
       `;
-
-      const cats = ['全部', '交通', '住宿', '景點', '美食', '逛街', '點燈', '體驗', '其他'];
-      document.getElementById('category-pills').innerHTML = cats.map(c => {
-        const active = filters.category === c;
-        return `<button data-cat="${escapeHtml(c)}" class="rounded-full border-2 border-[#3E3A39] px-3 py-1 text-xs font-bold transition ${active ? 'bg-[#3E3A39] text-[#FFFCF6]' : 'bg-[#FFFCF6] text-[#3E3A39] hover:bg-[#F6D27A]/40'}">${escapeHtml(c)}</button>`;
-      }).join('');
     }
 
     function renderTimeline() {
@@ -841,17 +807,11 @@
       if (!trip) return;
       const container = document.getElementById('itinerary-container');
       const allItems = getTripItems(trip.id);
-      const q = filters.search.trim().toLowerCase();
 
       const filtered = allItems.filter(item => {
         if (filters.day !== 'all' && String(item.day_number) !== String(filters.day)) return false;
-        if (filters.category !== '全部' && (item.category || '其他') !== filters.category) return false;
         if (filters.hideDone && item.is_done) return false;
         if (filters.hideOptional && item.is_optional) return false;
-        if (q) {
-          const hay = [item.title, item.location_name, item.address, item.transit_info, item.reservation_code, item.notes].join(' ').toLowerCase();
-          if (!hay.includes(q)) return false;
-        }
         return true;
       });
 
@@ -1214,18 +1174,6 @@
         renderTimeline();
       });
 
-      document.getElementById('category-pills').addEventListener('click', e => {
-        const btn = e.target.closest('[data-cat]');
-        if (!btn) return;
-        filters.category = btn.dataset.cat;
-        renderFilters();
-        renderTimeline();
-      });
-
-      document.getElementById('input-search').addEventListener('input', e => {
-        filters.search = e.target.value;
-        renderTimeline();
-      });
       document.getElementById('toggle-hide-done').addEventListener('change', e => {
         filters.hideDone = e.target.checked;
         renderTimeline();
