@@ -69,7 +69,7 @@
           <div class="min-w-0">
             <div class="flex flex-wrap items-center gap-2">
               <h1 class="whitespace-nowrap text-xl font-bold tracking-tight text-[#3E3A39] sm:text-2xl">♥ 日本好好玩 ♥</h1>
-              <nav aria-label="切換頁面" class="inline-flex rounded-2xl border-[2.5px] border-[#3E3A39] bg-[#FFFCF6] p-0.5 text-xs font-bold">
+              <nav id="main-page-nav" aria-label="切換頁面" class="inline-flex rounded-2xl border-[2.5px] border-[#3E3A39] bg-[#FFFCF6] p-0.5 text-xs font-bold">
                 <a href="./index.html" class="whitespace-nowrap rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#F2A497]/40">購物評估</a>
                 <a href="./food.html" class="whitespace-nowrap rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#A8D3E6]/40">美食地圖</a>
                 <a href="./trip.html" id="nav-trip-link" class="whitespace-nowrap rounded-xl bg-[#F6D27A] px-3 py-1 text-[#3E3A39]">旅遊行程</a>
@@ -1242,6 +1242,7 @@
       const subtitle = document.getElementById('header-subtitle');
 
       if (isShareMode) {
+        document.getElementById('main-page-nav')?.classList.add('hidden');
         btnCloudSync.classList.add('hidden');
         btnNewTrip.classList.add('hidden');
         btnAddItem.classList.add('hidden');
