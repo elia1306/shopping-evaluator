@@ -437,6 +437,23 @@
     <img id="lightbox-img" alt="地圖放大檢視" class="max-h-[82vh] max-w-full rounded-2xl border-[3px] border-[#FFFCF6] bg-white object-contain" />
   </div>
 
+  <!-- Floating Back to Top Button -->
+  <button id="btn-scroll-top" type="button" aria-label="回到最上面" class="ehon-btn fixed bottom-5 right-4 z-40 hidden items-center gap-1 rounded-full bg-[#F6D27A] px-3.5 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:bottom-6 sm:right-6">
+    ↑ 頂端
+  </button>
+  <script>
+    (function () {
+      const btn = document.getElementById('btn-scroll-top');
+      if (!btn) return;
+      const toggle = () => {
+        if (window.scrollY > 240) { btn.classList.remove('hidden'); btn.classList.add('inline-flex'); }
+        else { btn.classList.add('hidden'); btn.classList.remove('inline-flex'); }
+      };
+      window.addEventListener('scroll', toggle, { passive: true });
+      btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    })();
+  </script>
+
   <!-- Toast -->
   <div id="toast" class="pointer-events-none fixed bottom-5 left-1/2 z-50 hidden -translate-x-1/2 rounded-2xl border-[2.5px] border-[#3E3A39] bg-[#F6D27A] px-4 py-2 text-xs font-bold text-[#3E3A39] shadow-[0_3px_0_#3E3A39]"></div>
 
