@@ -878,15 +878,13 @@
               ` : ''}
             </div>
 
-            <div class="flex shrink-0 flex-wrap items-center gap-2 sm:flex-col sm:items-end">
-              <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" class="ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#B9DAA5] px-3.5 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95">
+            <div class="flex shrink-0 flex-wrap items-center gap-1.5 sm:justify-end">
+              <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" class="ehon-btn inline-flex items-center gap-1 rounded-xl bg-[#B9DAA5] px-2.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:brightness-95">
                 📍 Google Maps
               </a>
-              <div class="flex flex-wrap items-center gap-1.5">
-                ${!isSub ? `<button type="button" data-action="add-sub" data-id="${escapeHtml(item.id)}" data-day="${item.day_number || 1}" class="ehon-btn rounded-xl bg-[#A8D3E6]/70 px-2.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:brightness-95">＋ 子行程</button>` : ''}
-                <button type="button" data-action="edit" data-id="${escapeHtml(item.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-3 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#F6D27A]/40">編輯</button>
-                <button type="button" data-action="delete" data-id="${escapeHtml(item.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-3 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#F2A497]/50">刪除</button>
-              </div>
+              ${!isSub ? `<button type="button" data-action="add-sub" data-id="${escapeHtml(item.id)}" data-day="${item.day_number || 1}" class="ehon-btn rounded-xl bg-[#A8D3E6]/70 px-2.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:brightness-95">＋ 子行程</button>` : ''}
+              <button type="button" data-action="edit" data-id="${escapeHtml(item.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-2.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#F6D27A]/40">編輯</button>
+              <button type="button" data-action="delete" data-id="${escapeHtml(item.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-2.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#F2A497]/50">刪除</button>
             </div>
           </div>
         </article>
