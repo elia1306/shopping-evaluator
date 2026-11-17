@@ -492,6 +492,24 @@
       el._timer = setTimeout(() => el.classList.add('hidden'), 2800);
     }
 
+    function formatReadableBlock(text) {
+      const raw = String(text ?? '').trim();
+      if (!raw) return '';
+      const normalized = raw
+        .replace(/\r\n/g, '\n')
+        .replace(/\s*[｜|]\s*/g, '\n')
+        .replace(/\s*；\s*/g, '\n')
+        .replace(/。(?=[^\s」』）)])/g, '。\n')
+        .replace(/([^\n])(\s*(?:周邊逛街|選項|流程|路線|必玩|必吃|提醒|注意|共 \d+ 個地點|沿途餐廳參考|晚餐後可逛|外拍路線|回程)：)/g, '$1\n$2');
+      const lines = normalized.split('\n').map(l => l.trim()).filter(Boolean);
+      if (lines.length <= 1) {
+        return `<div class="mt-0.5 whitespace-pre-line leading-relaxed">${escapeHtml(lines[0] || raw)}</div>`;
+      }
+      return `<ul class="mt-1 space-y-1 leading-relaxed">${lines.map(line =>
+        `<li class="flex items-start gap-1.5"><span class="mt-0.5 shrink-0 text-[9px] text-[#3E3A39]/55">●</span><span class="whitespace-pre-line">${escapeHtml(line)}</span></li>`
+      ).join('')}</ul>`;
+    }
+
     function buildMapsUrl(obj) {
       if (obj?.google_maps_url) return obj.google_maps_url;
       const query = [obj?.location_name || obj?.name, obj?.address, obj?.title].filter(Boolean).join(' ');
@@ -761,7 +779,7 @@
           <div class="rounded-xl border border-[#3E3A39]/40 bg-white/80 p-2.5">
             <div class="font-bold text-[#3E3A39]">${escapeHtml(f.label)}｜${escapeHtml(f.airline)}</div>
             <div class="mt-0.5 font-bold text-[#2563EB]">${escapeHtml(f.route)}</div>
-            ${f.note ? `<div class="mt-1 text-[#3E3A39]/80">${escapeHtml(f.note)}</div>` : ''}
+            ${f.note ? `<div class="mt-1 text-[#3E3A39]/85">${formatReadableBlock(f.note)}</div>` : ''}
           </div>
         `).join('')
         : '<div class="text-[#3E3A39]/60">尚未設定航班資料</div>';
@@ -774,7 +792,7 @@
               <a href="${buildMapsUrl({ name: h.name, address: h.address })}" target="_blank" rel="noopener noreferrer" class="ehon-btn inline-flex items-center gap-1 rounded-xl bg-[#B9DAA5] px-2.5 py-1 text-[11px] font-bold text-[#3E3A39]">📍 Google Maps</a>
             </div>
             ${h.address ? `<div class="mt-0.5 text-[#3E3A39]/80">${escapeHtml(h.address)}</div>` : ''}
-            ${h.note ? `<div class="mt-1 text-[#3E3A39]/80">${escapeHtml(h.note)}</div>` : ''}
+            ${h.note ? `<div class="mt-1 text-[#3E3A39]/85">${formatReadableBlock(h.note)}</div>` : ''}
           </div>
         `).join('')
         : '<div class="text-[#3E3A39]/60">尚未設定住宿資料</div>';
@@ -898,13 +916,15 @@
                         </div>
 
                         ${item.transit_info ? `
-                          <div class="rounded-xl border-2 border-[#3E3A39]/25 bg-[#A8D3E6]/20 px-3 py-2 text-xs leading-relaxed text-[#3E3A39]">
-                            <span class="font-bold">🚇 交通：</span>${escapeHtml(item.transit_info)}
+                          <div class="rounded-xl border-2 border-[#3E3A39]/25 bg-[#A8D3E6]/20 px-3 py-2 text-xs text-[#3E3A39]">
+                            <div class="font-bold">🚇 交通</div>
+                            ${formatReadableBlock(item.transit_info)}
                           </div>
                         ` : ''}
                         ${item.notes ? `
-                          <div class="rounded-xl border-2 border-[#3E3A39]/20 bg-[#F6D27A]/15 px-3 py-2 text-xs leading-relaxed text-[#3E3A39]">
-                            <span class="font-bold">📝 備註：</span>${escapeHtml(item.notes)}
+                          <div class="rounded-xl border-2 border-[#3E3A39]/20 bg-[#F6D27A]/15 px-3 py-2 text-xs text-[#3E3A39]">
+                            <div class="font-bold">📝 備註</div>
+                            ${formatReadableBlock(item.notes)}
                           </div>
                         ` : ''}
                       </div>
