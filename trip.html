@@ -151,33 +151,31 @@
               <div id="overview-hotels" class="space-y-2.5 text-xs"></div>
             </div>
           </div>
-          <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <div class="rounded-2xl border-2 border-[#3E3A39] bg-[#F2A497]/20 p-4">
-              <div class="mb-2 flex items-center justify-between gap-2">
-                <h3 class="flex items-center gap-1.5 text-sm font-bold text-[#3E3A39]">📌 重要提醒・退稅・穿著建議</h3>
-                <button id="btn-edit-tips" type="button" class="ehon-btn rounded-xl bg-[#FFFCF6] px-2.5 py-1 text-[11px] font-bold text-[#3E3A39] hover:bg-[#F6D27A]/40">✏️ 編輯</button>
-              </div>
-              <ul id="overview-tips" class="list-disc space-y-1.5 pl-5 text-xs leading-relaxed text-[#3E3A39]"></ul>
-              <div id="tips-editor" class="mt-2 hidden space-y-2">
-                <textarea id="tips-editor-textarea" rows="5" placeholder="每行一則提醒..." class="w-full rounded-xl border-2 border-[#3E3A39] bg-white p-2.5 text-xs leading-relaxed outline-none"></textarea>
-                <div class="flex justify-end gap-2">
-                  <button id="btn-cancel-tips" type="button" class="ehon-btn rounded-xl bg-[#FFFCF6] px-3 py-1 text-xs font-bold">取消</button>
-                  <button id="btn-save-tips" type="button" class="ehon-btn rounded-xl bg-[#B9DAA5] px-3 py-1 text-xs font-bold">儲存提醒</button>
-                </div>
+          <div class="rounded-2xl border-2 border-[#3E3A39] bg-[#F2A497]/20 p-4">
+            <div class="mb-2 flex items-center justify-between gap-2">
+              <h3 class="flex items-center gap-1.5 text-sm font-bold text-[#3E3A39]">📌 重要提醒・退稅・穿著建議</h3>
+              <button id="btn-edit-tips" type="button" class="ehon-btn rounded-xl bg-[#FFFCF6] px-2.5 py-1 text-[11px] font-bold text-[#3E3A39] hover:bg-[#F6D27A]/40">✏️ 編輯</button>
+            </div>
+            <ul id="overview-tips" class="list-disc space-y-1.5 pl-5 text-xs leading-relaxed text-[#3E3A39]"></ul>
+            <div id="tips-editor" class="mt-2 hidden space-y-2">
+              <textarea id="tips-editor-textarea" rows="5" placeholder="每行一則提醒..." class="w-full rounded-xl border-2 border-[#3E3A39] bg-white p-2.5 text-xs leading-relaxed outline-none"></textarea>
+              <div class="flex justify-end gap-2">
+                <button id="btn-cancel-tips" type="button" class="ehon-btn rounded-xl bg-[#FFFCF6] px-3 py-1 text-xs font-bold">取消</button>
+                <button id="btn-save-tips" type="button" class="ehon-btn rounded-xl bg-[#B9DAA5] px-3 py-1 text-xs font-bold">儲存提醒</button>
               </div>
             </div>
+          </div>
 
-            <div class="rounded-2xl border-2 border-[#3E3A39] bg-[#B9DAA5]/25 p-4">
-              <div class="mb-2 flex items-center justify-between gap-2">
-                <h3 class="flex items-center gap-1.5 text-sm font-bold text-[#3E3A39]">🧳 檢查清單的確認</h3>
-                <span id="checklist-progress" class="rounded-full border-2 border-[#3E3A39] bg-[#FFFCF6] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">0 / 4</span>
-              </div>
-              <div id="overview-checklist" class="space-y-1.5 text-xs"></div>
-              <form id="checklist-add-form" class="mt-3 flex gap-2">
-                <input id="checklist-new-input" type="text" placeholder="新增檢查項目（如：行動電源、網卡）" class="min-w-0 flex-1 rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-1.5 text-xs outline-none" />
-                <button type="submit" class="ehon-btn shrink-0 rounded-xl bg-[#F6D27A] px-3 py-1.5 text-xs font-bold text-[#3E3A39]">＋ 新增</button>
-              </form>
+          <div class="rounded-2xl border-2 border-[#3E3A39] bg-[#B9DAA5]/25 p-4">
+            <div class="mb-2 flex items-center justify-between gap-2">
+              <h3 class="flex items-center gap-1.5 text-sm font-bold text-[#3E3A39]">🧳 檢查清單的確認</h3>
+              <span id="checklist-progress" class="rounded-full border-2 border-[#3E3A39] bg-[#FFFCF6] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">0 / 4</span>
             </div>
+            <div id="overview-checklist" class="space-y-1.5 text-xs"></div>
+            <form id="checklist-add-form" class="mt-3 flex gap-2">
+              <input id="checklist-new-input" type="text" placeholder="新增檢查項目（如：行動電源、網卡）" class="min-w-0 flex-1 rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-1.5 text-xs outline-none" />
+              <button type="submit" class="ehon-btn shrink-0 rounded-xl bg-[#F6D27A] px-3 py-1.5 text-xs font-bold text-[#3E3A39]">＋ 新增</button>
+            </form>
           </div>
         </div>
       </section>
@@ -1025,10 +1023,10 @@
             <span class="truncate font-bold ${item.checked ? 'line-through text-[#3E3A39]/50' : 'text-[#3E3A39]'}">${escapeHtml(item.label)}</span>
             ${item.required ? '<span class="shrink-0 rounded-lg border border-[#3E3A39] bg-[#F6D27A]/70 px-1.5 py-0.2 text-[10px] font-bold text-[#3E3A39]">必要</span>' : ''}
           </label>
-          ${isShareMode ? '' : `
+          ${(isShareMode || item.required) ? '' : `
             <div class="flex shrink-0 items-center gap-1">
               <button type="button" data-checklist-action="edit" data-cid="${escapeHtml(item.id)}" class="rounded-lg border border-[#3E3A39]/40 bg-[#FFFCF6] px-2 py-0.5 text-[11px] font-bold hover:bg-[#F6D27A]/40">編輯</button>
-              ${item.required ? '' : `<button type="button" data-checklist-action="delete" data-cid="${escapeHtml(item.id)}" class="rounded-lg border border-[#3E3A39]/40 bg-[#FFFCF6] px-2 py-0.5 text-[11px] font-bold hover:bg-[#F2A497]/50">刪除</button>`}
+              <button type="button" data-checklist-action="delete" data-cid="${escapeHtml(item.id)}" class="rounded-lg border border-[#3E3A39]/40 bg-[#FFFCF6] px-2 py-0.5 text-[11px] font-bold hover:bg-[#F2A497]/50">刪除</button>
             </div>
           `}
         </div>
