@@ -156,7 +156,7 @@
               <h3 class="flex items-center gap-1.5 text-sm font-bold text-[#3E3A39]">📌 重要提醒・退稅・穿著建議</h3>
               <button id="btn-edit-tips" type="button" class="ehon-btn rounded-xl bg-[#FFFCF6] px-2.5 py-1 text-[11px] font-bold text-[#3E3A39] hover:bg-[#F6D27A]/40">✏️ 編輯</button>
             </div>
-            <ul id="overview-tips" class="list-disc space-y-1.5 pl-5 text-xs leading-relaxed text-[#3E3A39]"></ul>
+            <div id="overview-tips" class="space-y-2.5 text-xs leading-relaxed text-[#3E3A39]"></div>
             <div id="tips-editor" class="mt-2 hidden space-y-2">
               <textarea id="tips-editor-textarea" rows="5" placeholder="每行一則提醒..." class="w-full rounded-xl border-2 border-[#3E3A39] bg-white p-2.5 text-xs leading-relaxed outline-none"></textarea>
               <div class="flex justify-end gap-2">
@@ -999,9 +999,35 @@
         `).join('')
         : '<div class="text-[#3E3A39]/60">尚未設定住宿資料</div>';
 
-      document.getElementById('overview-tips').innerHTML = (ov.tips || []).length
-        ? ov.tips.map(tip => `<li>${escapeHtml(tip)}</li>`).join('')
-        : '<li>暫無行前提醒</li>';
+      const tipsList = ov.tips || [];
+      const tipsContainer = document.getElementById('overview-tips');
+      if (!tipsList.length) {
+        tipsContainer.innerHTML = '<div class="text-[#3E3A39]/60">暫無行前提醒</div>';
+      } else {
+        const groups = [];
+        let currentGroup = { title: '', items: [] };
+        for (const rawTip of tipsList) {
+          const t = String(rawTip || '').trim();
+          if (!t) continue;
+          const m = t.match(/^[\[【](.+?)[\]】]$/);
+          if (m) {
+            if (currentGroup.title || currentGroup.items.length) groups.push(currentGroup);
+            currentGroup = { title: m[1].trim(), items: [] };
+          } else {
+            currentGroup.items.push(t);
+          }
+        }
+        if (currentGroup.title || currentGroup.items.length) groups.push(currentGroup);
+
+        tipsContainer.innerHTML = groups.map(g => `
+          <div class="rounded-xl border border-[#3E3A39]/35 bg-white/85 p-3">
+            ${g.title ? `<div class="mb-1.5 inline-flex items-center rounded-lg border-2 border-[#3E3A39] bg-[#F6D27A] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">${escapeHtml(g.title)}</div>` : ''}
+            <div class="space-y-1">
+              ${g.items.map(it => formatReadableBlock(it)).join('')}
+            </div>
+          </div>
+        `).join('');
+      }
 
       const btnEditTips = document.getElementById('btn-edit-tips');
       const checklistAddForm = document.getElementById('checklist-add-form');
