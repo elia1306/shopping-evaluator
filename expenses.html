@@ -94,11 +94,19 @@
           <select id="trip-selector" class="rounded-2xl border-[2.5px] border-[#3E3A39] bg-[#F6D27A] px-3.5 py-1.5 text-sm font-bold text-[#3E3A39] outline-none"></select>
         </div>
         <div class="flex flex-wrap items-center gap-2 text-xs">
-          <label for="input-jpy-rate" class="font-bold text-[#3E3A39]">💱 預設匯率 1 JPY ＝</label>
-          <input id="input-jpy-rate" type="number" step="0.001" min="0.01" class="w-24 rounded-xl border-2 border-[#3E3A39] bg-white px-2.5 py-1 text-center font-bold outline-none" />
+          <label for="input-jpy-rate" class="font-bold text-[#3E3A39]">💱 匯率 1 JPY ＝</label>
+          <input id="input-jpy-rate" type="number" step="0.0001" min="0.01" class="w-24 rounded-xl border-2 border-[#3E3A39] bg-white px-2.5 py-1 text-center font-bold outline-none" />
           <span class="font-bold text-[#3E3A39]">TWD</span>
           <button id="btn-save-rate" type="button" class="ehon-btn rounded-xl bg-[#B9DAA5] px-2.5 py-1 font-bold text-[#3E3A39]">套用</button>
+          <button id="btn-fetch-rate" type="button" class="ehon-btn rounded-xl bg-[#A8D3E6] px-2.5 py-1 font-bold text-[#3E3A39]">🌐 抓取今日匯率</button>
         </div>
+      </div>
+
+      <!-- Top View Switcher -->
+      <div class="flex flex-wrap items-center gap-2 border-t-2 border-dashed border-[#3E3A39]/25 pt-3.5" id="view-tabs">
+        <button type="button" data-view-tab="expenses" class="ehon-btn rounded-2xl bg-[#F6D27A] px-4 py-2 text-xs font-bold text-[#3E3A39] sm:text-sm">💸 支出表</button>
+        <button type="button" data-view-tab="kitty" class="ehon-btn rounded-2xl bg-[#FFFCF6] px-4 py-2 text-xs font-bold text-[#3E3A39] sm:text-sm">🏦 公積金</button>
+        <button type="button" data-view-tab="budget" class="ehon-btn rounded-2xl bg-[#FFFCF6] px-4 py-2 text-xs font-bold text-[#3E3A39] sm:text-sm">📋 預算表</button>
       </div>
 
       <!-- Companion Members -->
@@ -116,6 +124,8 @@
       </div>
     </section>
 
+    <!-- VIEW 1: 支出表 -->
+    <div id="view-expenses" class="space-y-6">
     <!-- Summary & Settlement -->
     <section aria-label="花費統計與分帳結算" class="grid grid-cols-1 gap-5 lg:grid-cols-2">
       <!-- Total Spending -->
@@ -179,6 +189,57 @@
 
     <!-- Expense List -->
     <section id="expenses-container" aria-label="消費明細" class="space-y-3.5"></section>
+    </div>
+
+    <!-- VIEW 2: 公積金 -->
+    <div id="view-kitty" class="hidden space-y-6">
+      <section class="ehon-box bg-[#B9DAA5]/25 p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-bold text-[#3E3A39]">🏦 公積金帳戶總覽</h2>
+            <p class="text-xs text-[#3E3A39]/75">追蹤成員已繳交的公積金、共同支出明細與目前剩餘餘額</p>
+          </div>
+          <button id="btn-add-kitty-deposit" type="button" class="ehon-btn rounded-2xl bg-[#F6D27A] px-4 py-2 text-xs font-bold text-[#3E3A39]">＋ 登記公積金存入</button>
+        </div>
+        <div id="kitty-view-cards" class="grid grid-cols-1 gap-3 sm:grid-cols-3"></div>
+        <div id="kitty-member-deposits" class="grid grid-cols-2 gap-2.5 sm:grid-cols-4 text-xs"></div>
+      </section>
+      <section class="space-y-3">
+        <h3 class="text-sm font-bold text-[#3E3A39]">📜 公積金收支明細</h3>
+        <div id="kitty-transactions" class="space-y-3"></div>
+      </section>
+    </div>
+
+    <!-- VIEW 3: 預算表 -->
+    <div id="view-budget" class="hidden space-y-6">
+      <section class="ehon-box bg-[#FFFCF6] p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-bold text-[#3E3A39]">📋 2026 富士山預算與現金準備總覽表</h2>
+            <p class="text-xs text-[#3E3A39]/75">匯入自您的 Google Sheets 預算表，台幣金額依上方即時／套用匯率自動換算</p>
+          </div>
+          <span id="budget-rate-badge" class="rounded-full border-2 border-[#3E3A39] bg-[#A8D3E6]/60 px-3 py-1 text-xs font-bold"></span>
+        </div>
+        <div id="budget-summary-cards" class="grid grid-cols-2 gap-3 sm:grid-cols-4"></div>
+        <div class="overflow-x-auto rounded-2xl border-2 border-[#3E3A39] bg-white">
+          <table class="w-full text-left text-xs">
+            <thead class="border-b-2 border-[#3E3A39] bg-[#F6D27A]/50 font-bold text-[#3E3A39]">
+              <tr>
+                <th class="px-3 py-2.5">成員</th>
+                <th class="px-3 py-2.5 text-right">住宿 (JPY)</th>
+                <th class="px-3 py-2.5 text-right">共用現金 (JPY)</th>
+                <th class="px-3 py-2.5 text-right">燒肉刷卡 (JPY)</th>
+                <th class="px-3 py-2.5 text-right">每日餐飲交通 (JPY)</th>
+                <th class="px-3 py-2.5 text-right bg-[#B9DAA5]/45">應準備現金 (JPY)</th>
+                <th class="px-3 py-2.5 text-right">總計 (JPY / TWD)</th>
+              </tr>
+            </thead>
+            <tbody id="budget-table-body" class="divide-y divide-[#3E3A39]/15"></tbody>
+          </table>
+        </div>
+        <div id="budget-daily-note" class="rounded-2xl border-2 border-[#3E3A39]/30 bg-[#F6D27A]/20 p-3.5 text-xs leading-relaxed"></div>
+      </section>
+    </div>
 
   </main>
 
@@ -334,8 +395,21 @@
     const STORAGE_BUCKET = 'shopping-products';
     const TRIP_LOCAL_KEY = 'ehon_trip_planner_v1';
     const EXP_LOCAL_KEY = 'ehon_trip_expenses_v1';
-    const DEFAULT_MEMBERS = ['Elia', 'Winnie'];
-    const DEFAULT_JPY_RATE = 0.22;
+    const DEFAULT_MEMBERS = ['Elia', '惠雯', '玟君', '佳雯', '阿鳳', '維倫', '東泉'];
+    const DEFAULT_JPY_RATE = 0.2078;
+    const DEFAULT_BUDGET = {
+      per_person: [
+        { name: 'Elia', hotel: 115551, shared: 44171, yakiniku: 8300, daily: 26189, cash_prep: 70360, total_jpy: 194211 },
+        { name: '惠雯', hotel: 97189, shared: 39371, yakiniku: 8300, daily: 26189, cash_prep: 65560, total_jpy: 171049 },
+        { name: '玟君', hotel: 115551, shared: 44171, yakiniku: 8300, daily: 26189, cash_prep: 70360, total_jpy: 194211 },
+        { name: '佳雯', hotel: 115551, shared: 39371, yakiniku: 8300, daily: 26189, cash_prep: 65560, total_jpy: 189411 },
+        { name: '阿鳳', hotel: 115551, shared: 44171, yakiniku: 8300, daily: 26189, cash_prep: 70360, total_jpy: 194211 },
+        { name: '維倫', hotel: 99000, shared: 23371, yakiniku: 8300, daily: 26189, cash_prep: 49560, total_jpy: 156860 },
+        { name: '東泉', hotel: 99000, shared: 23371, yakiniku: 8300, daily: 26189, cash_prep: 49560, total_jpy: 156860 }
+      ],
+      daily_dining_jpy: 20000,
+      daily_transport_jpy: 6189
+    };
 
     const CAT_COLORS = {
       '餐飲': 'bg-[#F2A497]',
@@ -352,6 +426,7 @@
     let trips = [];
     let expenses = [];
     let activeTripId = '';
+    let activeViewTab = 'expenses';
     let filters = { day: 'all', payer: '全部', category: '全部', needsReview: false };
 
     function escapeHtml(str) {
@@ -775,7 +850,8 @@
                   <div class="text-lg font-bold text-[#3E3A39]">${origAmtStr}</div>
                   ${twdHint ? `<div class="text-[11px] font-bold text-[#3E3A39]/70">${twdHint}</div>` : ''}
                 </div>
-                <div class="flex items-center gap-1.5">
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <button type="button" data-exp-action="toggle-exclude" data-id="${escapeHtml(exp.id)}" class="ehon-btn rounded-xl ${exp.exclude_from_total ? 'bg-[#B9DAA5]' : 'bg-[#FFFCF6]'} px-2.5 py-1 text-xs font-bold">${exp.exclude_from_total ? '✅ 納入計算' : '⏸️ 暫不計算'}</button>
                   <button type="button" data-exp-action="edit" data-id="${escapeHtml(exp.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-3 py-1 text-xs font-bold hover:bg-[#F6D27A]/40">編輯</button>
                   <button type="button" data-exp-action="delete" data-id="${escapeHtml(exp.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-3 py-1 text-xs font-bold hover:bg-[#F2A497]/50">刪除</button>
                 </div>
@@ -786,11 +862,155 @@
       }).join('');
     }
 
+    function renderKittyView() {
+      const trip = getActiveTrip();
+      if (!trip) return;
+      const rate = getTripRate(trip);
+      const members = getTripMembers(trip);
+      const tripExps = expenses.filter(e => e.trip_id === trip.id);
+      const kittyExps = tripExps.filter(e => !e.exclude_from_total && (e.category === '公積金存入' || e.paid_by === '🏦 公積金'));
+
+      let inTwd = 0, outTwd = 0;
+      const memberIn = {};
+      members.forEach(m => { memberIn[m] = 0; });
+
+      for (const e of kittyExps) {
+        const twd = toTwd(e);
+        if (e.category === '公積金存入') {
+          inTwd += twd;
+          const payer = e.paid_by;
+          if (payer && payer !== '🏦 公積金') memberIn[payer] = (memberIn[payer] || 0) + twd;
+        } else if (e.paid_by === '🏦 公積金') {
+          outTwd += twd;
+        }
+      }
+      const balTwd = inTwd - outTwd;
+
+      document.getElementById('kitty-view-cards').innerHTML = `
+        <div class="rounded-2xl border-2 border-[#3E3A39] bg-white p-3.5">
+          <span class="text-[11px] font-bold text-[#3E3A39]/75">目前公積金餘額</span>
+          <div class="mt-0.5 text-xl font-bold ${balTwd >= 0 ? 'text-[#15803D]' : 'text-[#B91C1C]'}">NT$ ${Math.round(balTwd).toLocaleString()}</div>
+          <div class="text-[11px] font-bold text-[#3E3A39]/70">約 ¥${Math.round(balTwd / rate).toLocaleString()}</div>
+        </div>
+        <div class="rounded-2xl border-2 border-[#3E3A39] bg-[#F6D27A]/45 p-3.5">
+          <span class="text-[11px] font-bold text-[#3E3A39]/75">累計存入公積金</span>
+          <div class="mt-0.5 text-xl font-bold text-[#3E3A39]">NT$ ${Math.round(inTwd).toLocaleString()}</div>
+          <div class="text-[11px] font-bold text-[#3E3A39]/70">約 ¥${Math.round(inTwd / rate).toLocaleString()}</div>
+        </div>
+        <div class="rounded-2xl border-2 border-[#3E3A39] bg-[#F2A497]/35 p-3.5">
+          <span class="text-[11px] font-bold text-[#3E3A39]/75">公積金已支出</span>
+          <div class="mt-0.5 text-xl font-bold text-[#3E3A39]">NT$ ${Math.round(outTwd).toLocaleString()}</div>
+          <div class="text-[11px] font-bold text-[#3E3A39]/70">約 ¥${Math.round(outTwd / rate).toLocaleString()}</div>
+        </div>
+      `;
+
+      document.getElementById('kitty-member-deposits').innerHTML = Object.entries(memberIn).map(([name, val]) => `
+        <div class="rounded-xl border border-[#3E3A39]/35 bg-white/85 px-3 py-2 font-bold">
+          <div>${escapeHtml(name)} 已繳</div>
+          <div class="mt-0.5 text-[#3E3A39]">NT$ ${Math.round(val).toLocaleString()} <span class="text-[10px] text-[#3E3A39]/65">(¥${Math.round(val / rate).toLocaleString()})</span></div>
+        </div>
+      `).join('');
+
+      const allKittyRecords = tripExps
+        .filter(e => e.category === '公積金存入' || e.paid_by === '🏦 公積金')
+        .sort((a, b) => (a.day_number - b.day_number) || (b.created_at || '').localeCompare(a.created_at || ''));
+
+      document.getElementById('kitty-transactions').innerHTML = allKittyRecords.length
+        ? allKittyRecords.map(exp => {
+          const isDeposit = exp.category === '公積金存入';
+          const amtStr = exp.currency === 'JPY' ? `¥${Number(exp.amount).toLocaleString()}` : `NT$ ${Number(exp.amount).toLocaleString()}`;
+          return `
+            <div class="ehon-box bg-[#FFFCF6] p-3.5 flex flex-wrap items-center justify-between gap-2 ${exp.exclude_from_total ? 'opacity-60' : ''}">
+              <div class="space-y-0.5">
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <span class="rounded-lg border-2 border-[#3E3A39] ${isDeposit ? 'bg-[#B9DAA5]' : 'bg-[#F2A497]/75'} px-2 py-0.5 text-[11px] font-bold">${isDeposit ? '➕ 存入' : '➖ 支出'}</span>
+                  <span class="text-xs font-bold">Day ${exp.day_number}</span>
+                  ${exp.exclude_from_total ? '<span class="rounded-lg border border-dashed border-[#3E3A39] px-2 py-0.5 text-[10px] font-bold">⏸️ 暫不計算</span>' : ''}
+                </div>
+                <div class="text-sm font-bold">${escapeHtml(exp.title)}</div>
+                <div class="text-xs text-[#3E3A39]/75">${isDeposit ? `由 ${escapeHtml(exp.paid_by)} 存入` : '由公積金支付'}</div>
+              </div>
+              <div class="text-right font-bold">
+                <div class="text-base ${isDeposit ? 'text-[#15803D]' : 'text-[#B91C1C]'}">${isDeposit ? '+' : '-'}${amtStr}</div>
+                <div class="text-[11px] text-[#3E3A39]/70">NT$ ${Math.round(toTwd(exp)).toLocaleString()}</div>
+              </div>
+            </div>
+          `;
+        }).join('')
+        : '<div class="ehon-box bg-[#FFFCF6] p-6 text-center text-xs font-bold text-[#3E3A39]/70">尚無公積金收支紀錄，可點上方「＋ 登記公積金存入」開始記錄！</div>';
+    }
+
+    function renderBudgetView() {
+      const trip = getActiveTrip();
+      if (!trip) return;
+      const rate = getTripRate(trip);
+      const budget = trip.overview?.budget || DEFAULT_BUDGET;
+      const rows = budget.per_person || [];
+      document.getElementById('budget-rate-badge').textContent = `換算匯率：1 JPY = ${rate} TWD`;
+
+      const sumJpy = rows.reduce((s, r) => s + (r.total_jpy || 0), 0);
+      const sumCash = rows.reduce((s, r) => s + (r.cash_prep || 0), 0);
+      const avgJpy = rows.length ? Math.round(sumJpy / rows.length) : 0;
+
+      document.getElementById('budget-summary-cards').innerHTML = `
+        <div class="rounded-2xl border-2 border-[#3E3A39] bg-[#F6D27A]/45 p-3">
+          <div class="text-[11px] font-bold text-[#3E3A39]/80">全團預訂總額</div>
+          <div class="mt-0.5 text-lg font-bold">¥${sumJpy.toLocaleString()}</div>
+          <div class="text-[11px] font-bold text-[#3E3A39]/70">≈ NT$ ${Math.round(sumJpy * rate).toLocaleString()}</div>
+        </div>
+        <div class="rounded-2xl border-2 border-[#3E3A39] bg-[#B9DAA5]/45 p-3">
+          <div class="text-[11px] font-bold text-[#3E3A39]/80">日幣現金準備總額</div>
+          <div class="mt-0.5 text-lg font-bold">¥${sumCash.toLocaleString()}</div>
+          <div class="text-[11px] font-bold text-[#3E3A39]/70">≈ NT$ ${Math.round(sumCash * rate).toLocaleString()}</div>
+        </div>
+        <div class="rounded-2xl border-2 border-[#3E3A39] bg-[#A8D3E6]/45 p-3">
+          <div class="text-[11px] font-bold text-[#3E3A39]/80">每人平均總額</div>
+          <div class="mt-0.5 text-lg font-bold">¥${avgJpy.toLocaleString()}</div>
+          <div class="text-[11px] font-bold text-[#3E3A39]/70">≈ NT$ ${Math.round(avgJpy * rate).toLocaleString()}</div>
+        </div>
+        <div class="rounded-2xl border-2 border-[#3E3A39] bg-[#F2A497]/30 p-3">
+          <div class="text-[11px] font-bold text-[#3E3A39]/80">每人自理餐飲＋交通</div>
+          <div class="mt-0.5 text-lg font-bold">¥${((budget.daily_dining_jpy || 20000) + (budget.daily_transport_jpy || 6189)).toLocaleString()}</div>
+          <div class="text-[11px] font-bold text-[#3E3A39]/70">餐 ¥${(budget.daily_dining_jpy || 20000).toLocaleString()} ＋ 交 ¥${(budget.daily_transport_jpy || 6189).toLocaleString()}</div>
+        </div>
+      `;
+
+      document.getElementById('budget-table-body').innerHTML = rows.map(r => `
+        <tr class="hover:bg-[#FFFCF6]">
+          <td class="px-3 py-2 font-bold">${escapeHtml(r.name)}</td>
+          <td class="px-3 py-2 text-right">¥${r.hotel.toLocaleString()}</td>
+          <td class="px-3 py-2 text-right">¥${r.shared.toLocaleString()}</td>
+          <td class="px-3 py-2 text-right">¥${r.yakiniku.toLocaleString()}</td>
+          <td class="px-3 py-2 text-right">¥${r.daily.toLocaleString()}</td>
+          <td class="px-3 py-2 text-right font-bold bg-[#B9DAA5]/25">¥${r.cash_prep.toLocaleString()}</td>
+          <td class="px-3 py-2 text-right font-bold">¥${r.total_jpy.toLocaleString()}<br><span class="text-[10px] text-[#3E3A39]/70">NT$ ${Math.round(r.total_jpy * rate).toLocaleString()}</span></td>
+        </tr>
+      `).join('');
+
+      document.getElementById('budget-daily-note').innerHTML = `
+        <strong>💡 現金準備說明：</strong>「應準備現金」＝ 共用項目現金（包車＋和服＋攝影）＋ 每日自理餐飲與交通預估（餐飲 ¥20,000 ＋ 交通 ¥6,189 ＝ ¥26,189）。Day 1 肉屋横丁燒肉由玟君刷卡代墊（每人 ¥8,300）。
+      `;
+    }
+
     function renderAll() {
       renderTripAndMembers();
-      renderSummaryAndSettlement();
-      renderFilters();
-      renderExpensesList();
+      document.querySelectorAll('[data-view-tab]').forEach(btn => {
+        const active = btn.dataset.viewTab === activeViewTab;
+        btn.className = `ehon-btn rounded-2xl ${active ? 'bg-[#F6D27A]' : 'bg-[#FFFCF6]'} px-4 py-2 text-xs font-bold text-[#3E3A39] sm:text-sm`;
+      });
+      document.getElementById('view-expenses').classList.toggle('hidden', activeViewTab !== 'expenses');
+      document.getElementById('view-kitty').classList.toggle('hidden', activeViewTab !== 'kitty');
+      document.getElementById('view-budget').classList.toggle('hidden', activeViewTab !== 'budget');
+
+      if (activeViewTab === 'expenses') {
+        renderSummaryAndSettlement();
+        renderFilters();
+        renderExpensesList();
+      } else if (activeViewTab === 'kitty') {
+        renderKittyView();
+      } else if (activeViewTab === 'budget') {
+        renderBudgetView();
+      }
     }
 
     function renderModalMemberOptions(selectedPayer, selectedSplits) {
@@ -874,12 +1094,44 @@
       m.classList.add('hidden'); m.classList.remove('flex');
     }
 
+    async function fetchTodayJpyRate(silent = false) {
+      try {
+        const res = await fetch('https://open.er-api.com/v6/latest/JPY');
+        const json = await res.json();
+        const twd = Number(json?.rates?.TWD);
+        if (!(twd > 0)) throw new Error('無效匯率資料');
+        const rounded = Number(twd.toFixed(4));
+        const trip = getActiveTrip();
+        if (trip) {
+          await saveTripSettings(trip, { jpy_rate: rounded });
+        }
+        renderAll();
+        if (!silent) showToast(`已更新今日即時匯率：1 JPY = ${rounded} TWD`);
+      } catch (err) {
+        if (!silent) showToast('無法取得即時匯率，沿用目前設定匯率');
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       trips = loadLocalTrips();
       expenses = loadLocalExpenses();
       activeTripId = trips[0]?.id || '';
       renderAll();
-      initSupabase().catch(console.error);
+      initSupabase().then(() => fetchTodayJpyRate(true)).catch(console.error);
+
+      document.getElementById('view-tabs').addEventListener('click', e => {
+        const btn = e.target.closest('[data-view-tab]');
+        if (!btn) return;
+        activeViewTab = btn.dataset.viewTab;
+        renderAll();
+      });
+
+      document.getElementById('btn-fetch-rate').addEventListener('click', () => fetchTodayJpyRate(false));
+      document.getElementById('btn-add-kitty-deposit').addEventListener('click', () => {
+        openExpenseModal();
+        document.getElementById('field-category').value = '公積金存入';
+        document.getElementById('field-title').value = '繳交公積金';
+      });
 
       document.getElementById('trip-selector').addEventListener('change', e => {
         activeTripId = e.target.value;
@@ -962,7 +1214,15 @@
         const idx = expenses.findIndex(x => x.id === id);
         if (idx === -1) return;
 
-        if (act === 'zoom-receipt') {
+        if (act === 'toggle-exclude') {
+          expenses[idx].exclude_from_total = !expenses[idx].exclude_from_total;
+          saveLocalExpenses();
+          renderAll();
+          if (currentUser && supabaseClient) {
+            await supabaseClient.from('trip_expenses').update({ exclude_from_total: expenses[idx].exclude_from_total }).eq('id', id);
+          }
+          showToast(expenses[idx].exclude_from_total ? '已設為暫不計算' : '已納入統計與分帳');
+        } else if (act === 'zoom-receipt') {
           const src = expenses[idx].receipt || expenses[idx].receipt_url;
           if (!src) return;
           document.getElementById('lightbox-img').src = src;
