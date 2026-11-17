@@ -531,7 +531,13 @@
     function getTripItems(tripId) {
       return state.items
         .filter(i => i.trip_id === tripId)
-        .sort((a, b) => (a.day_number - b.day_number) || (a.start_time || '99:99').localeCompare(b.start_time || '99:99') || (a.sort_order - b.sort_order));
+        .sort((a, b) =>
+          (a.day_number - b.day_number) ||
+          (a.start_time || '99:99').localeCompare(b.start_time || '99:99') ||
+          ((a.sort_order ?? 50) - (b.sort_order ?? 50)) ||
+          (a.title || '').localeCompare(b.title || '', 'zh-Hant', { numeric: true }) ||
+          (a.created_at || '').localeCompare(b.created_at || '')
+        );
     }
 
     function enterTrip(tripId, pushHistory = true) {
