@@ -885,9 +885,9 @@
 
     function computeDateForDay(trip, dayNum) {
       if (!trip?.start_date) return '';
-      const d = new Date(trip.start_date + 'T00:00:00');
-      if (isNaN(d)) return '';
-      d.setDate(d.getDate() + (dayNum - 1));
+      const parts = trip.start_date.split('-').map(Number);
+      if (parts.length !== 3 || parts.some(isNaN)) return '';
+      const d = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2] + (dayNum - 1)));
       return d.toISOString().slice(0, 10);
     }
 
