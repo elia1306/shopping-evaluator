@@ -219,9 +219,16 @@
             </select>
           </div>
           <div class="sm:col-span-2">
-            <label for="field-title" class="mb-1 block font-bold">行程標題 *</label>
-            <input id="field-title" type="text" required placeholder="例：小網神社（洗錢）" class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm outline-none" />
+            <label for="field-parent-id" class="mb-1 block font-bold">上層主行程（選填，設為該行程的子行程）</label>
+            <select id="field-parent-id" class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm outline-none">
+              <option value="">（無 — 設為獨立主行程）</option>
+            </select>
           </div>
+        </div>
+
+        <div>
+          <label for="field-title" class="mb-1 block font-bold">行程標題 *</label>
+          <input id="field-title" type="text" required placeholder="例：小網神社（洗錢）" class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm outline-none" />
         </div>
 
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -639,6 +646,7 @@
       const row = {
         id,
         trip_id: item.trip_id,
+        parent_id: item.parent_id || null,
         user_id: currentUser.id,
         day_number: Number(item.day_number) || 1,
         item_date: item.item_date || null,
@@ -802,6 +810,75 @@
       `;
     }
 
+    function renderItemCard(item, isSub = false) {
+      const catColor = CATEGORY_COLORS[item.category] || 'bg-[#FFFCF6]';
+      const catIcon = CATEGORY_ICONS[item.category] || '📌';
+      const timeStr = item.start_time
+        ? (item.end_time ? `${item.start_time} – ${item.end_time}` : item.start_time)
+        : '彈性時間';
+      const mapsUrl = buildMapsUrl(item);
+
+      const cardClass = item.is_optional ? 'ehon-box-optional' : 'ehon-box bg-[#FFFCF6]';
+      const planBadge = item.is_optional
+        ? '<span class="rounded-xl border-2 border-[#3E3A39] bg-[#A8D3E6] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">💡 備選方案</span>'
+        : (isSub
+          ? '<span class="rounded-xl border-2 border-[#3E3A39] bg-[#B9DAA5]/70 px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">↳ 子行程</span>'
+          : '<span class="rounded-xl border-2 border-[#3E3A39] bg-[#F6D27A] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">★ 主行程</span>');
+
+      return `
+        <article class="${cardClass} ${isSub ? 'p-3.5' : 'p-4'} transition ${item.is_done ? 'opacity-65' : ''}">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div class="min-w-0 flex-1 space-y-2">
+              <div class="flex flex-wrap items-center gap-2">
+                <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border-2 border-[#3E3A39] bg-white px-2 py-0.5 text-[11px] font-bold">
+                  <input type="checkbox" data-action="toggle-done" data-id="${escapeHtml(item.id)}" ${item.is_done ? 'checked' : ''} class="accent-[#3E3A39]" />
+                  <span>${item.is_done ? '已完成' : '待進行'}</span>
+                </label>
+                ${planBadge}
+                <span class="rounded-xl border-2 border-[#3E3A39] bg-[#FFFCF6] px-2.5 py-0.5 text-xs font-bold text-[#3E3A39]">🕒 ${escapeHtml(timeStr)}</span>
+                <span class="rounded-xl border-2 border-[#3E3A39] ${catColor} px-2.5 py-0.5 text-xs font-bold text-[#3E3A39]">${catIcon} ${escapeHtml(item.category || '景點')}</span>
+                ${item.reservation_code ? `<button type="button" data-action="copy-code" data-code="${escapeHtml(item.reservation_code)}" class="rounded-xl border-2 border-[#3E3A39] bg-[#F2A497]/50 px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]" title="點擊複製預約碼">🎫 預約：${escapeHtml(item.reservation_code)}</button>` : ''}
+                ${item.cost_note ? `<span class="rounded-xl border-2 border-[#3E3A39] bg-[#F6D27A]/50 px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">💴 ${escapeHtml(item.cost_note)}</span>` : ''}
+              </div>
+
+              <div>
+                <h3 class="${isSub ? 'text-sm' : 'text-base'} font-bold text-[#3E3A39] ${item.is_done ? 'line-through' : ''}">${escapeHtml(item.title)}</h3>
+                ${(item.location_name || item.address) ? `
+                  <p class="mt-0.5 text-xs text-[#3E3A39]/75">
+                    📍 ${escapeHtml(item.location_name || '')}${item.location_name && item.address ? ' ・ ' : ''}${escapeHtml(item.address || '')}
+                  </p>
+                ` : ''}
+              </div>
+
+              ${item.transit_info ? `
+                <div class="rounded-xl border-2 border-[#3E3A39]/25 bg-[#A8D3E6]/20 px-3 py-2 text-xs text-[#3E3A39]">
+                  <div class="font-bold">🚇 交通</div>
+                  ${formatReadableBlock(item.transit_info)}
+                </div>
+              ` : ''}
+              ${item.notes ? `
+                <div class="rounded-xl border-2 border-[#3E3A39]/20 bg-[#F6D27A]/15 px-3 py-2 text-xs text-[#3E3A39]">
+                  <div class="font-bold">📝 備註</div>
+                  ${formatReadableBlock(item.notes)}
+                </div>
+              ` : ''}
+            </div>
+
+            <div class="flex shrink-0 flex-wrap items-center gap-2 sm:flex-col sm:items-end">
+              <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" class="ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#B9DAA5] px-3.5 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95">
+                📍 Google Maps
+              </a>
+              <div class="flex flex-wrap items-center gap-1.5">
+                ${!isSub ? `<button type="button" data-action="add-sub" data-id="${escapeHtml(item.id)}" data-day="${item.day_number || 1}" class="ehon-btn rounded-xl bg-[#A8D3E6]/70 px-2.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:brightness-95">＋ 子行程</button>` : ''}
+                <button type="button" data-action="edit" data-id="${escapeHtml(item.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-3 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#F6D27A]/40">編輯</button>
+                <button type="button" data-action="delete" data-id="${escapeHtml(item.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-3 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#F2A497]/50">刪除</button>
+              </div>
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
     function renderTimeline() {
       const trip = getActiveTrip();
       if (!trip) return;
@@ -819,7 +896,7 @@
         container.innerHTML = `
           <div class="ehon-box bg-[#FFFCF6] p-8 text-center">
             <p class="text-sm font-bold text-[#3E3A39]">目前沒有符合條件的行程</p>
-            <p class="mt-1 text-xs text-[#3E3A39]/70">試試切換天數、清除搜尋，或點右上角「＋ 新增行程」加入新地點！</p>
+            <p class="mt-1 text-xs text-[#3E3A39]/70">試試切換天數，或點右上角「＋ 新增行程」加入新地點！</p>
           </div>
         `;
         return;
@@ -835,6 +912,18 @@
       container.innerHTML = Array.from(grouped.entries()).map(([dayNum, dayItems]) => {
         const dateStr = dayItems[0]?.item_date || computeDateForDay(trip, dayNum);
         const dateLabel = formatDateWithWeekday(dateStr);
+        const itemIdSet = new Set(dayItems.map(i => i.id));
+        const childrenByParent = new Map();
+        const topLevel = [];
+
+        for (const item of dayItems) {
+          if (item.parent_id && itemIdSet.has(item.parent_id)) {
+            if (!childrenByParent.has(item.parent_id)) childrenByParent.set(item.parent_id, []);
+            childrenByParent.get(item.parent_id).push(item);
+          } else {
+            topLevel.push(item);
+          }
+        }
 
         return `
           <div class="space-y-4">
@@ -847,70 +936,18 @@
               <button data-action="add-day" data-day="${dayNum}" type="button" class="ehon-btn rounded-xl bg-[#F2A497] px-3 py-1 text-xs font-bold text-[#3E3A39]">＋ 新增 Day ${dayNum} 行程</button>
             </div>
 
-            <div class="space-y-3.5 pl-1 sm:pl-3">
-              ${dayItems.map(item => {
-                const catColor = CATEGORY_COLORS[item.category] || 'bg-[#FFFCF6]';
-                const catIcon = CATEGORY_ICONS[item.category] || '📌';
-                const timeStr = item.start_time
-                  ? (item.end_time ? `${item.start_time} – ${item.end_time}` : item.start_time)
-                  : '彈性時間';
-                const mapsUrl = buildMapsUrl(item);
-
-                const cardClass = item.is_optional ? 'ehon-box-optional' : 'ehon-box bg-[#FFFCF6]';
-                const planBadge = item.is_optional
-                  ? '<span class="rounded-xl border-2 border-[#3E3A39] bg-[#A8D3E6] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">💡 備選方案</span>'
-                  : '<span class="rounded-xl border-2 border-[#3E3A39] bg-[#F6D27A] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">★ 主行程</span>';
-
+            <div class="space-y-4 pl-1 sm:pl-3">
+              ${topLevel.map(parent => {
+                const subs = childrenByParent.get(parent.id) || [];
                 return `
-                  <article class="${cardClass} p-4 transition ${item.is_done ? 'opacity-65' : ''}">
-                    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                      <div class="min-w-0 flex-1 space-y-2">
-                        <div class="flex flex-wrap items-center gap-2">
-                          <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border-2 border-[#3E3A39] bg-white px-2 py-0.5 text-[11px] font-bold">
-                            <input type="checkbox" data-action="toggle-done" data-id="${escapeHtml(item.id)}" ${item.is_done ? 'checked' : ''} class="accent-[#3E3A39]" />
-                            <span>${item.is_done ? '已完成' : '待進行'}</span>
-                          </label>
-                          ${planBadge}
-                          <span class="rounded-xl border-2 border-[#3E3A39] bg-[#FFFCF6] px-2.5 py-0.5 text-xs font-bold text-[#3E3A39]">🕒 ${escapeHtml(timeStr)}</span>
-                          <span class="rounded-xl border-2 border-[#3E3A39] ${catColor} px-2.5 py-0.5 text-xs font-bold text-[#3E3A39]">${catIcon} ${escapeHtml(item.category || '景點')}</span>
-                          ${item.reservation_code ? `<button type="button" data-action="copy-code" data-code="${escapeHtml(item.reservation_code)}" class="rounded-xl border-2 border-[#3E3A39] bg-[#F2A497]/50 px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]" title="點擊複製預約碼">🎫 預約：${escapeHtml(item.reservation_code)}</button>` : ''}
-                          ${item.cost_note ? `<span class="rounded-xl border-2 border-[#3E3A39] bg-[#F6D27A]/50 px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">💴 ${escapeHtml(item.cost_note)}</span>` : ''}
-                        </div>
-
-                        <div>
-                          <h3 class="text-base font-bold text-[#3E3A39] ${item.is_done ? 'line-through' : ''}">${escapeHtml(item.title)}</h3>
-                          ${(item.location_name || item.address) ? `
-                            <p class="mt-0.5 text-xs text-[#3E3A39]/75">
-                              📍 ${escapeHtml(item.location_name || '')}${item.location_name && item.address ? ' ・ ' : ''}${escapeHtml(item.address || '')}
-                            </p>
-                          ` : ''}
-                        </div>
-
-                        ${item.transit_info ? `
-                          <div class="rounded-xl border-2 border-[#3E3A39]/25 bg-[#A8D3E6]/20 px-3 py-2 text-xs text-[#3E3A39]">
-                            <div class="font-bold">🚇 交通</div>
-                            ${formatReadableBlock(item.transit_info)}
-                          </div>
-                        ` : ''}
-                        ${item.notes ? `
-                          <div class="rounded-xl border-2 border-[#3E3A39]/20 bg-[#F6D27A]/15 px-3 py-2 text-xs text-[#3E3A39]">
-                            <div class="font-bold">📝 備註</div>
-                            ${formatReadableBlock(item.notes)}
-                          </div>
-                        ` : ''}
+                  <div>
+                    ${renderItemCard(parent, false)}
+                    ${subs.length ? `
+                      <div class="mt-2.5 ml-3 space-y-2.5 border-l-[3px] border-[#3E3A39]/30 pl-3 sm:ml-6 sm:pl-4">
+                        ${subs.map(sub => renderItemCard(sub, true)).join('')}
                       </div>
-
-                      <div class="flex shrink-0 flex-wrap items-center gap-2 sm:flex-col sm:items-end">
-                        <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" class="ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#B9DAA5] px-3.5 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95">
-                          📍 Google Maps
-                        </a>
-                        <div class="flex items-center gap-1.5">
-                          <button type="button" data-action="edit" data-id="${escapeHtml(item.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-3 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#F6D27A]/40">編輯</button>
-                          <button type="button" data-action="delete" data-id="${escapeHtml(item.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-3 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#F2A497]/50">刪除</button>
-                        </div>
-                      </div>
-                    </div>
-                  </article>
+                    ` : ''}
+                  </div>
                 `;
               }).join('')}
             </div>
@@ -960,7 +997,21 @@
       });
     }
 
-    function openItemModal(itemId = null, defaultDay = null) {
+    function populateParentSelect(dayNum, currentItemId = '', selectedParentId = '') {
+      const trip = getActiveTrip();
+      const sel = document.getElementById('field-parent-id');
+      if (!trip) return;
+      const candidates = getTripItems(trip.id).filter(i =>
+        Number(i.day_number) === Number(dayNum) &&
+        !i.parent_id &&
+        i.id !== currentItemId
+      );
+      sel.innerHTML = `<option value="">（無 — 設為獨立主行程）</option>` +
+        candidates.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.start_time ? `${c.start_time} ` : '')}${escapeHtml(c.title)}</option>`).join('');
+      sel.value = selectedParentId || '';
+    }
+
+    function openItemModal(itemId = null, defaultDay = null, defaultParentId = null) {
       const trip = getActiveTrip();
       if (!trip) return;
       const form = document.getElementById('item-form');
@@ -987,11 +1038,13 @@
         document.getElementById('field-cost-note').value = item.cost_note || '';
         document.getElementById('field-notes').value = item.notes || '';
         document.getElementById('field-is-optional').checked = Boolean(item.is_optional);
+        populateParentSelect(item.day_number || 1, item.id, item.parent_id || '');
       } else {
         const d = defaultDay || (filters.day !== 'all' ? Number(filters.day) : 1);
-        document.getElementById('item-modal-title').textContent = '新增行程項目';
+        document.getElementById('item-modal-title').textContent = defaultParentId ? '新增子行程' : '新增行程項目';
         document.getElementById('field-day').value = d;
         document.getElementById('field-date').value = computeDateForDay(trip, d);
+        populateParentSelect(d, '', defaultParentId || '');
       }
       updatePreviewMapsLink();
       const m = document.getElementById('item-modal');
@@ -1193,6 +1246,10 @@
           openItemModal(null, Number(target.dataset.day));
           return;
         }
+        if (action === 'add-sub') {
+          openItemModal(null, Number(target.dataset.day), target.dataset.id);
+          return;
+        }
         if (action === 'copy-code') {
           try {
             await navigator.clipboard.writeText(target.dataset.code);
@@ -1239,6 +1296,7 @@
         const d = Number(e.target.value) || 1;
         const dateEl = document.getElementById('field-date');
         if (!dateEl.value) dateEl.value = computeDateForDay(getActiveTrip(), d);
+        populateParentSelect(d, document.getElementById('field-id').value, document.getElementById('field-parent-id').value);
       });
       document.getElementById('btn-apply-json').addEventListener('click', () => applyJsonInput(document.getElementById('field-json-paste').value));
 
@@ -1253,6 +1311,7 @@
         const item = {
           id: id || crypto.randomUUID(),
           trip_id: trip.id,
+          parent_id: document.getElementById('field-parent-id').value || null,
           day_number: dayNum,
           item_date: document.getElementById('field-date').value || computeDateForDay(trip, dayNum) || null,
           start_time: document.getElementById('field-start-time').value.trim(),
