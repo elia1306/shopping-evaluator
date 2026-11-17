@@ -57,11 +57,8 @@
     html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
     img, input, select, textarea, button { max-width: 100%; }
     @media (max-width: 640px) {
-      header > div { padding-left: 12px !important; padding-right: 12px !important; }
-      header h1 { font-size: 18px !important; line-height: 1.35; }
       header .flex.flex-wrap.items-center.gap-2 > button,
       header .flex.flex-wrap.items-center.gap-2 > label { flex: 1 1 calc(50% - 6px); justify-content: center; min-width: 0; }
-      main { padding-left: 12px !important; padding-right: 12px !important; }
       main section { min-width: 0; }
       #product-grid { grid-template-columns: minmax(0, 1fr) !important; }
       #cloud-modal, #form-modal, #detail-modal, #profile-modal, #confirm-modal {
@@ -84,26 +81,24 @@
   <header class="sticky top-0 z-30 border-b-[3px] border-[#3E3A39] bg-[#FFFCF6]">
     <div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
       <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <div class="flex items-center gap-3">
-            <span class="ehon-btn inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-[#F2A497] text-[#3E3A39]">
-              <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-              </svg>
-            </span>
-            <div>
-              <div class="flex flex-wrap items-center gap-2">
-                <h1 class="text-xl font-bold tracking-tight text-[#3E3A39] sm:text-2xl">♥ 日本好好買 ♥</h1>
-                <nav aria-label="切換頁面" class="inline-flex rounded-2xl border-[2.5px] border-[#3E3A39] bg-[#FFFCF6] p-0.5 text-xs font-bold">
-                  <span class="rounded-xl bg-[#F6D27A] px-3 py-1 text-[#3E3A39]">購物評估</span>
-                  <a href="./food.html" class="rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#A8D3E6]/40">美食地圖</a>
-                  <a href="./trip.html" class="rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#B9DAA5]/40">旅遊行程</a>
-                </nav>
-              </div>
-              <div class="mt-0.5 flex flex-wrap items-center gap-2">
-                <p class="text-xs text-[#3E3A39]/75 sm:text-sm">圖片收藏 × 個人適合度 × 近六個月評價 × 購買通路</p>
-                <span id="sync-badge" class="inline-flex items-center gap-1 rounded-full border-2 border-[#3E3A39] bg-[#A8D3E6] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">本機模式</span>
-              </div>
+        <div class="flex items-center gap-2.5">
+          <span class="ehon-btn inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#F2A497] text-[#3E3A39]">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+          </span>
+          <div class="min-w-0">
+            <div class="flex flex-wrap items-center gap-2">
+              <h1 class="whitespace-nowrap text-xl font-bold tracking-tight text-[#3E3A39] sm:text-2xl">♥ 日本好好買 ♥</h1>
+              <nav aria-label="切換頁面" class="inline-flex rounded-2xl border-[2.5px] border-[#3E3A39] bg-[#FFFCF6] p-0.5 text-xs font-bold">
+                <span class="whitespace-nowrap rounded-xl bg-[#F6D27A] px-3 py-1 text-[#3E3A39]">購物評估</span>
+                <a href="./food.html" class="whitespace-nowrap rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#A8D3E6]/40">美食地圖</a>
+                <a href="./trip.html" class="whitespace-nowrap rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#B9DAA5]/40">旅遊行程</a>
+              </nav>
+            </div>
+            <div class="mt-0.5 flex flex-wrap items-center gap-2">
+              <p class="text-xs text-[#3E3A39]/75 sm:text-sm">圖片收藏 × 個人適合度 × 近六個月評價 × 購買通路</p>
+              <span id="sync-badge" class="inline-flex items-center gap-1 rounded-full border-2 border-[#3E3A39] bg-[#A8D3E6] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">本機模式</span>
             </div>
           </div>
         </div>
@@ -134,10 +129,14 @@
     </section>
 
     <!-- KPI Summary Cards -->
-    <section aria-label="評估統計" class="mb-6 grid grid-cols-1 gap-3.5 sm:grid-cols-3">
+    <section aria-label="評估統計" class="mb-6 grid grid-cols-2 gap-3.5 sm:grid-cols-4">
       <button type="button" data-kpi-rec="全部" class="kpi-btn ehon-box group flex flex-col bg-[#FFFCF6] p-4 text-left transition hover:-translate-y-0.5">
         <span class="text-xs font-bold text-[#3E3A39]/80">全部評估商品</span>
         <span id="stat-total" class="mt-1 text-2xl font-bold text-[#3E3A39]">0</span>
+      </button>
+      <button id="btn-kpi-want" type="button" class="ehon-box group flex flex-col bg-[#F6D27A] p-4 text-left transition hover:-translate-y-0.5">
+        <span class="text-xs font-bold text-[#3E3A39]">★ 星號想買</span>
+        <span id="stat-want" class="mt-1 text-2xl font-bold text-[#3E3A39]">0</span>
       </button>
       <button type="button" data-kpi-rec="推薦購買" class="kpi-btn ehon-box group flex flex-col bg-[#B9DAA5] p-4 text-left transition hover:-translate-y-0.5">
         <span class="text-xs font-bold text-[#3E3A39]">推薦購買</span>
@@ -935,14 +934,20 @@
 
     function renderStats() {
       document.getElementById('stat-total').textContent = items.length;
+      document.getElementById('stat-want').textContent = items.filter(i => i.purchaseStatus === '想買').length;
       document.getElementById('stat-rec').textContent = items.filter(i => i.recommendation === '推薦購買').length;
       document.getElementById('stat-skip').textContent = items.filter(i => i.recommendation === '暫不推薦').length;
 
       document.querySelectorAll('.kpi-btn').forEach(btn => {
-        const isActive = btn.dataset.kpiRec === filters.recommendation;
+        const isActive = btn.dataset.kpiRec === filters.recommendation && !filters.onlyWantToBuy;
         btn.classList.toggle('ring-2', isActive);
         btn.classList.toggle('ring-indigo-500', isActive);
       });
+      const kpiWant = document.getElementById('btn-kpi-want');
+      if (kpiWant) {
+        kpiWant.classList.toggle('ring-2', filters.onlyWantToBuy);
+        kpiWant.classList.toggle('ring-indigo-500', filters.onlyWantToBuy);
+      }
     }
 
     function renderFilters() {
@@ -1425,10 +1430,14 @@
         renderGrid();
       });
 
+      document.getElementById('btn-kpi-want')?.addEventListener('click', () => {
+        filters.onlyWantToBuy = !filters.onlyWantToBuy;
+        renderAll();
+      });
+
       document.getElementById('btn-filter-want').addEventListener('click', () => {
         filters.onlyWantToBuy = !filters.onlyWantToBuy;
-        renderFilters();
-        renderGrid();
+        renderAll();
       });
 
       document.getElementById('btn-clear-filters').addEventListener('click', () => {
@@ -1445,6 +1454,7 @@
         const nextStatus = items[idx].purchaseStatus === '想買' ? '尚未列入' : '想買';
         items[idx].purchaseStatus = nextStatus;
         saveItems();
+        renderStats();
         renderGrid();
         showToast(nextStatus === '想買' ? '★ 已加入「想買」清單' : '已取消「想買」星號');
         if (currentUser && supabaseClient) {
