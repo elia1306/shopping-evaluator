@@ -29,8 +29,14 @@
     .ehon-box-optional {
       border: 3px dashed #3E3A39 !important;
       border-radius: 24px !important;
-      box-shadow: 0 4px 0 #A8D3E6;
-      background-color: #F2F8FB !important;
+      box-shadow: 0 4px 0 #F2A497;
+      background-color: #FCEBE8 !important;
+    }
+    .ehon-box-sub {
+      border: 2.5px solid #3E3A39 !important;
+      border-radius: 20px !important;
+      box-shadow: 0 3px 0 #B9DAA5;
+      background-color: #F1F8EC !important;
     }
     .ehon-btn {
       border: 2.5px solid #3E3A39 !important;
@@ -824,11 +830,13 @@
         : '彈性時間';
       const mapsUrl = buildMapsUrl(item);
 
-      const cardClass = item.is_optional ? 'ehon-box-optional' : 'ehon-box bg-[#FFFCF6]';
+      const cardClass = item.is_optional
+        ? 'ehon-box-optional'
+        : (isSub ? 'ehon-box-sub' : 'ehon-box bg-[#FFFCF6]');
       const planBadge = item.is_optional
-        ? '<span class="rounded-xl border-2 border-[#3E3A39] bg-[#A8D3E6] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">💡 備選方案</span>'
+        ? '<span class="rounded-xl border-2 border-[#3E3A39] bg-[#F2A497] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">💡 備選方案</span>'
         : (isSub
-          ? '<span class="rounded-xl border-2 border-[#3E3A39] bg-[#B9DAA5]/70 px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">↳ 子行程</span>'
+          ? '<span class="rounded-xl border-2 border-[#3E3A39] bg-[#B9DAA5] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">↳ 子行程</span>'
           : '<span class="rounded-xl border-2 border-[#3E3A39] bg-[#F6D27A] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">★ 主行程</span>');
 
       return `
