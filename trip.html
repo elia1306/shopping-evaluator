@@ -26,6 +26,12 @@
       border-radius: 24px !important;
       box-shadow: 0 4px 0 #3E3A39;
     }
+    .ehon-box-optional {
+      border: 3px dashed #3E3A39 !important;
+      border-radius: 24px !important;
+      box-shadow: 0 4px 0 #A8D3E6;
+      background-color: #F2F8FB !important;
+    }
     .ehon-btn {
       border: 2.5px solid #3E3A39 !important;
       box-shadow: 0 2px 0 #3E3A39;
@@ -890,8 +896,13 @@
                   : '彈性時間';
                 const mapsUrl = buildMapsUrl(item);
 
+                const cardClass = item.is_optional ? 'ehon-box-optional' : 'ehon-box bg-[#FFFCF6]';
+                const planBadge = item.is_optional
+                  ? '<span class="rounded-xl border-2 border-[#3E3A39] bg-[#A8D3E6] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">💡 備選方案</span>'
+                  : '<span class="rounded-xl border-2 border-[#3E3A39] bg-[#F6D27A] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">★ 主行程</span>';
+
                 return `
-                  <article class="ehon-box bg-[#FFFCF6] p-4 transition ${item.is_done ? 'opacity-65' : ''}">
+                  <article class="${cardClass} p-4 transition ${item.is_done ? 'opacity-65' : ''}">
                     <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div class="min-w-0 flex-1 space-y-2">
                         <div class="flex flex-wrap items-center gap-2">
@@ -899,9 +910,9 @@
                             <input type="checkbox" data-action="toggle-done" data-id="${escapeHtml(item.id)}" ${item.is_done ? 'checked' : ''} class="accent-[#3E3A39]" />
                             <span>${item.is_done ? '已完成' : '待進行'}</span>
                           </label>
+                          ${planBadge}
                           <span class="rounded-xl border-2 border-[#3E3A39] bg-[#FFFCF6] px-2.5 py-0.5 text-xs font-bold text-[#3E3A39]">🕒 ${escapeHtml(timeStr)}</span>
                           <span class="rounded-xl border-2 border-[#3E3A39] ${catColor} px-2.5 py-0.5 text-xs font-bold text-[#3E3A39]">${catIcon} ${escapeHtml(item.category || '景點')}</span>
-                          ${item.is_optional ? '<span class="rounded-xl border-2 border-dashed border-[#3E3A39] bg-[#FFFCF6] px-2 py-0.5 text-[11px] font-bold text-[#3E3A39]">備選方案</span>' : ''}
                           ${item.reservation_code ? `<button type="button" data-action="copy-code" data-code="${escapeHtml(item.reservation_code)}" class="rounded-xl border-2 border-[#3E3A39] bg-[#F2A497]/50 px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]" title="點擊複製預約碼">🎫 預約：${escapeHtml(item.reservation_code)}</button>` : ''}
                           ${item.cost_note ? `<span class="rounded-xl border-2 border-[#3E3A39] bg-[#F6D27A]/50 px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">💴 ${escapeHtml(item.cost_note)}</span>` : ''}
                         </div>
