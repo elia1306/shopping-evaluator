@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>♥ 我的旅遊行程 ♥｜日系繪本版</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    @font-face {
+      font-family: 'jf-openhuninn';
+      src: url('https://cdn.jsdelivr.net/gh/justfont/open-huninn-font@master/font/jf-openhuninn-2.1.woff2') format('woff2'),
+           url('https://cdn.jsdelivr.net/gh/justfont/open-huninn-font@master/font/jf-openhuninn-2.0.woff2') format('woff2');
+      font-display: swap;
+    }
+    body {
+      font-family: 'jf-openhuninn', 'Noto Sans TC', system-ui, -apple-system, sans-serif;
+      background-color: #FFFCF6;
+      color: #3E3A39;
+    }
+    .ehon-box {
+      border: 3px solid #3E3A39 !important;
+      border-radius: 24px !important;
+      box-shadow: 0 4px 0 #3E3A39;
+    }
+    .ehon-btn {
+      border: 2.5px solid #3E3A39 !important;
+      box-shadow: 0 2px 0 #3E3A39;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+    .ehon-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 0 0 #3E3A39;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+    @media (max-width: 640px) {
+      header > div { padding-left: 12px !important; padding-right: 12px !important; }
+      main { padding-left: 12px !important; padding-right: 12px !important; }
+    }
+  </style>
+</head>
+<body class="min-h-screen antialiased selection:bg-[#F6D27A] selection:text-[#3E3A39]">
+
+  <!-- Top Header -->
+  <header class="sticky top-0 z-30 border-b-[3px] border-[#3E3A39] bg-[#FFFCF6]">
+    <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3.5 sm:px-6 lg:px-8">
+      <div class="flex flex-wrap items-center gap-3">
+        <div class="ehon-btn flex h-10 w-10 items-center justify-center rounded-2xl bg-[#B9DAA5] text-[#3E3A39]">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex flex-wrap items-center gap-2">
+            <h1 class="text-lg font-bold tracking-tight text-[#3E3A39] sm:text-xl">♥ 我的旅遊行程 ♥</h1>
+            <nav aria-label="切換頁面" class="inline-flex rounded-2xl border-[2.5px] border-[#3E3A39] bg-[#FFFCF6] p-0.5 text-xs font-bold">
+              <a href="./index.html" class="rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#F2A497]/40">購物評估</a>
+              <a href="./food.html" class="rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#A8D3E6]/40">美食地圖</a>
+              <a href="./trip.html" id="nav-trip-link" class="rounded-xl bg-[#F6D27A] px-3 py-1 text-[#3E3A39]">旅遊行程</a>
+            </nav>
+            <span id="cloud-sync-badge" class="inline-flex items-center gap-1 rounded-full border-2 border-[#3E3A39] bg-[#A8D3E6] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">本機模式</span>
+          </div>
+          <p id="header-subtitle" class="mt-0.5 text-xs text-[#3E3A39]/75">選擇要查閱的旅遊行程，或建立一份全新的旅程</p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <button id="btn-cloud-sync" type="button" class="ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#A8D3E6] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95">
+          雲端同步
+        </button>
+        <button id="btn-new-trip" type="button" class="ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#F6D27A] px-3.5 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95">
+          ＋ 建立新旅程
+        </button>
+        <button id="btn-add-item" type="button" class="ehon-btn hidden items-center gap-1.5 rounded-2xl bg-[#F2A497] px-3.5 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95">
+          ＋ 新增行程
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+
+    <!-- VIEW 1: Trip Selection Grid -->
+    <section id="view-trip-list" aria-label="旅遊行程選擇">
+      <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 class="text-lg font-bold text-[#3E3A39]">🗂️ 選擇旅遊行程</h2>
+          <p class="text-xs text-[#3E3A39]/75">點選任一張旅程卡片即可進入查閱每日行程、時間軸與 Google Maps 導航</p>
+        </div>
+        <span id="trip-count-badge" class="rounded-full border-2 border-[#3E3A39] bg-[#FFFCF6] px-3 py-1 text-xs font-bold text-[#3E3A39]">共 0 份行程</span>
+      </div>
+
+      <div id="trip-cards-grid" class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"></div>
+    </section>
+
+    <!-- VIEW 2: Trip Detail / Itinerary Page -->
+    <div id="view-trip-detail" class="hidden">
+      <!-- Trip Banner & Overview -->
+      <section aria-label="旅程總覽" class="ehon-box mb-6 bg-[#FFFCF6] p-4 sm:p-5">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div class="flex flex-wrap items-center gap-2.5">
+            <button id="btn-back-to-list" type="button" class="ehon-btn inline-flex items-center gap-1 rounded-2xl bg-[#FFFCF6] px-3 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#F6D27A]/40">
+              ← 返回旅程選擇
+            </button>
+            <h2 id="detail-trip-title" class="text-lg font-bold text-[#3E3A39] sm:text-xl"></h2>
+            <span id="trip-dates-badge" class="inline-flex items-center rounded-full border-2 border-[#3E3A39] bg-[#F6D27A] px-3 py-1 text-xs font-bold text-[#3E3A39]"></span>
+            <span id="trip-dest-badge" class="inline-flex items-center rounded-full border-2 border-[#3E3A39] bg-[#A8D3E6]/60 px-3 py-1 text-xs font-bold text-[#3E3A39]"></span>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button id="btn-toggle-overview" type="button" class="ehon-btn rounded-2xl bg-[#B9DAA5] px-3.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:brightness-95">
+              展開航班・住宿・行前提醒 ▾
+            </button>
+          </div>
+        </div>
+
+        <!-- KPI Mini Row -->
+        <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div class="rounded-2xl border-2 border-[#3E3A39] bg-[#FFFCF6] p-3">
+            <span class="text-[11px] font-bold text-[#3E3A39]/70">總行程數</span>
+            <div id="stat-total" class="mt-0.5 text-xl font-bold text-[#3E3A39]">0</div>
+          </div>
+          <div class="rounded-2xl border-2 border-[#3E3A39] bg-[#F6D27A]/60 p-3">
+            <span class="text-[11px] font-bold text-[#3E3A39]/80">旅遊天數</span>
+            <div id="stat-days" class="mt-0.5 text-xl font-bold text-[#3E3A39]">0 天</div>
+          </div>
+          <div class="rounded-2xl border-2 border-[#3E3A39] bg-[#B9DAA5]/60 p-3">
+            <span class="text-[11px] font-bold text-[#3E3A39]/80">已完成</span>
+            <div id="stat-done" class="mt-0.5 text-xl font-bold text-[#3E3A39]">0</div>
+          </div>
+          <div class="rounded-2xl border-2 border-[#3E3A39] bg-[#A8D3E6]/50 p-3">
+            <span class="text-[11px] font-bold text-[#3E3A39]/80">備選方案</span>
+            <div id="stat-optional" class="mt-0.5 text-xl font-bold text-[#3E3A39]">0</div>
+          </div>
+        </div>
+
+        <!-- Collapsible Overview Content -->
+        <div id="overview-panel" class="mt-4 hidden space-y-4 border-t-2 border-dashed border-[#3E3A39]/30 pt-4">
+          <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <div class="rounded-2xl border-2 border-[#3E3A39] bg-[#A8D3E6]/25 p-4">
+              <h3 class="mb-2.5 flex items-center gap-1.5 text-sm font-bold text-[#3E3A39]">✈️ 航班資訊</h3>
+              <div id="overview-flights" class="space-y-2.5 text-xs"></div>
+            </div>
+            <div class="rounded-2xl border-2 border-[#3E3A39] bg-[#F6D27A]/25 p-4">
+              <h3 class="mb-2.5 flex items-center gap-1.5 text-sm font-bold text-[#3E3A39]">🏨 住宿資訊（含 Google Maps）</h3>
+              <div id="overview-hotels" class="space-y-2.5 text-xs"></div>
+            </div>
+          </div>
+          <div class="rounded-2xl border-2 border-[#3E3A39] bg-[#F2A497]/20 p-4">
+            <h3 class="mb-2 flex items-center gap-1.5 text-sm font-bold text-[#3E3A39]">📌 重要提醒・退稅・穿著建議</h3>
+            <ul id="overview-tips" class="list-disc space-y-1.5 pl-5 text-xs leading-relaxed text-[#3E3A39]"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Day Selector & Filters -->
+      <section aria-label="天數與分類篩選" class="ehon-box mb-6 space-y-3.5 bg-[#FFFCF6] p-4">
+        <div class="flex flex-wrap items-center gap-2" id="day-tabs"></div>
+
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div class="flex flex-wrap items-center gap-1.5" id="category-pills"></div>
+          <div class="flex flex-wrap items-center gap-2">
+            <input id="input-search" type="search" placeholder="搜尋景點、地名、交通、預約碼..." class="w-full rounded-xl border-2 border-[#3E3A39] bg-[#FFFCF6] px-3 py-1.5 text-xs text-[#3E3A39] outline-none focus:bg-white sm:w-60" />
+            <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border-2 border-[#3E3A39] bg-[#FFFCF6] px-2.5 py-1.5 text-xs font-bold">
+              <input id="toggle-hide-done" type="checkbox" class="accent-[#3E3A39]" />
+              <span>隱藏已完成</span>
+            </label>
+            <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border-2 border-[#3E3A39] bg-[#FFFCF6] px-2.5 py-1.5 text-xs font-bold">
+              <input id="toggle-hide-optional" type="checkbox" class="accent-[#3E3A39]" />
+              <span>隱藏備選</span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- Timeline Content -->
+      <section id="itinerary-container" aria-label="每日行程時間軸" class="space-y-8"></section>
+    </div>
+
+  </main>
+
+  <!-- Add/Edit Item Modal -->
+  <div id="item-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#3E3A39]/50 p-3 sm:p-6">
+    <div class="ehon-box max-h-[92vh] w-full max-w-2xl overflow-y-auto bg-[#FFFCF6] p-5 sm:p-6">
+      <div class="mb-4 flex items-center justify-between border-b-2 border-[#3E3A39]/15 pb-3">
+        <h2 id="item-modal-title" class="text-lg font-bold text-[#3E3A39]">新增行程項目</h2>
+        <button id="btn-close-item" type="button" class="ehon-btn rounded-xl bg-[#FFFCF6] px-2.5 py-1 text-xs font-bold">✕</button>
+      </div>
+
+      <details class="mb-4 rounded-2xl border-2 border-dashed border-[#3E3A39]/40 bg-[#A8D3E6]/15 p-3">
+        <summary class="cursor-pointer text-xs font-bold text-[#3E3A39]">📋 貼上 JSON 快速填入或批次新增行程（選用）</summary>
+        <div class="mt-2 space-y-2">
+          <textarea id="field-json-paste" rows="3" placeholder='貼上單筆 {...} 或多筆 [{...}] JSON' class="w-full rounded-xl border-2 border-[#3E3A39] bg-white p-2 text-xs outline-none"></textarea>
+          <button id="btn-apply-json" type="button" class="ehon-btn rounded-xl bg-[#A8D3E6] px-3 py-1.5 text-xs font-bold text-[#3E3A39]">套用 JSON</button>
+        </div>
+      </details>
+
+      <form id="item-form" class="space-y-3.5 text-xs">
+        <input id="field-id" type="hidden" />
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div>
+            <label for="field-day" class="mb-1 block font-bold">第幾天 (Day) *</label>
+            <input id="field-day" type="number" min="1" max="30" required class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm outline-none" />
+          </div>
+          <div>
+            <label for="field-date" class="mb-1 block font-bold">日期</label>
+            <input id="field-date" type="date" class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm outline-none" />
+          </div>
+          <div>
+            <label for="field-start-time" class="mb-1 block font-bold">開始時間</label>
+            <input id="field-start-time" type="text" placeholder="如 09:30" class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm outline-none" />
+          </div>
+          <div>
+            <label for="field-end-time" class="mb-1 block font-bold">結束時間</label>
+            <input id="field-end-time" type="text" placeholder="如 11:30" class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm outline-none" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div>
+            <label for="field-category" class="mb-1 block font-bold">分類 *</label>
+            <select id="field-category" class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm outline-none">
+              <option value="景點">景點</option>
+              <option value="交通">交通</option>
+              <option value="住宿">住宿</option>
+              <option value="美食">美食</option>
+              <option value="逛街">逛街</option>
+              <option value="點燈">點燈</option>
+              <option value="體驗">體驗</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
+          <div class="sm:col-span-2">
+            <label for="field-title" class="mb-1 block font-bold">行程標題 *</label>
+            <input id="field-title" type="text" required placeholder="例：小網神社（洗錢）" class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm outline-none" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <label for="field-location-name" class="mb-1 block font-bold">地點名稱（用於 Google Maps 搜尋）</label>
+            <input id="field-location-name" type="text" placeholder="例：小網神社" class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm outline-none" />
+          </div>
+          <div>
+            <label for="field-address" class="mb-1 block font-bold">地址（選填，可更精準定位）</label>
+            <input id="field-address" type="text" placeholder="例：東京都中央区日本橋小網町16-23" class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm outline-none" />
+          </div>
+        </div>
+
+        <div>
+          <div class="mb-1 flex items-center justify-between">
+            <label for="field-google-maps-url" class="font-bold">Google Maps 專屬連結（留空會自動依地點／地址產生）</label>
+            <a id="preview-maps-link" href="#" target="_blank" rel="noopener noreferrer" class="font-bold text-[#2563EB] underline">預覽地圖 ↗</a>
+          </div>
+          <input id="field-google-maps-url" type="url" placeholder="https://maps.app.goo.gl/..." class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm outline-none" />
+        </div>
+
+        <div>
+          <label for="field-transit-info" class="mb-1 block font-bold">交通方式／轉乘路線</label>
+          <input id="field-transit-info" type="text" placeholder="例：錦糸町駅 → 半蔵門線 → 水天宮前駅（8分3站）" class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm outline-none" />
+        </div>
+
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <label for="field-reservation-code" class="mb-1 block font-bold">預約編號／訂位資訊</label>
+            <input id="field-reservation-code" type="text" placeholder="例：FVR89XPV7T" class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm outline-none" />
+          </div>
+          <div>
+            <label for="field-cost-note" class="mb-1 block font-bold">費用備註</label>
+            <input id="field-cost-note" type="text" placeholder="例：套票 1,700円" class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm outline-none" />
+          </div>
+        </div>
+
+        <div>
+          <label for="field-notes" class="mb-1 block font-bold">詳細備註・必逛樓層・注意事項</label>
+          <textarea id="field-notes" rows="3" placeholder="開放時間、必買御守、注意事項..." class="w-full rounded-xl border-2 border-[#3E3A39] bg-white p-3 text-sm outline-none"></textarea>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-4 pt-1">
+          <label class="inline-flex cursor-pointer items-center gap-2 font-bold">
+            <input id="field-is-optional" type="checkbox" class="h-4 w-4 accent-[#3E3A39]" />
+            <span>標記為「備選方案 / 自由活動選項」</span>
+          </label>
+        </div>
+
+        <div class="flex justify-end gap-2 border-t-2 border-[#3E3A39]/15 pt-4">
+          <button id="btn-cancel-item" type="button" class="ehon-btn rounded-2xl bg-[#FFFCF6] px-4 py-2 text-xs font-bold">取消</button>
+          <button type="submit" class="ehon-btn rounded-2xl bg-[#F2A497] px-5 py-2 text-xs font-bold">儲存行程</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Create/Edit Trip Modal -->
+  <div id="trip-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#3E3A39]/50 p-4">
+    <div class="ehon-box w-full max-w-md bg-[#FFFCF6] p-5 sm:p-6">
+      <div class="mb-4 flex items-center justify-between">
+        <h2 id="trip-modal-title" class="text-lg font-bold text-[#3E3A39]">建立新旅程</h2>
+        <button id="btn-close-trip" type="button" class="ehon-btn rounded-xl bg-[#FFFCF6] px-2.5 py-1 text-xs font-bold">✕</button>
+      </div>
+      <form id="trip-form" class="space-y-3 text-xs">
+        <input id="trip-id-input" type="hidden" />
+        <div>
+          <label for="trip-title-input" class="mb-1 block font-bold">旅程名稱 *</label>
+          <input id="trip-title-input" type="text" required placeholder="例：2027 京阪賞櫻之旅" class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm outline-none" />
+        </div>
+        <div>
+          <label for="trip-dest-input" class="mb-1 block font-bold">目的地</label>
+          <input id="trip-dest-input" type="text" placeholder="例：京都・大阪" class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm outline-none" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="trip-start-input" class="mb-1 block font-bold">出發日期 *</label>
+            <input id="trip-start-input" type="date" required class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm outline-none" />
+          </div>
+          <div>
+            <label for="trip-end-input" class="mb-1 block font-bold">回程日期 *</label>
+            <input id="trip-end-input" type="date" required class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm outline-none" />
+          </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-3">
+          <button id="btn-cancel-trip" type="button" class="ehon-btn rounded-2xl bg-[#FFFCF6] px-4 py-2 text-xs font-bold">取消</button>
+          <button type="submit" class="ehon-btn rounded-2xl bg-[#F6D27A] px-5 py-2 text-xs font-bold">儲存旅程</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Cloud Sync Modal -->
+  <div id="cloud-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#3E3A39]/50 p-4">
+    <div class="ehon-box w-full max-w-md bg-[#FFFCF6] p-5 sm:p-6">
+      <div class="mb-3 flex items-center justify-between">
+        <h2 class="text-lg font-bold text-[#3E3A39]">☁️ Supabase 雲端同步</h2>
+        <button id="btn-close-cloud" type="button" class="ehon-btn rounded-xl bg-[#FFFCF6] px-2.5 py-1 text-xs font-bold">✕</button>
+      </div>
+      <p class="mb-3 text-xs leading-relaxed text-[#3E3A39]/80">
+        使用與「購物評估」及「美食地圖」相同的 Email Magic Link 登入，登入後行程會自動同步至雲端資料庫，手機與電腦皆可即時查看與新增。
+      </p>
+      <div id="cloud-logged-out" class="space-y-3">
+        <input id="field-cloud-email" type="email" placeholder="輸入您的 Email（如 elia1306@gmail.com）" class="w-full rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-2 text-sm outline-none" />
+        <button id="btn-cloud-login" type="button" class="ehon-btn w-full rounded-2xl bg-[#A8D3E6] py-2.5 text-xs font-bold text-[#3E3A39]">寄送登入連結 (Magic Link)</button>
+      </div>
+      <div id="cloud-logged-in" class="hidden space-y-3">
+        <div class="rounded-2xl border-2 border-[#3E3A39] bg-[#B9DAA5]/40 p-3 text-xs">
+          <div class="font-bold">已登入帳號：</div>
+          <div id="cloud-user-email" class="mt-0.5 break-all font-bold text-[#3E3A39]"></div>
+        </div>
+        <div class="flex gap-2">
+          <button id="btn-cloud-refresh" type="button" class="ehon-btn flex-1 rounded-2xl bg-[#A8D3E6] py-2 text-xs font-bold">立即從雲端同步</button>
+          <button id="btn-cloud-logout" type="button" class="ehon-btn rounded-2xl bg-[#F2A497] px-4 py-2 text-xs font-bold">登出</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="pointer-events-none fixed bottom-5 left-1/2 z-50 hidden -translate-x-1/2 rounded-2xl border-[2.5px] border-[#3E3A39] bg-[#F6D27A] px-4 py-2 text-xs font-bold text-[#3E3A39] shadow-[0_3px_0_#3E3A39]"></div>
+
+  <script>
+    const SUPABASE_URL = 'https://euphgazenhnurptrjazi.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_2hiYcmj_Aug9AH0VaY9M9w_vIUlzmBg';
+    const LOCAL_KEY = 'ehon_trip_planner_v1';
+
+    const CATEGORY_COLORS = {
+      '交通': 'bg-[#A8D3E6]',
+      '住宿': 'bg-[#F6D27A]',
+      '景點': 'bg-[#B9DAA5]',
+      '美食': 'bg-[#F2A497]',
+      '逛街': 'bg-[#F6D27A]/70',
+      '點燈': 'bg-[#F2A497]/75',
+      '體驗': 'bg-[#B9DAA5]/75',
+      '其他': 'bg-[#FFFCF6]'
+    };
+
+    const CATEGORY_ICONS = {
+      '交通': '🚆',
+      '住宿': '🏨',
+      '景點': '⛩️',
+      '美食': '🍽️',
+      '逛街': '🛍️',
+      '點燈': '✨',
+      '體驗': '👘',
+      '其他': '📌'
+    };
+
+    const CARD_ACCENTS = ['bg-[#F6D27A]/35', 'bg-[#A8D3E6]/35', 'bg-[#B9DAA5]/35', 'bg-[#F2A497]/30'];
+
+    const DEFAULT_DATA = {
+      trips: [
+        {
+          id: 'default-fuji-2026',
+          title: '2026 富士山賞楓之旅',
+          destination: '東京・河口湖',
+          start_date: '2026-11-22',
+          end_date: '2026-11-27',
+          overview: {
+            flights: [
+              {
+                label: '去程 (11/22)',
+                airline: '星宇航空 STARLUX JX802',
+                route: 'TPE T1 10:10 → NRT T2 14:20',
+                note: '含餐點 / 行李 23 kg；Winnie 備註：務必 13:55 前抵達正確月台（成田・総武線快速 JO 14:01 → 15:23 直達錦糸町，1,408円）'
+              },
+              {
+                label: '回程 (11/27)',
+                airline: '星宇航空 STARLUX JX803',
+                route: 'NRT T2 15:40 → TPE T1 18:45',
+                note: '含餐點 / 行李 23 kg；13:40 排隊 check-in'
+              }
+            ],
+            hotels: [
+              {
+                dates: '11/22 – 11/24',
+                name: 'MIMARU東京 錦糸町',
+                address: '〒130-0022 東京都墨田区江東橋4-11-5',
+                note: '距離 JR 錦糸町站近，周邊有 ARCAKIT、Termina、Parco、0101、西友超市(24H)'
+              },
+              {
+                dates: '11/24 – 11/27',
+                name: '富士レークホテル (Fuji Lake Hotel)',
+                address: '〒401-0301 山梨県南都留郡富士河口湖町船津1番地',
+                note: '溫泉：14:00~24:00 / 5:00~10:00｜西館頂樓有富士山展望台｜餐廳可同時賞富士山與河口湖'
+              }
+            ],
+            tips: [
+              '機場退稅新制：門市結帳登記退稅（信用卡需掃 QR Code 登錄、現金收據分開收好）→ 抵機場先至自助機台 KIOSK 掃護照（紅燈去海關櫃檯、綠燈去 Check-in）→ 現金退稅至指定機台掃護照（收 1~1.1% 手續費，未滿百圓可能捨去）',
+              '和服體驗穿著提醒：怕冷可穿領口較大內搭衣（勿穿高領）與內搭褲，可帶暖暖包、手套；女性方案含髮型設計與小物/草履/手提包',
+              '包車提醒：11/24 車內只能飲水，包車至 ~16:00（超時每30分鐘 ¥2,500）'
+            ]
+          }
+        }
+      ],
+      items: [
+        { id: 'd1-1', trip_id: 'default-fuji-2026', day_number: 1, item_date: '2026-11-22', start_time: '10:10', end_time: '14:20', sort_order: 10, category: '交通', title: '去程航班 STARLUX JX802（TPE T1 → NRT T2）', location_name: '成田國際機場 第2航廈', address: '成田国際空港 第2ターミナル', transit_info: 'Winnie 專用轉乘：13:55 前抵月台，搭 14:01 成田・総武線快速 [JO] → 15:23 直達錦糸町（0次轉乘）', reservation_code: 'JX802', cost_note: '1,408円（Winnie電車）', notes: '含餐點、行李 23kg。其他人 14:20 抵達成田機場後搭包車前往飯店（車程約 1 小時）。', is_optional: false, is_done: false },
+        { id: 'd1-2', trip_id: 'default-fuji-2026', day_number: 1, item_date: '2026-11-22', start_time: '16:30', end_time: '19:30', sort_order: 20, category: '住宿', title: 'MIMARU東京 錦糸町 Check-in & 自由活動', location_name: 'MIMARU東京 錦糸町', address: '〒130-0022 東京都墨田区江東橋4-11-5', transit_info: '包車預計 16:30 抵達飯店', reservation_code: '', cost_note: '', notes: '16:50 Check-in 放完行李解散自由活動。周邊逛街：ARCAKIT（3F 3coins+/ワークマン女子、4F Uniqlo、5F 阿卡醬、6F Muji/GU/ABC MART、7F 大創）、Termina（1-3F Yodobashi、4F @cosmeSTORE、TERMINA2 Plaza）、Parco（Loft）、0101 錦糸町マルイ。', is_optional: false, is_done: false },
+        { id: 'd1-3', trip_id: 'default-fuji-2026', day_number: 1, item_date: '2026-11-22', start_time: '19:30', end_time: '19:55', sort_order: 30, category: '交通', title: '飯店門口集合 → 錦糸町駅前往秋葉原', location_name: 'JR 錦糸町駅', address: '東京都墨田区江東橋3-14-5', transit_info: '19:30 MIMARU 門口集合 → 19:40 錦糸町駅 TERMINA 招牌下方柱子集合 → 中央・総武線各停 19:43(中野行) 或 19:47(三鷹行)，7分3站到秋葉原', reservation_code: '', cost_note: '', notes: '記得買隔天的早餐！西友超市錦糸町店 24 小時營業。', is_optional: false, is_done: false },
+        { id: 'd1-4', trip_id: 'default-fuji-2026', day_number: 1, item_date: '2026-11-22', start_time: '20:00', end_time: '22:00', sort_order: 40, category: '美食', title: '晚餐：肉屋横丁 @ 秋葉原', location_name: '肉屋横丁 秋葉原', address: '東京都千代田区外神田1-18-19 BiTO AKIBA 3F', transit_info: 'JR 秋葉原駅步行即達', reservation_code: '黑輪已預約', cost_note: '', notes: '晚餐後可逛：唐吉訶德秋葉原店（24小時）、BIC CAMERA 秋葉原店（~22:00）、西友超市錦糸町店（24小時）。', is_optional: false, is_done: false },
+
+        { id: 'd2-1', trip_id: 'default-fuji-2026', day_number: 2, item_date: '2026-11-23', start_time: '08:30', end_time: '10:00', sort_order: 10, category: '景點', title: '小網神社（強運厄除・洗錢）', location_name: '小網神社', address: '東京都中央区日本橋小網町16-23', transit_info: '最晚 08:30 出門｜錦糸町駅 → 半蔵門線（8分3站）→ 水天宮前駅 → 步行 10 分鐘；預計 10:00 前離開', reservation_code: '', cost_note: '參拜免費', notes: '流程：本殿參拜（二拜二拍手一拜，摸福祿壽神頭）→ 錢洗弁財天洗錢（09:00~17:00，硬幣/紙鈔放竹籃輕沖水勿整張浸水，擦乾放錢包當錢母）→ 買御守（金運御守、強運厄除守、白色金龍守）。', is_optional: false, is_done: false },
+        { id: 'd2-2', trip_id: 'default-fuji-2026', day_number: 2, item_date: '2026-11-23', start_time: '10:30', end_time: '17:00', sort_order: 20, category: '逛街', title: '自由逛街血拚（錦糸町 / 銀座 / 明治神宮外苑銀杏）', location_name: '銀座・明治神宮外苑', address: '東京都中央区銀座', transit_info: '依當天行程自由移動', reservation_code: '', cost_note: '', notes: '選項：錦糸町逛街（回飯店快）、銀座逛街（旗艦店集中，銀座三越新館7F有 GINZA 聖誕市集）、明治神宮外苑（賞銀杏）。記得買隔天早餐！', is_optional: true, is_done: false },
+        { id: 'd2-3', trip_id: 'default-fuji-2026', day_number: 2, item_date: '2026-11-23', start_time: '17:30', end_time: '21:30', sort_order: 30, category: '點燈', title: '【聖誕點燈選項 A】上野恩賜公園 Tokyo Christmas Advent', location_name: '上野恩賜公園 袴腰廣場', address: '東京都台東区上野公園', transit_info: '回程：上野駅 → 京濱東北線(3分1站) → 秋葉原駅 → 中央・總武線(7分3站) → 錦糸町駅', reservation_code: '', cost_note: '', notes: '袴腰廣場（聖誕市集/美食豐富，~23:00）、不忍池區域（~22:00）、竹之台廣場（忍者表演 ~18:00）。超過 30 間市集小屋，人潮中高~高。', is_optional: true, is_done: false },
+        { id: 'd2-4', trip_id: 'default-fuji-2026', day_number: 2, item_date: '2026-11-23', start_time: '17:30', end_time: '21:30', sort_order: 40, category: '點燈', title: '【聖誕點燈選項 B】丸之內仲通（哈利波特魔法雪）', location_name: '丸の内ビルディング（丸大樓）', address: '東京都千代田区丸の内2-4-1', transit_info: '回程：東京駅 → 總武線快速(8分3站) → 錦糸町駅', reservation_code: '', cost_note: '', notes: '共 9 個地點：1.丸大樓霍格華茲聖誕樹燈光秀(每15分一場 ~21:00)、3.新丸大樓3F交誼廳(~21:00)、4.弗雷與喬治的店(~22:00)、6.丸の内OAZO魔法雪(~21:00)、7.金探子(~21:00)、8.Brick Square蜂蜜公爵(~22:00)、9.Slit Park聯名飲品(~20:00)。（註：2.行幸通り 11/27 才開始）', is_optional: true, is_done: false },
+        { id: 'd2-5', trip_id: 'default-fuji-2026', day_number: 2, item_date: '2026-11-23', start_time: '17:30', end_time: '22:00', sort_order: 50, category: '點燈', title: '【聖誕點燈選項 C】東京鐵塔 & 麻布台之丘聖誕市集', location_name: '東京鐵塔', address: '東京都港区芝公園4-2-8', transit_info: '回程：神谷町駅→日比谷線(20分11站)→秋葉原→錦糸町；或赤羽橋駅→大江戶線→清澄白河→半藏門線→錦糸町', reservation_code: '', cost_note: '', notes: '神谷町站 1 號出口往東京鐵塔正面廣場（歐風木屋聖誕市集/熱紅酒 ~22:00）；神谷町站 5 號出口可順遊麻布台之丘中央廣場（10米 Cartier 聖誕樹點燈 ~23:00）。', is_optional: true, is_done: false },
+        { id: 'd2-6', trip_id: 'default-fuji-2026', day_number: 2, item_date: '2026-11-23', start_time: '17:30', end_time: '22:00', sort_order: 60, category: '點燈', title: '【聖誕點燈選項 D】六本木之丘 櫸坂通點燈', location_name: '六本木ヒルズ けやき坂通り', address: '東京都港区六本木6-10-1', transit_info: '日比谷線六本木駅 1C 出口｜回程：六本木→大江戶線(2分1站)→青山一丁目→半藏門線(24分10站)→錦糸町', reservation_code: '', cost_note: '', notes: '路線：1C出口 → 66 Plaza(~24:00) → 毛利庭園(~23:00) → 大屋根廣場聖誕市集(~21:00) → West Walk → けやき坂 SNOW & BLUE（97萬顆LED ~22:00，2F天橋可拍東京鐵塔同框）。看街道點燈不需買展望台門票。', is_optional: true, is_done: false },
+
+        { id: 'd3-1', trip_id: 'default-fuji-2026', day_number: 3, item_date: '2026-11-24', start_time: '08:00', end_time: '11:00', sort_order: 10, category: '交通', title: '包車出發前往河口湖', location_name: '新倉富士淺間神社', address: '', transit_info: '08:00 出門往河口湖（包車車程預計 2.5–3 小時）', reservation_code: '', cost_note: '包車至 ~16:00（超時 30分 ¥2,500）', notes: '注意：車內只能飲水。', is_optional: false, is_done: false },
+        { id: 'd3-2', trip_id: 'default-fuji-2026', day_number: 3, item_date: '2026-11-24', start_time: '11:00', end_time: '12:15', sort_order: 20, category: '景點', title: '新倉富士淺間神社（忠靈塔五重塔）', location_name: '新倉富士浅間神社', address: '山梨県富士吉田市浅間2-4-1', transit_info: '包車直達停車場', reservation_code: '', cost_note: '', notes: '398階石階梯可達展望台與五重塔（忠霊塔），不想爬階梯可走旁邊平緩車道坡道（約 15~20 分鐘）。本殿可抽富士山造型籤、買五重塔四季限定御守與御朱印。', is_optional: false, is_done: false },
+        { id: 'd3-3', trip_id: 'default-fuji-2026', day_number: 3, item_date: '2026-11-24', start_time: '12:35', end_time: '13:45', sort_order: 30, category: '美食', title: '午餐：道の駅富士吉田 & mont-bell 富士吉田店', location_name: '道の駅 富士吉田', address: '山梨県富士吉田市新屋3-7-3', transit_info: '車程約 20 分鐘', reservation_code: '', cost_note: '', notes: '必吃在地美食：吉田烏龍麵（吉田のうどん），旁邊有 mont-bell 富士吉田店可逛。', is_optional: false, is_done: false },
+        { id: 'd3-4', trip_id: 'default-fuji-2026', day_number: 3, item_date: '2026-11-24', start_time: '13:55', end_time: '14:40', sort_order: 40, category: '景點', title: '新屋山神社（本宮參拜）', location_name: '新屋山神社', address: '山梨県富士吉田市新屋4-2-2', transit_info: '車程約 10 分鐘', reservation_code: '', cost_note: '', notes: '日本三大金運神社之首，以金運上升、事業成功聞名。御手洗淨手後於本殿二拜二拍手一拜，金運御守必買。', is_optional: false, is_done: false },
+        { id: 'd3-5', trip_id: 'default-fuji-2026', day_number: 3, item_date: '2026-11-24', start_time: '15:05', end_time: '15:50', sort_order: 50, category: '景點', title: '大石公園 & 河口湖自然生活館', location_name: '大石公園', address: '山梨県南都留郡富士河口湖町大石2585', transit_info: '車程約 25 分鐘', reservation_code: '', cost_note: '', notes: '350公尺「花街道」可拍河口湖與完整富士山同框。鄰近富士大石花園平台（ハナテラス）有質感雜貨與水果聖代咖啡廳「葡萄屋 kofu ハナテラスcafé」。', is_optional: false, is_done: false },
+        { id: 'd3-6', trip_id: 'default-fuji-2026', day_number: 3, item_date: '2026-11-24', start_time: '16:00', end_time: '17:00', sort_order: 60, category: '住宿', title: '富士レークホテル Check-in', location_name: '富士レークホテル', address: '〒401-0301 山梨県南都留郡富士河口湖町船津1番地', transit_info: '包車於 ~16:00 結束送達飯店', reservation_code: '', cost_note: '', notes: '西館頂樓有富士山展望台；溫泉開放時間 14:00~24:00 / 5:00~10:00。', is_optional: false, is_done: false },
+        { id: 'd3-7', trip_id: 'default-fuji-2026', day_number: 3, item_date: '2026-11-24', start_time: '17:00', end_time: '20:30', sort_order: 70, category: '點燈', title: '河口湖楓葉迴廊 夜間點燈（第28回紅葉まつり）', location_name: '河口湖もみじ回廊', address: '山梨県南都留郡富士河口湖町河口', transit_info: '17:00 搭計程車出發（車程約 20 分鐘）', reservation_code: '', cost_note: '', notes: '屋台營業至 ~19:00，點燈至 ~21:00。建議先在屋台區吃點東西再從主會場走到楓葉迴廊。秋季夜間非常寒冷，請注意保暖！', is_optional: false, is_done: false },
+
+        { id: 'd4-1', trip_id: 'default-fuji-2026', day_number: 4, item_date: '2026-11-25', start_time: '09:30', end_time: '16:00', sort_order: 10, category: '體驗', title: 'KIMONO MEGU 富士山和服體驗 & 外拍', location_name: 'KIMONO MEGU 富士山着物レンタル', address: '山梨県富士吉田市', transit_info: '早餐後前往（已預約 09:30）', reservation_code: '已預約 09:30', cost_note: '', notes: '外拍路線：忍野八海、金鳥居、本町通。16:00 回店換衣服（~17:00）。提醒：勿穿高領內搭、可帶暖暖包與手套；女性方案含髮型設計與小物/草履/手提包。', is_optional: false, is_done: false },
+        { id: 'd4-2', trip_id: 'default-fuji-2026', day_number: 4, item_date: '2026-11-25', start_time: '17:00', end_time: '17:50', sort_order: 20, category: '景點', title: '富士山駅看風景', location_name: '富士山駅', address: '山梨県富士吉田市上吉田2-5-1', transit_info: '換裝後前往富士山駅', reservation_code: '', cost_note: '', notes: '傍晚可在富士山駅周邊散步看風景。', is_optional: false, is_done: false },
+        { id: 'd4-3', trip_id: 'default-fuji-2026', day_number: 4, item_date: '2026-11-25', start_time: '18:00', end_time: '20:00', sort_order: 30, category: '美食', title: '晚餐：居酒屋魁本店', location_name: '居酒屋 魁 本店', address: '山梨県富士吉田市', transit_info: '富士山駅周邊', reservation_code: 'FVR89XPV7T', cost_note: '', notes: '已訂位 18:00，預約番號：FVR89XPV7T。', is_optional: false, is_done: false },
+
+        { id: 'd5-1', trip_id: 'default-fuji-2026', day_number: 5, item_date: '2026-11-26', start_time: '07:00', end_time: '08:15', sort_order: 10, category: '美食', title: '飯店早餐（富士レークホテル）', location_name: '富士レークホテル', address: '〒401-0301 山梨県南都留郡富士河口湖町船津1番地', transit_info: '飯店內用餐', reservation_code: '', cost_note: '', notes: '餐廳可同時欣賞富士山和河口湖景色。', is_optional: false, is_done: false },
+        { id: 'd5-2', trip_id: 'default-fuji-2026', day_number: 5, item_date: '2026-11-26', start_time: '08:20', end_time: '08:30', sort_order: 20, category: '交通', title: '租借電輔腳踏車（環湖用）', location_name: '河口湖 レンタルサイクル', address: '山梨県南都留郡富士河口湖町船津', transit_info: '飯店附近租借', reservation_code: '', cost_note: '電輔車整天 2,800円', notes: '河口湖環湖一圈約 20 km。', is_optional: false, is_done: false },
+        { id: 'd5-3', trip_id: 'default-fuji-2026', day_number: 5, item_date: '2026-11-26', start_time: '08:30', end_time: '11:30', sort_order: 30, category: '景點', title: '天上山公園（富士山纜車）＆ 河口湖觀光船天晴', location_name: '河口湖 富士山パノラマロープウェイ', address: '山梨県南都留郡富士河口湖町浅川1163-1', transit_info: '纜車 8:30 開始｜觀光船冬季首班 9:30（每 30 分一班，一周約 20 分）', reservation_code: '', cost_note: '套票大人 1,700円；絶景盪鞦韆 500円/人', notes: '天上山公園必玩：たぬき茶屋(9:30~)、絶景盪鞦韆(9:30~)、天上の鐘、絶景パノラマ回廊、武田信玄の戦国広場 絶景やぐら。', is_optional: false, is_done: false },
+        { id: 'd5-4', trip_id: 'default-fuji-2026', day_number: 5, item_date: '2026-11-26', start_time: '11:30', end_time: '16:30', sort_order: 40, category: '景點', title: '腳踏車環湖（河口湖大橋 → 長崎公園 → 楓葉迴廊 → 大石公園）', location_name: '長崎公園 河口湖', address: '山梨県南都留郡富士河口湖町大石', transit_info: '騎電輔車環湖（約 20km）：河口湖大橋 → 美術館 → 音樂與森之美術館 → 紅葉亭/秀峰閣湖月 → 長崎公園 → 大石公園/自然生活館折返', reservation_code: '', cost_note: '', notes: '沿途餐廳參考：Cooliya、つじ吉、宮本屋、Beef Cutlet koushouya、Taj Fuji、ROMARIN、Fujisaki-tei、ほうとう(師匠)、ASAE 等。', is_optional: false, is_done: false },
+        { id: 'd5-5', trip_id: 'default-fuji-2026', day_number: 5, item_date: '2026-11-26', start_time: '18:00', end_time: '21:30', sort_order: 50, category: '住宿', title: '飯店自助餐晚餐 ＆ 悠哉泡湯', location_name: '富士レークホテル', address: '〒401-0301 山梨県南都留郡富士河口湖町船津1番地', transit_info: '還車後回飯店休息', reservation_code: '', cost_note: '', notes: '晚上在飯店享用自助餐，之後悠哉泡湯（溫泉開放至 24:00）。', is_optional: false, is_done: false },
+
+        { id: 'd6-1', trip_id: 'default-fuji-2026', day_number: 6, item_date: '2026-11-27', start_time: '07:00', end_time: '08:45', sort_order: 10, category: '住宿', title: '飯店早餐 ＆ Check-out', location_name: '富士レークホテル', address: '〒401-0301 山梨県南都留郡富士河口湖町船津1番地', transit_info: '07:00 吃早餐、08:45 Check-out', reservation_code: '', cost_note: '', notes: '整理行李，確認退稅收據與護照隨身攜帶。', is_optional: false, is_done: false },
+        { id: 'd6-2', trip_id: 'default-fuji-2026', day_number: 6, item_date: '2026-11-27', start_time: '09:00', end_time: '12:00', sort_order: 20, category: '交通', title: '包車前往成田機場第2航廈', location_name: '成田國際機場 第2航廈', address: '成田国際空港 第2ターミナル', transit_info: '09:00 包車出發（車程預計 3 小時）', reservation_code: '', cost_note: '', notes: '12:00 預計抵達成田機場迎接小孩們。', is_optional: false, is_done: false },
+        { id: 'd6-3', trip_id: 'default-fuji-2026', day_number: 6, item_date: '2026-11-27', start_time: '12:00', end_time: '15:40', sort_order: 30, category: '逛街', title: '成田機場退稅確認・吃吃喝喝買買買', location_name: '成田國際機場 第2航廈', address: '成田国際空港 第2ターミナル', transit_info: '13:40 排隊 Check-in', reservation_code: '', cost_note: '', notes: '先到自助機台 KIOSK 掃護照確認退稅（紅燈→海關櫃檯；綠燈→Check-in）。若選現金退稅至指定機台掃護照（收 1~1.1% 手續費）。', is_optional: false, is_done: false },
+        { id: 'd6-4', trip_id: 'default-fuji-2026', day_number: 6, item_date: '2026-11-27', start_time: '15:40', end_time: '18:45', sort_order: 40, category: '交通', title: '回程航班 STARLUX JX803（NRT T2 → TPE T1）', location_name: '桃園國際機場 第1航廈', address: '', transit_info: '15:40 起飛 → 18:45 抵達桃園機場第一航廈', reservation_code: 'JX803', cost_note: '', notes: '平安回家！', is_optional: false, is_done: false }
+      ]
+    };
+
+    let supabaseClient = null;
+    let currentUser = null;
+    let state = { trips: [], items: [] };
+    let activeTripId = null; // null => Trip Selection View; string => Detail View
+    let filters = { day: 'all', category: '全部', search: '', hideDone: false, hideOptional: false };
+
+    function escapeHtml(str) {
+      return String(str ?? '').replace(/[&<>"']/g, s => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[s]));
+    }
+
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.remove('hidden');
+      clearTimeout(el._timer);
+      el._timer = setTimeout(() => el.classList.add('hidden'), 2800);
+    }
+
+    function buildMapsUrl(obj) {
+      if (obj?.google_maps_url) return obj.google_maps_url;
+      const query = [obj?.location_name || obj?.name, obj?.address, obj?.title].filter(Boolean).join(' ');
+      if (!query.trim()) return 'https://www.google.com/maps';
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+    }
+
+    function loadLocalData() {
+      try {
+        const raw = localStorage.getItem(LOCAL_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed?.trips) && parsed.trips.length) {
+            return { trips: parsed.trips, items: parsed.items || [] };
+          }
+        }
+      } catch {}
+      return structuredClone(DEFAULT_DATA);
+    }
+
+    function saveLocalData() {
+      localStorage.setItem(LOCAL_KEY, JSON.stringify({ trips: state.trips, items: state.items }));
+    }
+
+    function getActiveTrip() {
+      if (!activeTripId) return null;
+      return state.trips.find(t => t.id === activeTripId) || null;
+    }
+
+    function getTripItems(tripId) {
+      return state.items
+        .filter(i => i.trip_id === tripId)
+        .sort((a, b) => (a.day_number - b.day_number) || (a.start_time || '99:99').localeCompare(b.start_time || '99:99') || (a.sort_order - b.sort_order));
+    }
+
+    function enterTrip(tripId, pushHistory = true) {
+      const trip = state.trips.find(t => t.id === tripId);
+      if (!trip) {
+        goHome(false);
+        return;
+      }
+      activeTripId = tripId;
+      filters = { day: 'all', category: '全部', search: '', hideDone: false, hideOptional: false };
+      document.getElementById('input-search').value = '';
+      document.getElementById('toggle-hide-done').checked = false;
+      document.getElementById('toggle-hide-optional').checked = false;
+      if (pushHistory) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('trip', tripId);
+        history.pushState({ tripId }, '', url);
+      }
+      renderView();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function goHome(pushHistory = true) {
+      activeTripId = null;
+      if (pushHistory) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('trip');
+        history.pushState({ tripId: null }, '', url);
+      }
+      renderView();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateSyncBadge(customText) {
+      const badge = document.getElementById('cloud-sync-badge');
+      const loggedOut = document.getElementById('cloud-logged-out');
+      const loggedIn = document.getElementById('cloud-logged-in');
+      const emailEl = document.getElementById('cloud-user-email');
+
+      if (customText) {
+        badge.textContent = customText;
+        badge.className = 'inline-flex items-center gap-1 rounded-full border-2 border-[#3E3A39] bg-[#F6D27A] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]';
+        return;
+      }
+      if (currentUser) {
+        badge.textContent = '已連線雲端';
+        badge.className = 'inline-flex items-center gap-1 rounded-full border-2 border-[#3E3A39] bg-[#B9DAA5] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]';
+        loggedOut.classList.add('hidden');
+        loggedIn.classList.remove('hidden');
+        emailEl.textContent = currentUser.email || '';
+      } else {
+        badge.textContent = '本機模式';
+        badge.className = 'inline-flex items-center gap-1 rounded-full border-2 border-[#3E3A39] bg-[#A8D3E6] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]';
+        loggedOut.classList.remove('hidden');
+        loggedIn.classList.add('hidden');
+      }
+    }
+
+    async function initSupabase() {
+      if (!window.supabase?.createClient) return;
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+      });
+      supabaseClient.auth.onAuthStateChange((event, session) => {
+        currentUser = session?.user || null;
+        updateSyncBadge();
+        if (currentUser && event !== 'INITIAL_SESSION') {
+          setTimeout(() => syncFromCloud(), 0);
+        } else if (!currentUser && event !== 'INITIAL_SESSION') {
+          state = loadLocalData();
+          if (activeTripId && !state.trips.some(t => t.id === activeTripId)) activeTripId = null;
+          renderView();
+        }
+      });
+      const { data } = await supabaseClient.auth.getSession();
+      currentUser = data?.session?.user || null;
+      updateSyncBadge();
+      if (currentUser) await syncFromCloud();
+    }
+
+    async function syncFromCloud() {
+      if (!supabaseClient || !currentUser) return;
+      updateSyncBadge('同步中...');
+      try {
+        const [{ data: tripsData, error: tErr }, { data: itemsData, error: iErr }] = await Promise.all([
+          supabaseClient.from('trips').select('*').order('start_date', { ascending: true }),
+          supabaseClient.from('trip_items').select('*').order('day_number', { ascending: true }).order('sort_order', { ascending: true })
+        ]);
+        if (tErr) throw tErr;
+        if (iErr) throw iErr;
+
+        if (tripsData && tripsData.length > 0) {
+          state.trips = tripsData;
+          state.items = itemsData || [];
+          if (activeTripId && !state.trips.some(t => t.id === activeTripId)) {
+            activeTripId = null;
+          }
+          saveLocalData();
+          renderView();
+        }
+        updateSyncBadge();
+      } catch (err) {
+        console.error(err);
+        updateSyncBadge();
+        showToast(`雲端同步失敗：${err.message || ''}`);
+      }
+    }
+
+    async function saveItemToCloud(item) {
+      if (!supabaseClient || !currentUser) return item;
+      const isUuid = id => typeof id === 'string' && /^[0-9a-f-]{36}$/i.test(id);
+      const id = isUuid(item.id) ? item.id : crypto.randomUUID();
+      const row = {
+        id,
+        trip_id: item.trip_id,
+        user_id: currentUser.id,
+        day_number: Number(item.day_number) || 1,
+        item_date: item.item_date || null,
+        start_time: item.start_time || null,
+        end_time: item.end_time || null,
+        sort_order: Number(item.sort_order) || 0,
+        category: item.category || '景點',
+        title: item.title,
+        location_name: item.location_name || null,
+        address: item.address || null,
+        google_maps_url: item.google_maps_url || null,
+        transit_info: item.transit_info || null,
+        reservation_code: item.reservation_code || null,
+        cost_note: item.cost_note || null,
+        notes: item.notes || null,
+        is_optional: Boolean(item.is_optional),
+        is_done: Boolean(item.is_done),
+        updated_at: new Date().toISOString()
+      };
+      const { data, error } = await supabaseClient.from('trip_items').upsert(row).select().single();
+      if (error) throw error;
+      return data;
+    }
+
+    function formatDateWithWeekday(dateStr) {
+      if (!dateStr) return '';
+      const d = new Date(dateStr + 'T00:00:00');
+      if (isNaN(d)) return dateStr;
+      const days = ['日', '一', '二', '三', '四', '五', '六'];
+      return `${d.getMonth() + 1}/${d.getDate()} (${days[d.getDay()]})`;
+    }
+
+    function computeDateForDay(trip, dayNum) {
+      if (!trip?.start_date) return '';
+      const d = new Date(trip.start_date + 'T00:00:00');
+      if (isNaN(d)) return '';
+      d.setDate(d.getDate() + (dayNum - 1));
+      return d.toISOString().slice(0, 10);
+    }
+
+    function calcDaysCount(trip, items) {
+      const maxItemDay = items.reduce((m, i) => Math.max(m, i.day_number || 1), 0);
+      const dateDays = (trip?.start_date && trip?.end_date)
+        ? Math.round((new Date(trip.end_date) - new Date(trip.start_date)) / 86400000) + 1
+        : 1;
+      return Math.max(maxItemDay, dateDays);
+    }
+
+    function renderTripList() {
+      document.getElementById('trip-count-badge').textContent = `共 ${state.trips.length} 份行程`;
+      const grid = document.getElementById('trip-cards-grid');
+
+      const cardsHtml = state.trips.map((trip, index) => {
+        const items = getTripItems(trip.id);
+        const daysCount = calcDaysCount(trip, items);
+        const doneCount = items.filter(i => i.is_done).length;
+        const accent = CARD_ACCENTS[index % CARD_ACCENTS.length];
+        const dateRange = (trip.start_date && trip.end_date) ? `${trip.start_date} ～ ${trip.end_date}` : '未設定日期';
+
+        return `
+          <article data-open-trip="${escapeHtml(trip.id)}" class="ehon-box flex cursor-pointer flex-col justify-between bg-[#FFFCF6] p-5 transition hover:-translate-y-0.5">
+            <div>
+              <div class="mb-3 flex items-start justify-between gap-2">
+                <span class="rounded-full border-2 border-[#3E3A39] ${accent} px-3 py-0.5 text-xs font-bold text-[#3E3A39]">
+                  🗓️ ${daysCount} 天行程
+                </span>
+                <div class="flex items-center gap-1.5" onclick="event.stopPropagation()">
+                  <button type="button" data-trip-action="edit" data-trip-id="${escapeHtml(trip.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-2.5 py-1 text-[11px] font-bold hover:bg-[#F6D27A]/40">編輯</button>
+                  <button type="button" data-trip-action="delete" data-trip-id="${escapeHtml(trip.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-2.5 py-1 text-[11px] font-bold hover:bg-[#F2A497]/50">刪除</button>
+                </div>
+              </div>
+
+              <h3 class="text-lg font-bold text-[#3E3A39]">${escapeHtml(trip.title)}</h3>
+              <p class="mt-1 text-xs font-bold text-[#3E3A39]/75">📍 ${escapeHtml(trip.destination || '未設定目的地')}</p>
+              <p class="mt-0.5 text-xs text-[#3E3A39]/70">📅 ${escapeHtml(dateRange)}</p>
+            </div>
+
+            <div class="mt-5 flex items-center justify-between border-t-2 border-dashed border-[#3E3A39]/25 pt-3.5">
+              <div class="text-xs font-bold text-[#3E3A39]/80">
+                共 ${items.length} 項・已完成 ${doneCount} 項
+              </div>
+              <span class="ehon-btn inline-flex items-center gap-1 rounded-2xl bg-[#B9DAA5] px-3.5 py-1.5 text-xs font-bold text-[#3E3A39]">
+                查看行程 →
+              </span>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      const addCardHtml = `
+        <button id="btn-card-new-trip" type="button" class="flex min-h-[210px] flex-col items-center justify-center gap-2 rounded-[24px] border-[3px] border-dashed border-[#3E3A39]/45 bg-[#FFFCF6]/70 p-6 text-center transition hover:border-[#3E3A39] hover:bg-[#F6D27A]/20">
+          <span class="ehon-btn flex h-12 w-12 items-center justify-center rounded-2xl bg-[#F6D27A] text-xl font-bold text-[#3E3A39]">＋</span>
+          <span class="text-sm font-bold text-[#3E3A39]">建立新的旅遊行程</span>
+          <span class="text-xs text-[#3E3A39]/70">新增另一趟旅行計畫，與現有行程分開管理</span>
+        </button>
+      `;
+
+      grid.innerHTML = cardsHtml + addCardHtml;
+    }
+
+    function renderTripHeader() {
+      const trip = getActiveTrip();
+      if (!trip) return;
+
+      document.getElementById('detail-trip-title').textContent = trip.title;
+      document.getElementById('trip-dates-badge').textContent =
+        trip.start_date && trip.end_date ? `${trip.start_date} ～ ${trip.end_date}` : '未設定日期';
+      document.getElementById('trip-dest-badge').textContent = trip.destination || '未設定目的地';
+
+      const items = getTripItems(trip.id);
+      document.getElementById('stat-total').textContent = items.length;
+      document.getElementById('stat-days').textContent = `${calcDaysCount(trip, items)} 天`;
+      document.getElementById('stat-done').textContent = items.filter(i => i.is_done).length;
+      document.getElementById('stat-optional').textContent = items.filter(i => i.is_optional).length;
+
+      const ov = trip.overview || {};
+      document.getElementById('overview-flights').innerHTML = (ov.flights || []).length
+        ? ov.flights.map(f => `
+          <div class="rounded-xl border border-[#3E3A39]/40 bg-white/80 p-2.5">
+            <div class="font-bold text-[#3E3A39]">${escapeHtml(f.label)}｜${escapeHtml(f.airline)}</div>
+            <div class="mt-0.5 font-bold text-[#2563EB]">${escapeHtml(f.route)}</div>
+            ${f.note ? `<div class="mt-1 text-[#3E3A39]/80">${escapeHtml(f.note)}</div>` : ''}
+          </div>
+        `).join('')
+        : '<div class="text-[#3E3A39]/60">尚未設定航班資料</div>';
+
+      document.getElementById('overview-hotels').innerHTML = (ov.hotels || []).length
+        ? ov.hotels.map(h => `
+          <div class="rounded-xl border border-[#3E3A39]/40 bg-white/80 p-2.5">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="font-bold text-[#3E3A39]">${escapeHtml(h.dates)}｜${escapeHtml(h.name)}</div>
+              <a href="${buildMapsUrl({ name: h.name, address: h.address })}" target="_blank" rel="noopener noreferrer" class="ehon-btn inline-flex items-center gap-1 rounded-xl bg-[#B9DAA5] px-2.5 py-1 text-[11px] font-bold text-[#3E3A39]">📍 Google Maps</a>
+            </div>
+            ${h.address ? `<div class="mt-0.5 text-[#3E3A39]/80">${escapeHtml(h.address)}</div>` : ''}
+            ${h.note ? `<div class="mt-1 text-[#3E3A39]/80">${escapeHtml(h.note)}</div>` : ''}
+          </div>
+        `).join('')
+        : '<div class="text-[#3E3A39]/60">尚未設定住宿資料</div>';
+
+      document.getElementById('overview-tips').innerHTML = (ov.tips || []).length
+        ? ov.tips.map(tip => `<li>${escapeHtml(tip)}</li>`).join('')
+        : '<li>暫無行前提醒</li>';
+    }
+
+    function renderFilters() {
+      const trip = getActiveTrip();
+      if (!trip) return;
+      const items = getTripItems(trip.id);
+      const daySet = new Set(items.map(i => i.day_number || 1));
+      if (trip.start_date && trip.end_date) {
+        const totalDays = Math.round((new Date(trip.end_date) - new Date(trip.start_date)) / 86400000) + 1;
+        for (let d = 1; d <= totalDays; d++) daySet.add(d);
+      }
+      const days = Array.from(daySet).sort((a, b) => a - b);
+
+      document.getElementById('day-tabs').innerHTML = `
+        <button data-day="all" class="ehon-btn rounded-2xl px-3 py-1.5 text-xs font-bold ${filters.day === 'all' ? 'bg-[#F6D27A]' : 'bg-[#FFFCF6]'}">全部天數</button>
+        ${days.map(d => {
+          const dateStr = computeDateForDay(trip, d);
+          const label = dateStr ? `Day ${d} (${dateStr.slice(5).replace('-', '/')})` : `Day ${d}`;
+          const active = String(filters.day) === String(d);
+          return `<button data-day="${d}" class="ehon-btn rounded-2xl px-3 py-1.5 text-xs font-bold ${active ? 'bg-[#F6D27A]' : 'bg-[#FFFCF6]'}">${escapeHtml(label)}</button>`;
+        }).join('')}
+      `;
+
+      const cats = ['全部', '交通', '住宿', '景點', '美食', '逛街', '點燈', '體驗', '其他'];
+      document.getElementById('category-pills').innerHTML = cats.map(c => {
+        const active = filters.category === c;
+        return `<button data-cat="${escapeHtml(c)}" class="rounded-full border-2 border-[#3E3A39] px-3 py-1 text-xs font-bold transition ${active ? 'bg-[#3E3A39] text-[#FFFCF6]' : 'bg-[#FFFCF6] text-[#3E3A39] hover:bg-[#F6D27A]/40'}">${escapeHtml(c)}</button>`;
+      }).join('');
+    }
+
+    function renderTimeline() {
+      const trip = getActiveTrip();
+      if (!trip) return;
+      const container = document.getElementById('itinerary-container');
+      const allItems = getTripItems(trip.id);
+      const q = filters.search.trim().toLowerCase();
+
+      const filtered = allItems.filter(item => {
+        if (filters.day !== 'all' && String(item.day_number) !== String(filters.day)) return false;
+        if (filters.category !== '全部' && (item.category || '其他') !== filters.category) return false;
+        if (filters.hideDone && item.is_done) return false;
+        if (filters.hideOptional && item.is_optional) return false;
+        if (q) {
+          const hay = [item.title, item.location_name, item.address, item.transit_info, item.reservation_code, item.notes].join(' ').toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="ehon-box bg-[#FFFCF6] p-8 text-center">
+            <p class="text-sm font-bold text-[#3E3A39]">目前沒有符合條件的行程</p>
+            <p class="mt-1 text-xs text-[#3E3A39]/70">試試切換天數、清除搜尋，或點右上角「＋ 新增行程」加入新地點！</p>
+          </div>
+        `;
+        return;
+      }
+
+      const grouped = new Map();
+      for (const item of filtered) {
+        const d = item.day_number || 1;
+        if (!grouped.has(d)) grouped.set(d, []);
+        grouped.get(d).push(item);
+      }
+
+      container.innerHTML = Array.from(grouped.entries()).map(([dayNum, dayItems]) => {
+        const dateStr = dayItems[0]?.item_date || computeDateForDay(trip, dayNum);
+        const dateLabel = formatDateWithWeekday(dateStr);
+
+        return `
+          <div class="space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b-[3px] border-[#3E3A39] pb-2">
+              <div class="flex items-center gap-2.5">
+                <span class="ehon-btn rounded-2xl bg-[#F6D27A] px-3.5 py-1 text-sm font-bold text-[#3E3A39]">Day ${dayNum}</span>
+                ${dateLabel ? `<span class="text-sm font-bold text-[#3E3A39]">${escapeHtml(dateLabel)}</span>` : ''}
+                <span class="text-xs font-bold text-[#3E3A39]/60">(${dayItems.length} 項)</span>
+              </div>
+              <button data-action="add-day" data-day="${dayNum}" type="button" class="ehon-btn rounded-xl bg-[#F2A497] px-3 py-1 text-xs font-bold text-[#3E3A39]">＋ 新增 Day ${dayNum} 行程</button>
+            </div>
+
+            <div class="space-y-3.5 pl-1 sm:pl-3">
+              ${dayItems.map(item => {
+                const catColor = CATEGORY_COLORS[item.category] || 'bg-[#FFFCF6]';
+                const catIcon = CATEGORY_ICONS[item.category] || '📌';
+                const timeStr = item.start_time
+                  ? (item.end_time ? `${item.start_time} – ${item.end_time}` : item.start_time)
+                  : '彈性時間';
+                const mapsUrl = buildMapsUrl(item);
+
+                return `
+                  <article class="ehon-box bg-[#FFFCF6] p-4 transition ${item.is_done ? 'opacity-65' : ''}">
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div class="min-w-0 flex-1 space-y-2">
+                        <div class="flex flex-wrap items-center gap-2">
+                          <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border-2 border-[#3E3A39] bg-white px-2 py-0.5 text-[11px] font-bold">
+                            <input type="checkbox" data-action="toggle-done" data-id="${escapeHtml(item.id)}" ${item.is_done ? 'checked' : ''} class="accent-[#3E3A39]" />
+                            <span>${item.is_done ? '已完成' : '待進行'}</span>
+                          </label>
+                          <span class="rounded-xl border-2 border-[#3E3A39] bg-[#FFFCF6] px-2.5 py-0.5 text-xs font-bold text-[#3E3A39]">🕒 ${escapeHtml(timeStr)}</span>
+                          <span class="rounded-xl border-2 border-[#3E3A39] ${catColor} px-2.5 py-0.5 text-xs font-bold text-[#3E3A39]">${catIcon} ${escapeHtml(item.category || '景點')}</span>
+                          ${item.is_optional ? '<span class="rounded-xl border-2 border-dashed border-[#3E3A39] bg-[#FFFCF6] px-2 py-0.5 text-[11px] font-bold text-[#3E3A39]">備選方案</span>' : ''}
+                          ${item.reservation_code ? `<button type="button" data-action="copy-code" data-code="${escapeHtml(item.reservation_code)}" class="rounded-xl border-2 border-[#3E3A39] bg-[#F2A497]/50 px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]" title="點擊複製預約碼">🎫 預約：${escapeHtml(item.reservation_code)}</button>` : ''}
+                          ${item.cost_note ? `<span class="rounded-xl border-2 border-[#3E3A39] bg-[#F6D27A]/50 px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">💴 ${escapeHtml(item.cost_note)}</span>` : ''}
+                        </div>
+
+                        <div>
+                          <h3 class="text-base font-bold text-[#3E3A39] ${item.is_done ? 'line-through' : ''}">${escapeHtml(item.title)}</h3>
+                          ${(item.location_name || item.address) ? `
+                            <p class="mt-0.5 text-xs text-[#3E3A39]/75">
+                              📍 ${escapeHtml(item.location_name || '')}${item.location_name && item.address ? ' ・ ' : ''}${escapeHtml(item.address || '')}
+                            </p>
+                          ` : ''}
+                        </div>
+
+                        ${item.transit_info ? `
+                          <div class="rounded-xl border-2 border-[#3E3A39]/25 bg-[#A8D3E6]/20 px-3 py-2 text-xs leading-relaxed text-[#3E3A39]">
+                            <span class="font-bold">🚇 交通：</span>${escapeHtml(item.transit_info)}
+                          </div>
+                        ` : ''}
+                        ${item.notes ? `
+                          <div class="rounded-xl border-2 border-[#3E3A39]/20 bg-[#F6D27A]/15 px-3 py-2 text-xs leading-relaxed text-[#3E3A39]">
+                            <span class="font-bold">📝 備註：</span>${escapeHtml(item.notes)}
+                          </div>
+                        ` : ''}
+                      </div>
+
+                      <div class="flex shrink-0 flex-wrap items-center gap-2 sm:flex-col sm:items-end">
+                        <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" class="ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#B9DAA5] px-3.5 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95">
+                          📍 Google Maps
+                        </a>
+                        <div class="flex items-center gap-1.5">
+                          <button type="button" data-action="edit" data-id="${escapeHtml(item.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-3 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#F6D27A]/40">編輯</button>
+                          <button type="button" data-action="delete" data-id="${escapeHtml(item.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-3 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#F2A497]/50">刪除</button>
+                        </div>
+                      </div>
+                    </div>
+                  </article>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderView() {
+      const listView = document.getElementById('view-trip-list');
+      const detailView = document.getElementById('view-trip-detail');
+      const btnNewTrip = document.getElementById('btn-new-trip');
+      const btnAddItem = document.getElementById('btn-add-item');
+      const subtitle = document.getElementById('header-subtitle');
+
+      const trip = getActiveTrip();
+      if (!trip) {
+        listView.classList.remove('hidden');
+        detailView.classList.add('hidden');
+        btnNewTrip.classList.remove('hidden');
+        btnNewTrip.classList.add('inline-flex');
+        btnAddItem.classList.add('hidden');
+        btnAddItem.classList.remove('inline-flex');
+        subtitle.textContent = '選擇要查閱的旅遊行程，或建立一份全新的旅程';
+        renderTripList();
+      } else {
+        listView.classList.add('hidden');
+        detailView.classList.remove('hidden');
+        btnNewTrip.classList.add('hidden');
+        btnNewTrip.classList.remove('inline-flex');
+        btnAddItem.classList.remove('hidden');
+        btnAddItem.classList.add('inline-flex');
+        subtitle.textContent = '每日時間軸查閱、新增編輯行程、航班住宿總覽與 Google Maps 一鍵導航';
+        renderTripHeader();
+        renderFilters();
+        renderTimeline();
+      }
+    }
+
+    function updatePreviewMapsLink() {
+      const link = document.getElementById('preview-maps-link');
+      link.href = buildMapsUrl({
+        google_maps_url: document.getElementById('field-google-maps-url').value.trim(),
+        location_name: document.getElementById('field-location-name').value.trim(),
+        address: document.getElementById('field-address').value.trim(),
+        title: document.getElementById('field-title').value.trim()
+      });
+    }
+
+    function openItemModal(itemId = null, defaultDay = null) {
+      const trip = getActiveTrip();
+      if (!trip) return;
+      const form = document.getElementById('item-form');
+      form.reset();
+      document.getElementById('field-id').value = '';
+      document.getElementById('field-json-paste').value = '';
+
+      if (itemId) {
+        const item = state.items.find(x => x.id === itemId);
+        if (!item) return;
+        document.getElementById('item-modal-title').textContent = '編輯行程項目';
+        document.getElementById('field-id').value = item.id;
+        document.getElementById('field-day').value = item.day_number || 1;
+        document.getElementById('field-date').value = item.item_date || computeDateForDay(trip, item.day_number || 1);
+        document.getElementById('field-start-time').value = item.start_time || '';
+        document.getElementById('field-end-time').value = item.end_time || '';
+        document.getElementById('field-category').value = item.category || '景點';
+        document.getElementById('field-title').value = item.title || '';
+        document.getElementById('field-location-name').value = item.location_name || '';
+        document.getElementById('field-address').value = item.address || '';
+        document.getElementById('field-google-maps-url').value = item.google_maps_url || '';
+        document.getElementById('field-transit-info').value = item.transit_info || '';
+        document.getElementById('field-reservation-code').value = item.reservation_code || '';
+        document.getElementById('field-cost-note').value = item.cost_note || '';
+        document.getElementById('field-notes').value = item.notes || '';
+        document.getElementById('field-is-optional').checked = Boolean(item.is_optional);
+      } else {
+        const d = defaultDay || (filters.day !== 'all' ? Number(filters.day) : 1);
+        document.getElementById('item-modal-title').textContent = '新增行程項目';
+        document.getElementById('field-day').value = d;
+        document.getElementById('field-date').value = computeDateForDay(trip, d);
+      }
+      updatePreviewMapsLink();
+      const m = document.getElementById('item-modal');
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+    }
+
+    function closeItemModal() {
+      const m = document.getElementById('item-modal');
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    }
+
+    function openTripModal(tripId = null) {
+      document.getElementById('trip-form').reset();
+      document.getElementById('trip-id-input').value = '';
+      if (tripId) {
+        const t = state.trips.find(x => x.id === tripId);
+        if (!t) return;
+        document.getElementById('trip-modal-title').textContent = '編輯旅程資訊';
+        document.getElementById('trip-id-input').value = t.id;
+        document.getElementById('trip-title-input').value = t.title || '';
+        document.getElementById('trip-dest-input').value = t.destination || '';
+        document.getElementById('trip-start-input').value = t.start_date || '';
+        document.getElementById('trip-end-input').value = t.end_date || '';
+      } else {
+        document.getElementById('trip-modal-title').textContent = '建立新旅程';
+      }
+      const m = document.getElementById('trip-modal');
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+    }
+
+    function closeTripModal() {
+      const m = document.getElementById('trip-modal');
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    }
+
+    function parseJsonText(raw) {
+      const t = String(raw || '').trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+      const arrStart = t.indexOf('[');
+      const objStart = t.indexOf('{');
+      let s = -1, e = -1;
+      if (arrStart !== -1 && (objStart === -1 || arrStart < objStart)) { s = arrStart; e = t.lastIndexOf(']'); }
+      else if (objStart !== -1) { s = objStart; e = t.lastIndexOf('}'); }
+      return JSON.parse(s !== -1 && e > s ? t.slice(s, e + 1) : t);
+    }
+
+    async function applyJsonInput(raw) {
+      let parsed;
+      try { parsed = parseJsonText(raw); } catch { showToast('JSON 格式有誤'); return; }
+      const trip = getActiveTrip();
+      if (!trip) return;
+
+      if (Array.isArray(parsed)) {
+        let added = 0;
+        for (const row of parsed) {
+          if (!row?.title) continue;
+          const dayNum = Number(row.day_number || row.day) || 1;
+          const item = {
+            id: crypto.randomUUID(),
+            trip_id: trip.id,
+            day_number: dayNum,
+            item_date: row.item_date || computeDateForDay(trip, dayNum),
+            start_time: row.start_time || '',
+            end_time: row.end_time || '',
+            sort_order: Number(row.sort_order) || 50,
+            category: row.category || '景點',
+            title: String(row.title),
+            location_name: row.location_name || '',
+            address: row.address || '',
+            google_maps_url: row.google_maps_url || '',
+            transit_info: row.transit_info || '',
+            reservation_code: row.reservation_code || '',
+            cost_note: row.cost_note || '',
+            notes: row.notes || '',
+            is_optional: Boolean(row.is_optional),
+            is_done: false
+          };
+          const saved = currentUser ? await saveItemToCloud(item) : item;
+          state.items.push(saved);
+          added++;
+        }
+        saveLocalData();
+        renderView();
+        closeItemModal();
+        showToast(`已批次新增 ${added} 筆行程！`);
+        return;
+      }
+
+      const d = parsed || {};
+      if (d.day_number || d.day) document.getElementById('field-day').value = d.day_number || d.day;
+      if (d.item_date) document.getElementById('field-date').value = d.item_date;
+      if (d.start_time) document.getElementById('field-start-time').value = d.start_time;
+      if (d.end_time) document.getElementById('field-end-time').value = d.end_time;
+      if (d.category) document.getElementById('field-category').value = d.category;
+      if (d.title) document.getElementById('field-title').value = d.title;
+      if (d.location_name) document.getElementById('field-location-name').value = d.location_name;
+      if (d.address) document.getElementById('field-address').value = d.address;
+      if (d.google_maps_url) document.getElementById('field-google-maps-url').value = d.google_maps_url;
+      if (d.transit_info) document.getElementById('field-transit-info').value = d.transit_info;
+      if (d.reservation_code) document.getElementById('field-reservation-code').value = d.reservation_code;
+      if (d.cost_note) document.getElementById('field-cost-note').value = d.cost_note;
+      if (d.notes) document.getElementById('field-notes').value = d.notes;
+      if (d.is_optional != null) document.getElementById('field-is-optional').checked = Boolean(d.is_optional);
+      updatePreviewMapsLink();
+      showToast('已填入 JSON，請確認後按「儲存行程」');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      state = loadLocalData();
+      const params = new URLSearchParams(window.location.search);
+      const urlTrip = params.get('trip');
+      activeTripId = (urlTrip && state.trips.some(t => t.id === urlTrip)) ? urlTrip : null;
+
+      renderView();
+      initSupabase().catch(console.error);
+
+      window.addEventListener('popstate', () => {
+        const p = new URLSearchParams(window.location.search);
+        const tid = p.get('trip');
+        activeTripId = (tid && state.trips.some(t => t.id === tid)) ? tid : null;
+        renderView();
+      });
+
+      document.getElementById('nav-trip-link').addEventListener('click', e => {
+        if (activeTripId) {
+          e.preventDefault();
+          goHome();
+        }
+      });
+
+      document.getElementById('btn-back-to-list').addEventListener('click', () => goHome());
+
+      // Trip List Grid interactions
+      document.getElementById('trip-cards-grid').addEventListener('click', async e => {
+        if (e.target.closest('#btn-card-new-trip')) {
+          openTripModal();
+          return;
+        }
+        const actionBtn = e.target.closest('[data-trip-action]');
+        if (actionBtn) {
+          e.stopPropagation();
+          const act = actionBtn.dataset.tripAction;
+          const tid = actionBtn.dataset.tripId;
+          if (act === 'edit') {
+            openTripModal(tid);
+          } else if (act === 'delete') {
+            const t = state.trips.find(x => x.id === tid);
+            if (!t || !confirm(`確定要刪除整份「${t.title}」行程嗎？（包含底下的所有每日行程）`)) return;
+            state.trips = state.trips.filter(x => x.id !== tid);
+            state.items = state.items.filter(x => x.trip_id !== tid);
+            saveLocalData();
+            renderView();
+            if (currentUser && supabaseClient) {
+              await supabaseClient.from('trips').delete().eq('id', tid);
+            }
+            showToast('已刪除旅程');
+          }
+          return;
+        }
+        const card = e.target.closest('[data-open-trip]');
+        if (card) {
+          enterTrip(card.dataset.openTrip);
+        }
+      });
+
+      document.getElementById('btn-toggle-overview').addEventListener('click', e => {
+        const panel = document.getElementById('overview-panel');
+        const hidden = panel.classList.toggle('hidden');
+        e.target.textContent = hidden ? '展開航班・住宿・行前提醒 ▾' : '收合航班・住宿・行前提醒 ▴';
+      });
+
+      document.getElementById('day-tabs').addEventListener('click', e => {
+        const btn = e.target.closest('[data-day]');
+        if (!btn) return;
+        filters.day = btn.dataset.day;
+        renderFilters();
+        renderTimeline();
+      });
+
+      document.getElementById('category-pills').addEventListener('click', e => {
+        const btn = e.target.closest('[data-cat]');
+        if (!btn) return;
+        filters.category = btn.dataset.cat;
+        renderFilters();
+        renderTimeline();
+      });
+
+      document.getElementById('input-search').addEventListener('input', e => {
+        filters.search = e.target.value;
+        renderTimeline();
+      });
+      document.getElementById('toggle-hide-done').addEventListener('change', e => {
+        filters.hideDone = e.target.checked;
+        renderTimeline();
+      });
+      document.getElementById('toggle-hide-optional').addEventListener('change', e => {
+        filters.hideOptional = e.target.checked;
+        renderTimeline();
+      });
+
+      // Timeline actions
+      document.getElementById('itinerary-container').addEventListener('click', async e => {
+        const target = e.target.closest('[data-action]');
+        if (!target) return;
+        const action = target.dataset.action;
+
+        if (action === 'add-day') {
+          openItemModal(null, Number(target.dataset.day));
+          return;
+        }
+        if (action === 'copy-code') {
+          try {
+            await navigator.clipboard.writeText(target.dataset.code);
+            showToast(`已複製預約碼：${target.dataset.code}`);
+          } catch { showToast(`預約碼：${target.dataset.code}`); }
+          return;
+        }
+
+        const id = target.dataset.id;
+        const idx = state.items.findIndex(x => x.id === id);
+        if (idx === -1) return;
+
+        if (action === 'toggle-done') {
+          state.items[idx].is_done = !state.items[idx].is_done;
+          saveLocalData();
+          renderView();
+          if (currentUser && supabaseClient) {
+            await supabaseClient.from('trip_items').update({ is_done: state.items[idx].is_done }).eq('id', id);
+          }
+        } else if (action === 'edit') {
+          openItemModal(id);
+        } else if (action === 'delete') {
+          if (!confirm(`確定要刪除「${state.items[idx].title}」嗎？`)) return;
+          state.items.splice(idx, 1);
+          saveLocalData();
+          renderView();
+          if (currentUser && supabaseClient) {
+            await supabaseClient.from('trip_items').delete().eq('id', id);
+          }
+          showToast('已刪除行程');
+        }
+      });
+
+      // Item Modal
+      document.getElementById('btn-add-item').addEventListener('click', () => openItemModal());
+      document.getElementById('btn-close-item').addEventListener('click', closeItemModal);
+      document.getElementById('btn-cancel-item').addEventListener('click', closeItemModal);
+      document.getElementById('item-modal').addEventListener('click', e => { if (e.target.id === 'item-modal') closeItemModal(); });
+
+      ['field-title', 'field-location-name', 'field-address', 'field-google-maps-url'].forEach(fid => {
+        document.getElementById(fid).addEventListener('input', updatePreviewMapsLink);
+      });
+      document.getElementById('field-day').addEventListener('change', e => {
+        const d = Number(e.target.value) || 1;
+        const dateEl = document.getElementById('field-date');
+        if (!dateEl.value) dateEl.value = computeDateForDay(getActiveTrip(), d);
+      });
+      document.getElementById('btn-apply-json').addEventListener('click', () => applyJsonInput(document.getElementById('field-json-paste').value));
+
+      document.getElementById('item-form').addEventListener('submit', async e => {
+        e.preventDefault();
+        const trip = getActiveTrip();
+        if (!trip) return;
+        const id = document.getElementById('field-id').value;
+        const existing = id ? state.items.find(x => x.id === id) : null;
+        const dayNum = Number(document.getElementById('field-day').value) || 1;
+
+        const item = {
+          id: id || crypto.randomUUID(),
+          trip_id: trip.id,
+          day_number: dayNum,
+          item_date: document.getElementById('field-date').value || computeDateForDay(trip, dayNum) || null,
+          start_time: document.getElementById('field-start-time').value.trim(),
+          end_time: document.getElementById('field-end-time').value.trim(),
+          sort_order: existing ? existing.sort_order : 50,
+          category: document.getElementById('field-category').value,
+          title: document.getElementById('field-title').value.trim(),
+          location_name: document.getElementById('field-location-name').value.trim(),
+          address: document.getElementById('field-address').value.trim(),
+          google_maps_url: document.getElementById('field-google-maps-url').value.trim(),
+          transit_info: document.getElementById('field-transit-info').value.trim(),
+          reservation_code: document.getElementById('field-reservation-code').value.trim(),
+          cost_note: document.getElementById('field-cost-note').value.trim(),
+          notes: document.getElementById('field-notes').value.trim(),
+          is_optional: document.getElementById('field-is-optional').checked,
+          is_done: existing ? existing.is_done : false
+        };
+
+        try {
+          const saved = currentUser ? await saveItemToCloud(item) : item;
+          if (existing) {
+            const idx = state.items.findIndex(x => x.id === id);
+            if (idx !== -1) state.items[idx] = saved;
+          } else {
+            state.items.push(saved);
+          }
+          saveLocalData();
+          renderView();
+          closeItemModal();
+          showToast('行程已儲存！');
+        } catch (err) {
+          showToast(`儲存失敗：${err.message || ''}`);
+        }
+      });
+
+      // Trip Modal (Create / Edit)
+      document.getElementById('btn-new-trip').addEventListener('click', () => openTripModal());
+      document.getElementById('btn-close-trip').addEventListener('click', closeTripModal);
+      document.getElementById('btn-cancel-trip').addEventListener('click', closeTripModal);
+      document.getElementById('trip-modal').addEventListener('click', e => { if (e.target.id === 'trip-modal') closeTripModal(); });
+
+      document.getElementById('trip-form').addEventListener('submit', async e => {
+        e.preventDefault();
+        const editId = document.getElementById('trip-id-input').value;
+        const payload = {
+          title: document.getElementById('trip-title-input').value.trim(),
+          destination: document.getElementById('trip-dest-input').value.trim(),
+          start_date: document.getElementById('trip-start-input').value,
+          end_date: document.getElementById('trip-end-input').value
+        };
+
+        try {
+          if (editId) {
+            const idx = state.trips.findIndex(t => t.id === editId);
+            if (idx === -1) return;
+            const updated = { ...state.trips[idx], ...payload };
+            if (currentUser && supabaseClient) {
+              const { data, error } = await supabaseClient.from('trips').update({
+                ...payload,
+                updated_at: new Date().toISOString()
+              }).eq('id', editId).select().single();
+              if (error) throw error;
+              state.trips[idx] = data;
+            } else {
+              state.trips[idx] = updated;
+            }
+            saveLocalData();
+            renderView();
+            closeTripModal();
+            showToast('旅程已更新！');
+          } else {
+            const newTrip = {
+              id: crypto.randomUUID(),
+              ...payload,
+              overview: { flights: [], hotels: [], tips: [] }
+            };
+            if (currentUser && supabaseClient) {
+              const { data, error } = await supabaseClient.from('trips').insert({
+                ...newTrip,
+                user_id: currentUser.id
+              }).select().single();
+              if (error) throw error;
+              state.trips.push(data);
+              newTrip.id = data.id;
+            } else {
+              state.trips.push(newTrip);
+            }
+            saveLocalData();
+            closeTripModal();
+            enterTrip(newTrip.id);
+            showToast('新旅程已建立！');
+          }
+        } catch (err) {
+          showToast(`儲存失敗：${err.message || ''}`);
+        }
+      });
+
+      // Cloud Modal
+      document.getElementById('btn-cloud-sync').addEventListener('click', () => {
+        const m = document.getElementById('cloud-modal');
+        m.classList.remove('hidden'); m.classList.add('flex');
+      });
+      document.getElementById('btn-close-cloud').addEventListener('click', () => {
+        const m = document.getElementById('cloud-modal');
+        m.classList.add('hidden'); m.classList.remove('flex');
+      });
+      document.getElementById('btn-cloud-refresh').addEventListener('click', () => syncFromCloud());
+      document.getElementById('btn-cloud-login').addEventListener('click', async () => {
+        const email = document.getElementById('field-cloud-email').value.trim();
+        if (!email) { showToast('請輸入電子郵件'); return; }
+        const { error } = await supabaseClient.auth.signInWithOtp({
+          email,
+          options: { emailRedirectTo: `${window.location.origin}${window.location.pathname}` }
+        });
+        if (error) showToast(`寄送失敗：${error.message}`);
+        else showToast('登入連結已寄出，請至信箱點擊連結！');
+      });
+      document.getElementById('btn-cloud-logout').addEventListener('click', async () => {
+        await supabaseClient.auth.signOut();
+        currentUser = null;
+        state = loadLocalData();
+        activeTripId = null;
+        updateSyncBadge();
+        renderView();
+        showToast('已登出帳號');
+      });
+    });
+  </script>
+</body>
+</html>

@@ -97,6 +97,7 @@
                 <nav aria-label="切換頁面" class="inline-flex rounded-2xl border-[2.5px] border-[#3E3A39] bg-[#FFFCF6] p-0.5 text-xs font-bold">
                   <span class="rounded-xl bg-[#F6D27A] px-3 py-1 text-[#3E3A39]">購物評估</span>
                   <a href="./food.html" class="rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#A8D3E6]/40">美食地圖</a>
+                  <a href="./trip.html" class="rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#B9DAA5]/40">旅遊行程</a>
                 </nav>
               </div>
               <div class="mt-0.5 flex flex-wrap items-center gap-2">
@@ -573,13 +574,13 @@
       if (!badge) return;
       if (stateText) {
         badge.textContent = stateText;
-        badge.className = 'inline-flex items-center gap-1 rounded-full bg-sky-100 px-2.5 py-0.5 text-[11px] font-medium text-sky-700';
+        badge.className = 'inline-flex items-center gap-1 rounded-full border-2 border-[#3E3A39] bg-[#A8D3E6] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]';
       } else if (currentUser) {
         badge.textContent = '雲端已同步';
-        badge.className = 'inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-medium text-emerald-700';
+        badge.className = 'inline-flex items-center gap-1 rounded-full border-2 border-[#3E3A39] bg-[#B9DAA5] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]';
       } else {
         badge.textContent = '尚未登入雲端';
-        badge.className = 'inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-medium text-slate-600';
+        badge.className = 'inline-flex items-center gap-1 rounded-full border-2 border-[#3E3A39] bg-[#FFFCF6] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]';
       }
       const state = document.getElementById('cloud-auth-state');
       const logout = document.getElementById('btn-cloud-logout');
