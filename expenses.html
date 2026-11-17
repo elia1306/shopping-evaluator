@@ -104,6 +104,7 @@
       <!-- Top View Switcher -->
       <div class="flex flex-wrap items-center gap-2 border-t-2 border-dashed border-[#3E3A39]/25 pt-3.5" id="view-tabs">
         <button type="button" data-view-tab="expenses" class="ehon-btn rounded-2xl bg-[#F6D27A] px-4 py-2 text-xs font-bold text-[#3E3A39] sm:text-sm">💸 支出表</button>
+        <button type="button" data-view-tab="settlement" class="ehon-btn rounded-2xl bg-[#FFFCF6] px-4 py-2 text-xs font-bold text-[#3E3A39] sm:text-sm">🤝 結算表</button>
         <button type="button" data-view-tab="kitty" class="ehon-btn rounded-2xl bg-[#FFFCF6] px-4 py-2 text-xs font-bold text-[#3E3A39] sm:text-sm">🏦 公積金</button>
         <button type="button" data-view-tab="budget" class="ehon-btn rounded-2xl bg-[#FFFCF6] px-4 py-2 text-xs font-bold text-[#3E3A39] sm:text-sm">📋 預算表</button>
       </div>
@@ -125,41 +126,28 @@
 
     <!-- VIEW 1: 支出表 -->
     <div id="view-expenses" class="space-y-6">
-    <!-- Summary & Settlement -->
-    <section aria-label="花費統計與分帳結算" class="grid grid-cols-1 gap-5 lg:grid-cols-2">
-      <!-- Total Spending -->
-      <div class="ehon-box bg-[#FFFCF6] p-4 sm:p-5 space-y-3">
-        <h2 class="text-base font-bold text-[#3E3A39]">📊 總花費統計</h2>
-        <div class="grid grid-cols-2 gap-3">
-          <div class="rounded-2xl border-2 border-[#3E3A39] bg-[#F6D27A]/50 p-3">
-            <span class="text-[11px] font-bold text-[#3E3A39]/80">折合台幣總計</span>
-            <div id="stat-total-twd" class="mt-0.5 text-xl font-bold text-[#3E3A39]">NT$ 0</div>
-          </div>
-          <div class="rounded-2xl border-2 border-[#3E3A39] bg-[#A8D3E6]/45 p-3">
-            <span class="text-[11px] font-bold text-[#3E3A39]/80">日圓消費原幣總計</span>
-            <div id="stat-total-jpy" class="mt-0.5 text-xl font-bold text-[#3E3A39]">¥0</div>
-          </div>
+    <!-- Total Spending -->
+    <section aria-label="總花費統計" class="ehon-box bg-[#FFFCF6] p-4 sm:p-5 space-y-3">
+      <h2 class="text-base font-bold text-[#3E3A39]">📊 總花費統計</h2>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="rounded-2xl border-2 border-[#3E3A39] bg-[#F6D27A]/50 p-3">
+          <span class="text-[11px] font-bold text-[#3E3A39]/80">折合台幣總計</span>
+          <div id="stat-total-twd" class="mt-0.5 text-xl font-bold text-[#3E3A39]">NT$ 0</div>
         </div>
-        <div id="kitty-summary-box" class="hidden rounded-2xl border-2 border-[#3E3A39] bg-[#B9DAA5]/35 p-3 text-xs">
-          <div class="flex flex-wrap items-center justify-between gap-2 font-bold">
-            <span>🏦 公積金餘額</span>
-            <span id="stat-kitty-balance" class="text-sm text-[#3E3A39]">NT$ 0</span>
-          </div>
-          <div id="stat-kitty-detail" class="mt-1 text-[11px] text-[#3E3A39]/75"></div>
+        <div class="rounded-2xl border-2 border-[#3E3A39] bg-[#A8D3E6]/45 p-3">
+          <span class="text-[11px] font-bold text-[#3E3A39]/80">日圓消費原幣總計</span>
+          <div id="stat-total-jpy" class="mt-0.5 text-xl font-bold text-[#3E3A39]">¥0</div>
         </div>
-        <div id="payment-breakdown" class="flex flex-wrap gap-2 text-xs"></div>
-        <div id="category-breakdown" class="flex flex-wrap gap-2 text-xs"></div>
       </div>
-
-      <!-- Settlement -->
-      <div class="ehon-box bg-[#B9DAA5]/25 p-4 sm:p-5 space-y-3">
-        <div class="flex items-center justify-between gap-2">
-          <h2 class="text-base font-bold text-[#3E3A39]">🤝 旅伴分帳結算</h2>
-          <span class="text-[11px] font-bold text-[#3E3A39]/70">已自動折算為台幣計算</span>
+      <div id="kitty-summary-box" class="hidden rounded-2xl border-2 border-[#3E3A39] bg-[#B9DAA5]/35 p-3 text-xs">
+        <div class="flex flex-wrap items-center justify-between gap-2 font-bold">
+          <span>🏦 公積金餘額</span>
+          <span id="stat-kitty-balance" class="text-sm text-[#3E3A39]">NT$ 0</span>
         </div>
-        <div id="settlement-transfers" class="space-y-2 text-xs"></div>
-        <div id="member-balances" class="grid grid-cols-1 gap-2 sm:grid-cols-2 text-xs"></div>
+        <div id="stat-kitty-detail" class="mt-1 text-[11px] text-[#3E3A39]/75"></div>
       </div>
+      <div id="payment-breakdown" class="flex flex-wrap gap-2 text-xs"></div>
+      <div id="category-breakdown" class="flex flex-wrap gap-2 text-xs"></div>
     </section>
 
     <!-- Filters -->
@@ -190,7 +178,28 @@
     <section id="expenses-container" aria-label="消費明細" class="space-y-3.5"></section>
     </div>
 
-    <!-- VIEW 2: 公積金 -->
+    <!-- VIEW 2: 結算表 -->
+    <div id="view-settlement" class="hidden space-y-6">
+      <section aria-label="旅伴分帳結算" class="ehon-box bg-[#B9DAA5]/25 p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 class="text-lg font-bold text-[#3E3A39]">🤝 旅伴分帳結算表</h2>
+            <p class="text-xs text-[#3E3A39]/75">僅計算未標記「⏸️ 暫不計算」之消費；公積金支付項目不計入個人轉帳</p>
+          </div>
+          <span class="rounded-full border-2 border-[#3E3A39] bg-white px-3 py-1 text-[11px] font-bold text-[#3E3A39]">已自動折算台幣計算</span>
+        </div>
+        <div class="space-y-2">
+          <h3 class="text-xs font-bold text-[#3E3A39]">💸 建議轉帳明細</h3>
+          <div id="settlement-transfers" class="space-y-2 text-xs"></div>
+        </div>
+        <div class="space-y-2 border-t-2 border-dashed border-[#3E3A39]/25 pt-3">
+          <h3 class="text-xs font-bold text-[#3E3A39]">👥 每人收支明細</h3>
+          <div id="member-balances" class="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3 text-xs"></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- VIEW 3: 公積金 -->
     <div id="view-kitty" class="hidden space-y-6">
       <section class="ehon-box bg-[#B9DAA5]/25 p-5 space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-3">
@@ -237,6 +246,7 @@
           </table>
         </div>
         <div id="budget-daily-note" class="rounded-2xl border-2 border-[#3E3A39]/30 bg-[#F6D27A]/20 p-3.5 text-xs leading-relaxed"></div>
+        <div id="budget-details-tables" class="space-y-5 pt-2"></div>
       </section>
     </div>
 
@@ -407,7 +417,41 @@
         { name: '東泉', hotel: 99000, shared: 23371, yakiniku: 8300, daily: 26189, cash_prep: 49560, total_jpy: 156860 }
       ],
       daily_dining_jpy: 20000,
-      daily_transport_jpy: 6189
+      daily_transport_jpy: 6189,
+      hotels: [
+        { name: 'MIMARU東京 錦糸町', nights: '2晚', total: 73446, count: 4, per_person: 18362, members: 'Elia, 玟君, 佳雯, 阿鳳', note: '4人入住' },
+        { name: 'MIMARU東京 錦糸町', nights: '2晚', total: 73445, count: 5, per_person: 14689, members: 'Elia, 惠雯, 玟君, 佳雯, 阿鳳', note: '5人入住' },
+        { name: '富士レークホテル (5人房)', nights: '3晚', total: 412500, count: 5, per_person: 82500, members: 'Elia, 惠雯, 玟君, 佳雯, 阿鳳', note: '湖景房' },
+        { name: '富士レークホテル (2人房)', nights: '3晚', total: 198000, count: 2, per_person: 99000, members: '維倫, 東泉', note: '雙人客房' }
+      ],
+      shared_items: [
+        { name: 'NRT → 錦糸町：包車', type: '接機專車', total: 24000, count: 5, per_person: 4800, members: 'Elia, 玟君, 阿鳳, 維倫, 東泉' },
+        { name: '錦糸町 → 河口湖一日：包車', type: '跨區包車', total: 65000, count: 7, per_person: 9286, members: '全團 7 人' },
+        { name: '河口湖 → NRT：包車', type: '送機專車', total: 65000, count: 7, per_person: 9286, members: '全團 7 人' },
+        { name: '小紋和服+化妝', type: '體驗與造型', total: 56000, count: 5, per_person: 11200, members: 'Elia, 惠雯, 玟君, 佳雯, 阿鳳' },
+        { name: '手機攝影+包車', type: '攝影與包車', total: 48000, count: 5, per_person: 9600, members: 'Elia, 惠雯, 玟君, 佳雯, 阿鳳' }
+      ],
+      daily_dining: [
+        { day: 'Day 1', meal: '晚餐', item: '燒肉大餐（肉屋横丁）', note: '玟君刷卡代墊 ¥8,300/人', per_person: 0 },
+        { day: 'Day 2', meal: '早餐', item: '早餐自理（超商/咖啡廳）', note: '', per_person: 1000 },
+        { day: 'Day 2', meal: '午餐', item: '市區特色美食', note: '', per_person: 2000 },
+        { day: 'Day 2', meal: '晚餐', item: '特色拉麵', note: '', per_person: 2000 },
+        { day: 'Day 3', meal: '早餐', item: '早餐自理（超商/輕食）', note: '', per_person: 1000 },
+        { day: 'Day 3', meal: '午餐', item: 'Outlet / 道の駅美食', note: '', per_person: 2000 },
+        { day: 'Day 3', meal: '晚餐', item: '活動會場屋台', note: '', per_person: 3000 },
+        { day: 'Day 4', meal: '午餐', item: '午餐隨機應變', note: '', per_person: 2000 },
+        { day: 'Day 4', meal: '晚餐', item: '和風居酒屋（魁本店）', note: '', per_person: 3000 },
+        { day: 'Day 5', meal: '午餐', item: '景點周邊在地定食', note: '', per_person: 2000 },
+        { day: 'Day 6', meal: '午餐', item: '成田機場餐飲', note: '', per_person: 2000 }
+      ],
+      daily_transport: [
+        { day: 'Day 1', item: '地鐵交通（市區轉乘）', split: '個人 IC卡/現金', per_person: 360 },
+        { day: 'Day 2', item: '東京市區地鐵', split: '個人 IC卡/現金', per_person: 700 },
+        { day: 'Day 3', item: '計程車（夜楓來回兩台 ¥6,000）', split: '7人均分', per_person: 857 },
+        { day: 'Day 4', item: '計程車（和服去程兩台 ¥4,000）', split: '5人分攤', per_person: 900 },
+        { day: 'Day 4', item: '計程車（和服回程兩台 ¥4,000）', split: '7人均分', per_person: 571 },
+        { day: 'Day 5', item: '電動輔助自行車（環湖）', split: '個人租車', per_person: 2800 }
+      ]
     };
 
     const CAT_COLORS = {
@@ -1028,6 +1072,71 @@
       document.getElementById('budget-daily-note').innerHTML = `
         <strong>💡 現金準備說明：</strong>「應準備現金」＝ 共用項目現金（包車＋和服＋攝影）＋ 每日自理餐飲與交通預估（餐飲 ¥20,000 ＋ 交通 ¥6,189 ＝ ¥26,189）。Day 1 肉屋横丁燒肉由玟君刷卡代墊（每人 ¥8,300）。
       `;
+
+      const hotels = budget.hotels || DEFAULT_BUDGET.hotels;
+      const sharedItems = budget.shared_items || DEFAULT_BUDGET.shared_items;
+      const diningRows = budget.daily_dining || DEFAULT_BUDGET.daily_dining;
+      const transRows = budget.daily_transport || DEFAULT_BUDGET.daily_transport;
+
+      document.getElementById('budget-details-tables').innerHTML = `
+        <div class="space-y-2">
+          <h3 class="text-sm font-bold text-[#3E3A39]">🏨 二、住宿項目明細表（合計 ¥${hotels.reduce((s, x) => s + x.total, 0).toLocaleString()}）</h3>
+          <div class="overflow-x-auto rounded-2xl border-2 border-[#3E3A39] bg-white">
+            <table class="w-full text-left text-xs">
+              <thead class="border-b-2 border-[#3E3A39] bg-[#A8D3E6]/35 font-bold">
+                <tr><th class="px-3 py-2">住宿飯店</th><th class="px-3 py-2">晚數</th><th class="px-3 py-2 text-right">總金額 (JPY)</th><th class="px-3 py-2 text-right">每人分攤</th><th class="px-3 py-2">分攤成員</th></tr>
+              </thead>
+              <tbody class="divide-y divide-[#3E3A39]/15">
+                ${hotels.map(h => `<tr><td class="px-3 py-2 font-bold">${escapeHtml(h.name)}</td><td class="px-3 py-2">${escapeHtml(h.nights)}</td><td class="px-3 py-2 text-right font-bold">¥${h.total.toLocaleString()}</td><td class="px-3 py-2 text-right">¥${h.per_person.toLocaleString()}</td><td class="px-3 py-2 text-[#3E3A39]/80">${escapeHtml(h.members)}</td></tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <h3 class="text-sm font-bold text-[#3E3A39]">🚐 三、共用項目明細表（合計 ¥${sharedItems.reduce((s, x) => s + x.total, 0).toLocaleString()}）</h3>
+          <div class="overflow-x-auto rounded-2xl border-2 border-[#3E3A39] bg-white">
+            <table class="w-full text-left text-xs">
+              <thead class="border-b-2 border-[#3E3A39] bg-[#F2A497]/35 font-bold">
+                <tr><th class="px-3 py-2">項目名稱</th><th class="px-3 py-2">類別</th><th class="px-3 py-2 text-right">總金額 (JPY)</th><th class="px-3 py-2 text-right">每人分攤</th><th class="px-3 py-2">分攤成員</th></tr>
+              </thead>
+              <tbody class="divide-y divide-[#3E3A39]/15">
+                ${sharedItems.map(s => `<tr><td class="px-3 py-2 font-bold">${escapeHtml(s.name)}</td><td class="px-3 py-2">${escapeHtml(s.type)}</td><td class="px-3 py-2 text-right font-bold">¥${s.total.toLocaleString()}</td><td class="px-3 py-2 text-right">¥${s.per_person.toLocaleString()}</td><td class="px-3 py-2 text-[#3E3A39]/80">${escapeHtml(s.members)}</td></tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <div class="space-y-2">
+            <h3 class="text-sm font-bold text-[#3E3A39]">🍽️ 四-1、每日餐飲預估（每人 ¥${diningRows.reduce((s, x) => s + x.per_person, 0).toLocaleString()}）</h3>
+            <div class="overflow-x-auto rounded-2xl border-2 border-[#3E3A39] bg-white">
+              <table class="w-full text-left text-xs">
+                <thead class="border-b-2 border-[#3E3A39] bg-[#F6D27A]/45 font-bold">
+                  <tr><th class="px-3 py-2">天數</th><th class="px-3 py-2">餐別</th><th class="px-3 py-2">規劃項目</th><th class="px-3 py-2 text-right">每人預估</th></tr>
+                </thead>
+                <tbody class="divide-y divide-[#3E3A39]/15">
+                  ${diningRows.map(d => `<tr><td class="px-3 py-1.5 font-bold">${escapeHtml(d.day)}</td><td class="px-3 py-1.5">${escapeHtml(d.meal)}</td><td class="px-3 py-1.5">${escapeHtml(d.item)}${d.note ? `<div class="text-[10px] text-[#3E3A39]/65">${escapeHtml(d.note)}</div>` : ''}</td><td class="px-3 py-1.5 text-right font-bold">¥${d.per_person.toLocaleString()}</td></tr>`).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <h3 class="text-sm font-bold text-[#3E3A39]">🚆 四-2、每日交通預估（每人 ¥${transRows.reduce((s, x) => s + x.per_person, 0).toLocaleString()}）</h3>
+            <div class="overflow-x-auto rounded-2xl border-2 border-[#3E3A39] bg-white">
+              <table class="w-full text-left text-xs">
+                <thead class="border-b-2 border-[#3E3A39] bg-[#B9DAA5]/45 font-bold">
+                  <tr><th class="px-3 py-2">天數</th><th class="px-3 py-2">交通項目</th><th class="px-3 py-2">分攤方式</th><th class="px-3 py-2 text-right">每人預估</th></tr>
+                </thead>
+                <tbody class="divide-y divide-[#3E3A39]/15">
+                  ${transRows.map(t => `<tr><td class="px-3 py-1.5 font-bold">${escapeHtml(t.day)}</td><td class="px-3 py-1.5">${escapeHtml(t.item)}</td><td class="px-3 py-1.5 text-[#3E3A39]/75">${escapeHtml(t.split)}</td><td class="px-3 py-1.5 text-right font-bold">¥${t.per_person.toLocaleString()}</td></tr>`).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
     }
 
     function renderAll() {
@@ -1050,6 +1159,7 @@
         btn.className = `ehon-btn rounded-2xl ${active ? 'bg-[#F6D27A]' : 'bg-[#FFFCF6]'} px-4 py-2 text-xs font-bold text-[#3E3A39] sm:text-sm`;
       });
       document.getElementById('view-expenses').classList.toggle('hidden', activeViewTab !== 'expenses');
+      document.getElementById('view-settlement').classList.toggle('hidden', activeViewTab !== 'settlement');
       document.getElementById('view-kitty').classList.toggle('hidden', activeViewTab !== 'kitty');
       document.getElementById('view-budget').classList.toggle('hidden', activeViewTab !== 'budget');
 
@@ -1057,6 +1167,8 @@
         renderSummaryAndSettlement();
         renderFilters();
         renderExpensesList();
+      } else if (activeViewTab === 'settlement') {
+        renderSummaryAndSettlement();
       } else if (activeViewTab === 'kitty') {
         renderKittyView();
       } else if (activeViewTab === 'budget') {
