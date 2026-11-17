@@ -130,7 +130,7 @@
               🔗 分享行程
             </button>
             <button id="btn-toggle-overview" type="button" class="ehon-btn rounded-2xl bg-[#B9DAA5] px-3.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:brightness-95">
-              展開航班・住宿・行前提醒 ▾
+              <span class="text-[#D94F3D]">★</span> 展開航班・住宿・行前提醒 <span class="text-[#D94F3D]">★</span> ▾
             </button>
           </div>
         </div>
@@ -1538,7 +1538,9 @@
       document.getElementById('btn-toggle-overview').addEventListener('click', e => {
         const panel = document.getElementById('overview-panel');
         const hidden = panel.classList.toggle('hidden');
-        e.target.textContent = hidden ? '展開航班・住宿・行前提醒 ▾' : '收合航班・住宿・行前提醒 ▴';
+        e.currentTarget.innerHTML = hidden
+          ? '<span class="text-[#D94F3D]">★</span> 展開航班・住宿・行前提醒 <span class="text-[#D94F3D]">★</span> ▾'
+          : '<span class="text-[#D94F3D]">★</span> 收合航班・住宿・行前提醒 <span class="text-[#D94F3D]">★</span> ▴';
       });
 
       // Editable Tips
