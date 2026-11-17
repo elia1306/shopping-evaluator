@@ -523,6 +523,7 @@
     let activeTripId = null; // null => Trip Selection View; string => Detail View
     let shareToken = null;
     let isShareMode = false;
+    let collapsedParentIds = new Set();
     let filters = { day: 'all', hideDone: false, hideOptional: false };
 
     function escapeHtml(str) {
@@ -934,7 +935,7 @@
       `;
     }
 
-    function renderItemCard(item, isSub = false) {
+    function renderItemCard(item, isSub = false, subCount = 0) {
       const catColor = CATEGORY_COLORS[item.category] || 'bg-[#FFFCF6]';
       const catIcon = CATEGORY_ICONS[item.category] || '📌';
       const timeStr = item.start_time
@@ -967,6 +968,11 @@
                 <span class="rounded-xl border-2 border-[#3E3A39] ${catColor} px-2.5 py-0.5 text-xs font-bold text-[#3E3A39]">${catIcon} ${escapeHtml(item.category || '景點')}</span>
                 ${item.reservation_code ? `<button type="button" data-action="copy-code" data-code="${escapeHtml(item.reservation_code)}" class="rounded-xl border-2 border-[#3E3A39] bg-[#F2A497]/50 px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]" title="點擊複製預約碼">🎫 預約：${escapeHtml(item.reservation_code)}</button>` : ''}
                 ${item.cost_note ? `<span class="rounded-xl border-2 border-[#3E3A39] bg-[#F6D27A]/50 px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">💴 ${escapeHtml(item.cost_note)}</span>` : ''}
+                ${(!isSub && subCount > 0) ? `
+                  <button type="button" data-action="toggle-subs" data-id="${escapeHtml(item.id)}" class="rounded-xl border-2 border-[#3E3A39] bg-[#B9DAA5]/65 px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39] hover:brightness-95">
+                    ${collapsedParentIds.has(item.id) ? `▸ 展開子行程 (${subCount})` : `▾ 收合子行程 (${subCount})`}
+                  </button>
+                ` : ''}
               </div>
 
               <div>
@@ -1075,12 +1081,13 @@
             <div class="space-y-4 pl-1 sm:pl-3">
               ${topLevel.map(parent => {
                 const subs = childrenByParent.get(parent.id) || [];
+                const isCollapsed = collapsedParentIds.has(parent.id);
                 return `
                   <div>
-                    ${renderItemCard(parent, false)}
-                    ${subs.length ? `
+                    ${renderItemCard(parent, false, subs.length)}
+                    ${(subs.length && !isCollapsed) ? `
                       <div class="mt-2.5 ml-3 space-y-2.5 border-l-[3px] border-[#3E3A39]/30 pl-3 sm:ml-6 sm:pl-4">
-                        ${subs.map(sub => renderItemCard(sub, true)).join('')}
+                        ${subs.map(sub => renderItemCard(sub, true, 0)).join('')}
                       </div>
                     ` : ''}
                   </div>
@@ -1432,6 +1439,13 @@
           openItemModal(null, Number(target.dataset.day), target.dataset.id);
           return;
         }
+        if (action === 'toggle-subs') {
+          const pid = target.dataset.id;
+          if (collapsedParentIds.has(pid)) collapsedParentIds.delete(pid);
+          else collapsedParentIds.add(pid);
+          renderTimeline();
+          return;
+        }
         if (action === 'copy-code') {
           try {
             await navigator.clipboard.writeText(target.dataset.code);
@@ -1532,6 +1546,7 @@
           } else {
             state.items.push(saved);
           }
+          if (saved.parent_id) collapsedParentIds.delete(saved.parent_id);
           saveLocalData();
           renderView();
           closeItemModal();
