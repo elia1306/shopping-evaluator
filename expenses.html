@@ -131,6 +131,13 @@
             <div id="stat-total-jpy" class="mt-0.5 text-xl font-bold text-[#3E3A39]">¥0</div>
           </div>
         </div>
+        <div id="kitty-summary-box" class="hidden rounded-2xl border-2 border-[#3E3A39] bg-[#B9DAA5]/35 p-3 text-xs">
+          <div class="flex flex-wrap items-center justify-between gap-2 font-bold">
+            <span>🏦 公積金餘額</span>
+            <span id="stat-kitty-balance" class="text-sm text-[#3E3A39]">NT$ 0</span>
+          </div>
+          <div id="stat-kitty-detail" class="mt-1 text-[11px] text-[#3E3A39]/75"></div>
+        </div>
         <div id="payment-breakdown" class="flex flex-wrap gap-2 text-xs"></div>
         <div id="category-breakdown" class="flex flex-wrap gap-2 text-xs"></div>
       </div>
@@ -160,6 +167,7 @@
           <option value="購物">購物</option>
           <option value="門票">門票</option>
           <option value="住宿">住宿</option>
+          <option value="公積金存入">公積金存入</option>
           <option value="其他">其他</option>
         </select>
         <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border-2 border-[#3E3A39] bg-[#FFFCF6] px-2.5 py-1.5 text-xs font-bold">
@@ -201,6 +209,7 @@
               <option value="購物">🛍️ 購物</option>
               <option value="門票">🎫 門票</option>
               <option value="住宿">🏨 住宿</option>
+              <option value="公積金存入">🏦 公積金存入（儲值）</option>
               <option value="其他">📌 其他</option>
             </select>
           </div>
@@ -266,6 +275,10 @@
             <input id="field-needs-review" type="checkbox" class="h-4 w-4 accent-[#3E3A39]" />
             <span>標記為「🔍 待事後分析／補填金額」（急著結帳時金額可先填 0）</span>
           </label>
+          <label class="inline-flex cursor-pointer items-center gap-2 font-bold text-[#3E3A39]">
+            <input id="field-exclude-total" type="checkbox" class="h-4 w-4 accent-[#3E3A39]" />
+            <span>標記為「⏸️ 暫不計算」（保留紀錄，暫不列入總花費與分帳結算）</span>
+          </label>
         </div>
 
         <div class="flex justify-end gap-2 border-t-2 border-[#3E3A39]/15 pt-4">
@@ -330,6 +343,7 @@
       '購物': 'bg-[#F6D27A]',
       '門票': 'bg-[#B9DAA5]',
       '住宿': 'bg-[#F6D27A]/75',
+      '公積金存入': 'bg-[#B9DAA5]',
       '其他': 'bg-[#FFFCF6]'
     };
 
@@ -548,6 +562,9 @@
 
       let totalTwd = 0;
       let totalJpy = 0;
+      let kittyInTwd = 0;
+      let kittyOutTwd = 0;
+      let hasKitty = false;
       const byPayment = {};
       const byCat = {};
       const paidMap = {};
@@ -555,29 +572,58 @@
       members.forEach(m => { paidMap[m] = 0; shareMap[m] = 0; });
 
       for (const exp of tripExps) {
+        if (exp.exclude_from_total) continue;
         const amt = Number(exp.amount) || 0;
         const twd = toTwd(exp);
+        const cat = exp.category || '其他';
+        const payer = exp.paid_by || members[0];
+
+        if (cat === '公積金存入') {
+          hasKitty = true;
+          kittyInTwd += twd;
+          if (payer !== '🏦 公積金') {
+            paidMap[payer] = (paidMap[payer] || 0) + twd;
+            const splitList = Array.isArray(exp.split_among) && exp.split_among.length ? exp.split_among : [payer];
+            const perHead = twd / splitList.length;
+            for (const s of splitList) {
+              shareMap[s] = (shareMap[s] || 0) + perHead;
+            }
+          }
+          continue;
+        }
+
         totalTwd += twd;
         if (exp.currency === 'JPY') totalJpy += amt;
 
         const pm = exp.payment_method || '其他';
         byPayment[pm] = (byPayment[pm] || 0) + twd;
-
-        const cat = exp.category || '其他';
         byCat[cat] = (byCat[cat] || 0) + twd;
 
-        const payer = exp.paid_by || members[0];
-        paidMap[payer] = (paidMap[payer] || 0) + twd;
-
-        const splitList = Array.isArray(exp.split_among) && exp.split_among.length ? exp.split_among : [payer];
-        const perHead = twd / splitList.length;
-        for (const s of splitList) {
-          shareMap[s] = (shareMap[s] || 0) + perHead;
+        if (payer === '🏦 公積金') {
+          hasKitty = true;
+          kittyOutTwd += twd;
+        } else {
+          paidMap[payer] = (paidMap[payer] || 0) + twd;
+          const splitList = Array.isArray(exp.split_among) && exp.split_among.length ? exp.split_among : [payer];
+          const perHead = twd / splitList.length;
+          for (const s of splitList) {
+            shareMap[s] = (shareMap[s] || 0) + perHead;
+          }
         }
       }
 
       document.getElementById('stat-total-twd').textContent = `NT$ ${Math.round(totalTwd).toLocaleString()}`;
       document.getElementById('stat-total-jpy').textContent = `¥${Math.round(totalJpy).toLocaleString()}`;
+
+      const kittyBox = document.getElementById('kitty-summary-box');
+      if (hasKitty) {
+        kittyBox.classList.remove('hidden');
+        const balTwd = Math.round(kittyInTwd - kittyOutTwd);
+        document.getElementById('stat-kitty-balance').textContent = `NT$ ${balTwd.toLocaleString()}（約 ¥${Math.round(balTwd / rate).toLocaleString()}）`;
+        document.getElementById('stat-kitty-detail').textContent = `已收公積金 NT$ ${Math.round(kittyInTwd).toLocaleString()} － 公積金支出 NT$ ${Math.round(kittyOutTwd).toLocaleString()}`;
+      } else {
+        kittyBox.classList.add('hidden');
+      }
 
       document.getElementById('payment-breakdown').innerHTML = Object.entries(byPayment).map(([k, v]) =>
         `<span class="rounded-xl border border-[#3E3A39]/40 bg-[#FFFCF6] px-2.5 py-1 font-bold">${escapeHtml(k)}：NT$ ${Math.round(v).toLocaleString()}</span>`
@@ -664,7 +710,7 @@
 
       const members = getTripMembers(trip);
       const payerSel = document.getElementById('filter-payer');
-      payerSel.innerHTML = `<option value="全部">全部付款人</option>` + members.map(m => `<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`).join('');
+      payerSel.innerHTML = `<option value="全部">全部付款人</option><option value="🏦 公積金">🏦 公積金</option>` + members.map(m => `<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`).join('');
       payerSel.value = filters.payer;
     }
 
@@ -699,7 +745,7 @@
         const twdHint = exp.currency === 'JPY' ? `（≈ NT$ ${twd.toLocaleString()}）` : '';
 
         return `
-          <article class="ehon-box bg-[#FFFCF6] p-4">
+          <article class="ehon-box bg-[#FFFCF6] p-4 ${exp.exclude_from_total ? 'opacity-65' : ''}">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div class="min-w-0 flex-1 space-y-1.5">
                 <div class="flex flex-wrap items-center gap-2">
@@ -707,11 +753,12 @@
                   <span class="rounded-xl border-2 border-[#3E3A39] ${CAT_COLORS[exp.category] || 'bg-white'} px-2.5 py-0.5 text-xs font-bold">${escapeHtml(exp.category)}</span>
                   <span class="rounded-xl border-2 border-[#3E3A39] bg-white px-2.5 py-0.5 text-xs font-bold">${escapeHtml(exp.payment_method || '現金')}</span>
                   ${exp.needs_review ? '<span class="rounded-xl border-2 border-[#3E3A39] bg-[#F2A497] px-2.5 py-0.5 text-[11px] font-bold">🔍 待事後分析</span>' : ''}
+                  ${exp.exclude_from_total ? '<span class="rounded-xl border-2 border-dashed border-[#3E3A39] bg-[#FFFCF6] px-2.5 py-0.5 text-[11px] font-bold">⏸️ 暫不計算</span>' : ''}
                 </div>
                 <h3 class="text-base font-bold text-[#3E3A39]">${escapeHtml(exp.title)}</h3>
                 <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#3E3A39]/80">
-                  <span>🙋 <strong>${escapeHtml(exp.paid_by)}</strong> 先付</span>
-                  <span>👥 分攤：${escapeHtml(splitList.join('、'))}（每人約 NT$ ${perHeadTwd.toLocaleString()}）</span>
+                  <span>🙋 <strong>${escapeHtml(exp.paid_by)}</strong> ${exp.category === '公積金存入' ? '存入' : '先付'}</span>
+                  <span>${exp.paid_by === '🏦 公積金' ? '🏦 由公積金共同支付（不計入個人代墊）' : `👥 分攤：${escapeHtml(splitList.join('、'))}（每人約 NT$ ${perHeadTwd.toLocaleString()}）`}</span>
                 </div>
                 ${exp.notes ? `<p class="text-xs text-[#3E3A39]/75">📝 ${escapeHtml(exp.notes)}</p>` : ''}
                 ${(exp.receipt || exp.receipt_url) ? `
@@ -749,13 +796,14 @@
     function renderModalMemberOptions(selectedPayer, selectedSplits) {
       const trip = getActiveTrip();
       const members = getTripMembers(trip);
-      const payer = selectedPayer && members.includes(selectedPayer) ? selectedPayer : members[0];
+      const payerOptions = [...members, '🏦 公積金'];
+      const payer = selectedPayer && payerOptions.includes(selectedPayer) ? selectedPayer : members[0];
       const splits = Array.isArray(selectedSplits) && selectedSplits.length ? selectedSplits : [...members];
 
-      document.getElementById('form-payer-options').innerHTML = members.map(m => `
+      document.getElementById('form-payer-options').innerHTML = payerOptions.map(m => `
         <label class="cursor-pointer">
           <input type="radio" name="paid_by" value="${escapeHtml(m)}" ${m === payer ? 'checked' : ''} class="peer hidden" />
-          <span class="inline-block rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-1 text-xs font-bold peer-checked:bg-[#F6D27A]">${escapeHtml(m)}</span>
+          <span class="inline-block rounded-xl border-2 border-[#3E3A39] bg-white px-3 py-1 text-xs font-bold ${m === '🏦 公積金' ? 'peer-checked:bg-[#B9DAA5]' : 'peer-checked:bg-[#F6D27A]'}">${escapeHtml(m)}</span>
         </label>
       `).join('');
 
@@ -806,6 +854,7 @@
         document.getElementById('field-receipt-data').value = recSrc;
         setReceiptPreview(recSrc);
         document.getElementById('field-needs-review').checked = Boolean(exp.needs_review);
+        document.getElementById('field-exclude-total').checked = Boolean(exp.exclude_from_total);
         renderModalMemberOptions(exp.paid_by, exp.split_among);
       } else {
         const d = filters.day !== 'all' ? Number(filters.day) : 1;
@@ -1004,6 +1053,7 @@
 
         const recData = document.getElementById('field-receipt-data').value.trim();
         const needsReview = document.getElementById('field-needs-review').checked;
+        const excludeTotal = document.getElementById('field-exclude-total').checked;
         const expId = (id && /^[0-9a-f-]{36}$/i.test(id)) ? id : crypto.randomUUID();
 
         const row = {
@@ -1020,7 +1070,8 @@
           paid_by: paidBy,
           split_among: splitAmong,
           notes: document.getElementById('field-notes').value.trim() || null,
-          needs_review: needsReview
+          needs_review: needsReview,
+          exclude_from_total: excludeTotal
         };
 
         try {
