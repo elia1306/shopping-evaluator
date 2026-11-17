@@ -48,19 +48,20 @@
   <!-- Top Header -->
   <header class="sticky top-0 z-30 border-b-[3px] border-[#3E3A39] bg-[#FFFCF6]">
     <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3.5 sm:px-6 lg:px-8">
-      <div class="flex flex-wrap items-center gap-3">
+      <div class="flex items-center gap-3">
         <div class="ehon-btn flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#F6D27A] text-[#3E3A39]">
           <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 11h16a8 8 0 01-16 0z" />
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 19h6M8 4v3m4-4v4m4-3v3" />
           </svg>
         </div>
-        <div>
+        <div class="min-w-0">
           <div class="flex flex-wrap items-center gap-2">
             <h1 class="whitespace-nowrap text-lg font-bold tracking-tight text-[#3E3A39] sm:text-xl">♥ 日本好好吃 ♥</h1>
             <nav aria-label="切換頁面" class="inline-flex rounded-2xl border-[2.5px] border-[#3E3A39] bg-[#FFFCF6] p-0.5 text-xs font-bold">
               <a href="./index.html" class="rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#F2A497]/40">購物評估</a>
               <span class="rounded-xl bg-[#F6D27A] px-3 py-1 text-[#3E3A39]">美食地圖</span>
+              <a href="./trip.html" class="rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#B9DAA5]/40">旅遊行程</a>
             </nav>
             <span id="cloud-sync-badge" class="inline-flex items-center gap-1 rounded-full border-2 border-[#3E3A39] bg-[#A8D3E6] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">本機模式</span>
           </div>
@@ -427,8 +428,8 @@
       if (badge) {
         badge.textContent = text || (currentUser ? 'Supabase 已連線' : '本機模式');
         badge.className = currentUser
-          ? 'inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-medium text-emerald-700'
-          : 'inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-medium text-slate-500';
+          ? 'inline-flex items-center gap-1 rounded-full border-2 border-[#3E3A39] bg-[#B9DAA5] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]'
+          : 'inline-flex items-center gap-1 rounded-full border-2 border-[#3E3A39] bg-[#FFFCF6] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]';
       }
       if (state) state.textContent = currentUser ? `已登入：${currentUser.email || '帳號'}。美食清單已同步至雲端。` : '尚未登入。輸入電子郵件即可收到安全登入連結。';
       if (loginBtn) loginBtn.classList.toggle('hidden', !!currentUser);
