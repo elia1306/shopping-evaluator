@@ -674,6 +674,13 @@
       return n > 10 ? Math.max(1, Math.min(10, Math.round(n / 10))) : Math.max(1, Math.min(10, Math.round(n)));
     }
 
+    function formatLocationsText(raw) {
+      return String(raw || '')
+        .replace(/\\n/g, '\n')
+        .replace(/([^\n])(\[(?:台灣|日本)\])/g, '$1\n$2')
+        .trim();
+    }
+
     async function saveItemToCloud(item) {
       if (!supabaseClient || !currentUser) return;
       if (!isUuid(item.id)) item.id = crypto.randomUUID();
@@ -791,6 +798,9 @@
             suitabilityScore: normalizeScore10(ev?.suitability_score ?? payload.suitability_score ?? payload.suitabilityScore),
             reviews6m: ev?.review_summary || payload.reviews6m || '尚未查詢近六個月評價',
             recommendation: normalizeRec(ev?.recommendation || payload.recommendation, normalizeScore10(ev?.suitability_score ?? payload.suitability_score ?? payload.suitabilityScore)),
+            pros: Array.isArray(ev?.pros) && ev.pros.length ? ev.pros : (Array.isArray(payload.pros) ? payload.pros : []),
+            cons: Array.isArray(ev?.cons) && ev.cons.length ? ev.cons : (Array.isArray(payload.cons) ? payload.cons : []),
+            qualityIssues: Array.isArray(ev?.quality_issues) && ev.quality_issues.length ? ev.quality_issues : (Array.isArray(payload.quality_issues) ? payload.quality_issues : []),
             analysisNotes: p.personal_notes || payload.analysisNotes || '',
             purchaseOptions: opts,
             image, imagePath: img?.image_path || ''
@@ -1109,9 +1119,18 @@
                   <p class="line-clamp-3">${escapeHtml(item.reviews6m)}</p>
                 </div>
 
+                ${Array.isArray(item.cons) && item.cons.length ? `
+                  <div class="rounded-xl border border-[#F2A497] bg-[#F2A497]/20 p-3">
+                    <div class="mb-1 font-semibold text-[#3E3A39]">缺點 / 注意事項</div>
+                    <ul class="list-disc space-y-0.5 pl-4 text-[#3E3A39]/90">
+                      ${item.cons.map(c => `<li>${escapeHtml(c)}</li>`).join('')}
+                    </ul>
+                  </div>
+                ` : ''}
+
                 <div>
                   <div class="mb-0.5 font-semibold text-slate-800">可購買地點與價錢</div>
-                  <p class="whitespace-pre-line font-medium text-indigo-700 line-clamp-3">${escapeHtml(item.locationsAndPrice)}</p>
+                  <p class="whitespace-pre-line font-medium text-indigo-700 line-clamp-3">${escapeHtml(formatLocationsText(item.locationsAndPrice))}</p>
                 </div>
               </div>
 
@@ -1175,9 +1194,39 @@
               <p>${escapeHtml(item.reviews6m)}</p>
             </div>
 
+            ${(Array.isArray(item.pros) && item.pros.length) || (Array.isArray(item.cons) && item.cons.length) ? `
+              <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                ${Array.isArray(item.pros) && item.pros.length ? `
+                  <div class="rounded-xl border border-[#B9DAA5] bg-[#B9DAA5]/25 p-4">
+                    <h3 class="mb-1.5 font-semibold text-[#3E3A39]">優點</h3>
+                    <ul class="list-disc space-y-1 pl-4 text-xs text-[#3E3A39]">
+                      ${item.pros.map(p => `<li>${escapeHtml(p)}</li>`).join('')}
+                    </ul>
+                  </div>
+                ` : ''}
+                ${Array.isArray(item.cons) && item.cons.length ? `
+                  <div class="rounded-xl border border-[#F2A497] bg-[#F2A497]/25 p-4">
+                    <h3 class="mb-1.5 font-semibold text-[#3E3A39]">缺點 / 注意事項</h3>
+                    <ul class="list-disc space-y-1 pl-4 text-xs text-[#3E3A39]">
+                      ${item.cons.map(c => `<li>${escapeHtml(c)}</li>`).join('')}
+                    </ul>
+                  </div>
+                ` : ''}
+              </div>
+            ` : ''}
+
+            ${Array.isArray(item.qualityIssues) && item.qualityIssues.length ? `
+              <div class="rounded-xl border border-[#F6D27A] bg-[#F6D27A]/30 p-4">
+                <h3 class="mb-1 font-semibold text-[#3E3A39]">品質 / 使用提醒</h3>
+                <ul class="list-disc space-y-1 pl-4 text-xs text-[#3E3A39]">
+                  ${item.qualityIssues.map(q => `<li>${escapeHtml(q)}</li>`).join('')}
+                </ul>
+              </div>
+            ` : ''}
+
             <div class="rounded-xl border border-indigo-100 bg-indigo-50/50 p-4">
               <h3 class="mb-1 font-semibold text-indigo-950">可購買地點與價錢</h3>
-              <p class="whitespace-pre-line font-medium text-indigo-800">${escapeHtml(item.locationsAndPrice || '尚未查詢購買地點與價格')}</p>
+              <p class="whitespace-pre-line font-medium text-indigo-800">${escapeHtml(formatLocationsText(item.locationsAndPrice) || '尚未查詢購買地點與價格')}</p>
               ${Array.isArray(item.purchaseOptions) && item.purchaseOptions.length ? `
                 <ul class="mt-2.5 space-y-1.5 border-t border-indigo-100 pt-2.5 text-xs text-indigo-900">
                   ${item.purchaseOptions.map(po => `
