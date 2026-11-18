@@ -72,6 +72,9 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
+          <button id="btn-toggle-view-mode" type="button" class="ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#FFFCF6] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:bg-[#F6D27A]/40 sm:text-sm">
+            👁️ 切換檢視模式
+          </button>
           <button id="btn-cloud-sync" type="button" class="ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#A8D3E6] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm">
             ☁️ 雲端同步（本機）
           </button>
@@ -226,7 +229,12 @@
             <h2 class="text-lg font-bold text-[#3E3A39]">📋 2026 富士山預算與現金準備總覽表</h2>
             <p class="text-xs text-[#3E3A39]/75">匯入自您的 Google Sheets 預算表，台幣金額依上方即時／套用匯率自動換算</p>
           </div>
-          <span id="budget-rate-badge" class="rounded-full border-2 border-[#3E3A39] bg-[#A8D3E6]/60 px-3 py-1 text-xs font-bold"></span>
+          <div class="flex flex-wrap items-center gap-2">
+            <span id="budget-rate-badge" class="rounded-full border-2 border-[#3E3A39] bg-[#A8D3E6]/60 px-3 py-1 text-xs font-bold"></span>
+            <button id="btn-edit-budget" type="button" class="ehon-btn rounded-2xl bg-[#F6D27A] px-3 py-1.5 text-xs font-bold text-[#3E3A39] hover:brightness-95">
+              ✏️ 編輯預算表
+            </button>
+          </div>
         </div>
         <div id="budget-summary-cards" class="grid grid-cols-2 gap-3 sm:grid-cols-4"></div>
         <div class="overflow-x-auto rounded-2xl border-2 border-[#3E3A39] bg-white">
@@ -391,6 +399,101 @@
     </div>
   </div>
 
+  <!-- Budget Edit Modal -->
+  <div id="budget-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#3E3A39]/45 p-3 backdrop-blur-[2px] sm:p-4">
+    <div class="ehon-box max-h-[92vh] w-full max-w-4xl overflow-y-auto bg-[#FFFCF6] p-5 sm:p-6">
+      <div class="mb-4 flex items-center justify-between border-b-2 border-dashed border-[#3E3A39]/20 pb-3">
+        <h3 class="text-lg font-bold text-[#3E3A39]">📋 編輯預算表</h3>
+        <button id="btn-close-budget-modal" type="button" class="ehon-btn rounded-xl bg-white px-2.5 py-1 text-xs font-bold">✕ 關閉</button>
+      </div>
+
+      <form id="budget-form" class="space-y-5">
+        <!-- 每人預算總表 -->
+        <div class="space-y-2">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h4 class="text-sm font-bold text-[#3E3A39]">一、每人預算總表 (JPY)</h4>
+            <button id="btn-add-budget-person" type="button" class="ehon-btn rounded-xl bg-[#A8D3E6] px-3 py-1 text-xs font-bold text-[#3E3A39]">＋ 新增成員列</button>
+          </div>
+          <div class="overflow-x-auto rounded-2xl border-2 border-[#3E3A39] bg-white">
+            <table class="w-full text-left text-xs">
+              <thead class="border-b-2 border-[#3E3A39] bg-[#F6D27A]/45 font-bold">
+                <tr>
+                  <th class="px-2 py-2">旅伴</th>
+                  <th class="px-2 py-2 text-right">住宿</th>
+                  <th class="px-2 py-2 text-right">共用項目</th>
+                  <th class="px-2 py-2 text-right">燒肉代墊</th>
+                  <th class="px-2 py-2 text-right">每日預估</th>
+                  <th class="px-2 py-2 text-right">應備現金</th>
+                  <th class="px-2 py-2 text-center">操作</th>
+                </tr>
+              </thead>
+              <tbody id="budget-edit-person-body" class="divide-y divide-[#3E3A39]/15"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 每人自理餐飲 & 交通總額 -->
+        <div class="rounded-2xl border-2 border-[#3E3A39] bg-[#FDF8EC] p-3.5 space-y-2.5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h4 class="text-xs font-bold text-[#3E3A39]">每人自理餐飲與交通預估總額 (JPY)</h4>
+            <button id="btn-sync-daily-totals" type="button" class="ehon-btn rounded-xl bg-[#B9DAA5] px-2.5 py-1 text-[11px] font-bold text-[#3E3A39]">🔄 依明細自動加總並套用至每位旅伴</button>
+          </div>
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div>
+              <label for="budget-edit-dining-jpy" class="mb-1 block text-xs font-bold">自理餐飲總額 (JPY)</label>
+              <input id="budget-edit-dining-jpy" type="number" min="0" step="1" class="ehon-input w-full rounded-xl px-3 py-1.5 text-sm font-bold" />
+            </div>
+            <div>
+              <label for="budget-edit-transport-jpy" class="mb-1 block text-xs font-bold">自理交通總額 (JPY)</label>
+              <input id="budget-edit-transport-jpy" type="number" min="0" step="1" class="ehon-input w-full rounded-xl px-3 py-1.5 text-sm font-bold" />
+            </div>
+          </div>
+        </div>
+
+        <!-- 二、住宿項目明細表 -->
+        <details class="rounded-2xl border-2 border-[#3E3A39] bg-white p-3.5" open>
+          <summary class="cursor-pointer text-sm font-bold text-[#3E3A39]">🏨 二、住宿項目明細表</summary>
+          <div class="mt-3 space-y-2">
+            <div id="budget-edit-hotels-list" class="space-y-2"></div>
+            <button id="btn-add-budget-hotel" type="button" class="ehon-btn rounded-xl bg-[#A8D3E6]/70 px-3 py-1 text-xs font-bold text-[#3E3A39]">＋ 新增住宿項目</button>
+          </div>
+        </details>
+
+        <!-- 三、共用項目明細表 -->
+        <details class="rounded-2xl border-2 border-[#3E3A39] bg-white p-3.5">
+          <summary class="cursor-pointer text-sm font-bold text-[#3E3A39]">🚐 三、共用項目明細表</summary>
+          <div class="mt-3 space-y-2">
+            <div id="budget-edit-shared-list" class="space-y-2"></div>
+            <button id="btn-add-budget-shared" type="button" class="ehon-btn rounded-xl bg-[#F2A497]/60 px-3 py-1 text-xs font-bold text-[#3E3A39]">＋ 新增共用項目</button>
+          </div>
+        </details>
+
+        <!-- 四-1、每日餐飲預估 -->
+        <details class="rounded-2xl border-2 border-[#3E3A39] bg-white p-3.5">
+          <summary class="cursor-pointer text-sm font-bold text-[#3E3A39]">🍽️ 四-1、每日餐飲預估</summary>
+          <div class="mt-3 space-y-2">
+            <div id="budget-edit-dining-list" class="space-y-2"></div>
+            <button id="btn-add-budget-dining" type="button" class="ehon-btn rounded-xl bg-[#F6D27A]/70 px-3 py-1 text-xs font-bold text-[#3E3A39]">＋ 新增餐飲預估</button>
+          </div>
+        </details>
+
+        <!-- 四-2、每日交通預估 -->
+        <details class="rounded-2xl border-2 border-[#3E3A39] bg-white p-3.5">
+          <summary class="cursor-pointer text-sm font-bold text-[#3E3A39]">🚆 四-2、每日交通預估</summary>
+          <div class="mt-3 space-y-2">
+            <div id="budget-edit-transport-list" class="space-y-2"></div>
+            <button id="btn-add-budget-transport" type="button" class="ehon-btn rounded-xl bg-[#B9DAA5]/70 px-3 py-1 text-xs font-bold text-[#3E3A39]">＋ 新增交通預估</button>
+          </div>
+        </details>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button id="btn-cancel-budget-modal" type="button" class="ehon-btn rounded-2xl bg-white px-4 py-2 text-sm font-bold">取消</button>
+          <button type="submit" class="ehon-btn rounded-2xl bg-[#F6D27A] px-5 py-2 text-sm font-bold">儲存預算表</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Floating Back to Top Button -->
   <button id="btn-scroll-top" type="button" aria-label="回到最上面" class="ehon-btn fixed bottom-5 right-4 z-40 hidden items-center gap-1 rounded-full bg-[#F6D27A] px-3.5 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:bottom-6 sm:right-6">
     ↑ 頂端
@@ -492,7 +595,12 @@
     let activeViewTab = 'expenses';
     let shareToken = null;
     let isShareMode = false;
+    let isViewMode = false;
     let filters = { day: 'all', payer: '全部', category: '全部', needsReview: false };
+
+    function isReadOnlyUI() {
+      return isShareMode || isViewMode;
+    }
 
     function escapeHtml(str) {
       return String(str ?? '').replace(/[&<>"']/g, s => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[s]));
@@ -733,7 +841,7 @@
       document.getElementById('members-list').innerHTML = members.map(m => `
         <span class="inline-flex items-center gap-1.5 rounded-full border-2 border-[#3E3A39] bg-[#F6D27A]/60 px-3 py-1 text-xs font-bold text-[#3E3A39]">
           <span>${escapeHtml(m)}</span>
-          ${(!isShareMode && members.length > 1) ? `<button type="button" data-remove-member="${escapeHtml(m)}" class="ml-0.5 rounded-full px-1 text-[#3E3A39]/70 hover:bg-[#F2A497] hover:text-[#3E3A39]" title="移除旅伴">✕</button>` : ''}
+          ${(!isReadOnlyUI() && members.length > 1) ? `<button type="button" data-remove-member="${escapeHtml(m)}" class="ml-0.5 rounded-full px-1 text-[#3E3A39]/70 hover:bg-[#F2A497] hover:text-[#3E3A39]" title="移除旅伴">✕</button>` : ''}
         </span>
       `).join('');
     }
@@ -964,7 +1072,7 @@
                   <div class="text-lg font-bold text-[#3E3A39]">${origAmtStr}</div>
                   ${twdHint ? `<div class="text-[11px] font-bold text-[#3E3A39]/70">${twdHint}</div>` : ''}
                 </div>
-                ${isShareMode ? '' : `
+                ${isReadOnlyUI() ? '' : `
                   <div class="flex flex-wrap items-center gap-1.5">
                     <button type="button" data-exp-action="toggle-exclude" data-id="${escapeHtml(exp.id)}" class="ehon-btn rounded-xl ${exp.exclude_from_total ? 'bg-[#B9DAA5]' : 'bg-[#FFFCF6]'} px-2.5 py-1 text-xs font-bold">${exp.exclude_from_total ? '✅ 納入計算' : '⏸️ 暫不計算'}</button>
                     <button type="button" data-exp-action="edit" data-id="${escapeHtml(exp.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-3 py-1 text-xs font-bold hover:bg-[#F6D27A]/40">編輯</button>
@@ -1103,8 +1211,10 @@
         </tr>
       `).join('');
 
+      const diningSum = budget.daily_dining_jpy ?? (budget.daily_dining || []).reduce((s, x) => s + (x.per_person || 0), 0);
+      const transSum = budget.daily_transport_jpy ?? (budget.daily_transport || []).reduce((s, x) => s + (x.per_person || 0), 0);
       document.getElementById('budget-daily-note').innerHTML = `
-        <strong>💡 現金準備說明：</strong>「應準備現金」＝ 共用項目現金（包車＋和服＋攝影）＋ 每日自理餐飲與交通預估（餐飲 ¥20,000 ＋ 交通 ¥6,189 ＝ ¥26,189）。Day 1 肉屋横丁燒肉由玟君刷卡代墊（每人 ¥8,300）。
+        <strong>💡 現金準備說明：</strong>「應準備現金」＝ 共用項目現金 ＋ 每日自理餐飲與交通預估（餐飲 ¥${Number(diningSum).toLocaleString()} ＋ 交通 ¥${Number(transSum).toLocaleString()} ＝ ¥${Number(diningSum + transSum).toLocaleString()}）。
       `;
 
       const hotels = budget.hotels || DEFAULT_BUDGET.hotels;
@@ -1174,19 +1284,27 @@
     }
 
     function renderAll() {
+      const toggleBtn = document.getElementById('btn-toggle-view-mode');
       if (isShareMode) {
         document.querySelectorAll('[data-hide-in-share="true"]').forEach(el => el.classList.add('hidden'));
         const tripLink = document.getElementById('nav-trip-link');
         if (tripLink) tripLink.href = `./trip.html?share=${encodeURIComponent(shareToken)}`;
         document.getElementById('btn-cloud-sync')?.classList.add('hidden');
-        document.getElementById('btn-add-expense')?.classList.add('hidden');
-        document.getElementById('btn-add-kitty-deposit')?.classList.add('hidden');
-        document.getElementById('btn-save-rate')?.classList.add('hidden');
-        document.getElementById('btn-fetch-rate')?.classList.add('hidden');
-        document.getElementById('member-add-form')?.classList.add('hidden');
-        const rateInput = document.getElementById('input-jpy-rate');
-        if (rateInput) rateInput.readOnly = true;
+        toggleBtn?.classList.add('hidden');
+      } else if (toggleBtn) {
+        toggleBtn.classList.remove('hidden');
+        toggleBtn.textContent = isViewMode ? '✏️ 切換編輯模式' : '👁️ 切換檢視模式';
+        toggleBtn.className = `ehon-btn inline-flex items-center gap-1.5 rounded-2xl ${isViewMode ? 'bg-[#F6D27A]' : 'bg-[#FFFCF6] hover:bg-[#F6D27A]/40'} px-3 py-2 text-xs font-bold text-[#3E3A39] sm:text-sm`;
       }
+      const ro = isReadOnlyUI();
+      document.getElementById('btn-add-expense')?.classList.toggle('hidden', ro);
+      document.getElementById('btn-add-kitty-deposit')?.classList.toggle('hidden', ro);
+      document.getElementById('btn-save-rate')?.classList.toggle('hidden', ro);
+      document.getElementById('btn-fetch-rate')?.classList.toggle('hidden', ro);
+      document.getElementById('member-add-form')?.classList.toggle('hidden', ro);
+      document.getElementById('btn-edit-budget')?.classList.toggle('hidden', ro);
+      const rateInput = document.getElementById('input-jpy-rate');
+      if (rateInput) rateInput.readOnly = ro;
       renderTripAndMembers();
       document.querySelectorAll('[data-view-tab]').forEach(btn => {
         const active = btn.dataset.viewTab === activeViewTab;
@@ -1613,6 +1731,198 @@
         updateSyncBadge();
         renderAll();
         showToast('已登出帳號');
+      });
+
+      // View / Edit Mode Toggle
+      document.getElementById('btn-toggle-view-mode')?.addEventListener('click', () => {
+        if (isShareMode) return;
+        isViewMode = !isViewMode;
+        renderAll();
+        showToast(isViewMode ? '已切換為檢視模式（隱藏編輯按鈕）' : '已切換為編輯模式');
+      });
+
+      // Budget Modal Editor
+      const budgetPersonRowHtml = (r = {}) => `
+        <tr class="budget-person-row">
+          <td class="px-1.5 py-1.5"><input type="text" data-k="name" value="${escapeHtml(r.name || '')}" placeholder="旅伴" class="ehon-input w-20 rounded-lg px-2 py-1 text-xs font-bold" /></td>
+          <td class="px-1.5 py-1.5"><input type="number" min="0" step="1" data-k="hotel" value="${Number(r.hotel) || 0}" class="ehon-input w-20 rounded-lg px-2 py-1 text-right text-xs" /></td>
+          <td class="px-1.5 py-1.5"><input type="number" min="0" step="1" data-k="shared" value="${Number(r.shared) || 0}" class="ehon-input w-20 rounded-lg px-2 py-1 text-right text-xs" /></td>
+          <td class="px-1.5 py-1.5"><input type="number" min="0" step="1" data-k="yakiniku" value="${Number(r.yakiniku) || 0}" class="ehon-input w-20 rounded-lg px-2 py-1 text-right text-xs" /></td>
+          <td class="px-1.5 py-1.5"><input type="number" min="0" step="1" data-k="daily" value="${Number(r.daily) || 0}" class="ehon-input w-20 rounded-lg px-2 py-1 text-right text-xs" /></td>
+          <td class="px-1.5 py-1.5"><input type="number" min="0" step="1" data-k="cash_prep" value="${Number(r.cash_prep) || 0}" class="ehon-input w-20 rounded-lg px-2 py-1 text-right text-xs font-bold bg-[#B9DAA5]/20" /></td>
+          <td class="px-1.5 py-1.5 text-center"><button type="button" class="btn-del-budget-row rounded-lg border border-[#3E3A39] bg-white px-2 py-0.5 text-[11px] font-bold hover:bg-[#F2A497]/50">✕</button></td>
+        </tr>`;
+
+      const budgetHotelRowHtml = (h = {}) => `
+        <div class="budget-hotel-row grid grid-cols-2 gap-2 rounded-xl border border-[#3E3A39]/30 bg-[#FFFCF6] p-2 sm:grid-cols-12">
+          <input type="text" data-k="name" value="${escapeHtml(h.name || '')}" placeholder="住宿飯店" class="ehon-input col-span-2 rounded-lg px-2 py-1 text-xs font-bold sm:col-span-3" />
+          <input type="text" data-k="nights" value="${escapeHtml(h.nights || '')}" placeholder="晚數" class="ehon-input rounded-lg px-2 py-1 text-xs sm:col-span-2" />
+          <input type="number" min="0" step="1" data-k="total" value="${Number(h.total) || 0}" placeholder="總金額" class="ehon-input rounded-lg px-2 py-1 text-right text-xs sm:col-span-2" />
+          <input type="number" min="0" step="1" data-k="per_person" value="${Number(h.per_person) || 0}" placeholder="每人" class="ehon-input rounded-lg px-2 py-1 text-right text-xs sm:col-span-2" />
+          <input type="text" data-k="members" value="${escapeHtml(h.members || '')}" placeholder="分攤成員" class="ehon-input col-span-2 rounded-lg px-2 py-1 text-xs sm:col-span-2" />
+          <button type="button" class="btn-del-budget-row rounded-lg border border-[#3E3A39] bg-white px-2 py-1 text-xs font-bold hover:bg-[#F2A497]/50 sm:col-span-1">✕</button>
+        </div>`;
+
+      const budgetSharedRowHtml = (s = {}) => `
+        <div class="budget-shared-row grid grid-cols-2 gap-2 rounded-xl border border-[#3E3A39]/30 bg-[#FFFCF6] p-2 sm:grid-cols-12">
+          <input type="text" data-k="name" value="${escapeHtml(s.name || '')}" placeholder="項目名稱" class="ehon-input col-span-2 rounded-lg px-2 py-1 text-xs font-bold sm:col-span-3" />
+          <input type="text" data-k="type" value="${escapeHtml(s.type || '')}" placeholder="類別" class="ehon-input rounded-lg px-2 py-1 text-xs sm:col-span-2" />
+          <input type="number" min="0" step="1" data-k="total" value="${Number(s.total) || 0}" placeholder="總金額" class="ehon-input rounded-lg px-2 py-1 text-right text-xs sm:col-span-2" />
+          <input type="number" min="0" step="1" data-k="per_person" value="${Number(s.per_person) || 0}" placeholder="每人" class="ehon-input rounded-lg px-2 py-1 text-right text-xs sm:col-span-2" />
+          <input type="text" data-k="members" value="${escapeHtml(s.members || '')}" placeholder="分攤成員" class="ehon-input col-span-2 rounded-lg px-2 py-1 text-xs sm:col-span-2" />
+          <button type="button" class="btn-del-budget-row rounded-lg border border-[#3E3A39] bg-white px-2 py-1 text-xs font-bold hover:bg-[#F2A497]/50 sm:col-span-1">✕</button>
+        </div>`;
+
+      const budgetDiningRowHtml = (d = {}) => `
+        <div class="budget-dining-row grid grid-cols-2 gap-2 rounded-xl border border-[#3E3A39]/30 bg-[#FFFCF6] p-2 sm:grid-cols-12">
+          <input type="text" data-k="day" value="${escapeHtml(d.day || '')}" placeholder="Day 1" class="ehon-input rounded-lg px-2 py-1 text-xs font-bold sm:col-span-2" />
+          <input type="text" data-k="meal" value="${escapeHtml(d.meal || '')}" placeholder="餐別" class="ehon-input rounded-lg px-2 py-1 text-xs sm:col-span-2" />
+          <input type="text" data-k="item" value="${escapeHtml(d.item || '')}" placeholder="規劃項目" class="ehon-input col-span-2 rounded-lg px-2 py-1 text-xs sm:col-span-3" />
+          <input type="text" data-k="note" value="${escapeHtml(d.note || '')}" placeholder="備註" class="ehon-input col-span-2 rounded-lg px-2 py-1 text-xs sm:col-span-2" />
+          <input type="number" min="0" step="1" data-k="per_person" value="${Number(d.per_person) || 0}" placeholder="每人預估" class="ehon-input rounded-lg px-2 py-1 text-right text-xs sm:col-span-2" />
+          <button type="button" class="btn-del-budget-row rounded-lg border border-[#3E3A39] bg-white px-2 py-1 text-xs font-bold hover:bg-[#F2A497]/50 sm:col-span-1">✕</button>
+        </div>`;
+
+      const budgetTransportRowHtml = (t = {}) => `
+        <div class="budget-transport-row grid grid-cols-2 gap-2 rounded-xl border border-[#3E3A39]/30 bg-[#FFFCF6] p-2 sm:grid-cols-12">
+          <input type="text" data-k="day" value="${escapeHtml(t.day || '')}" placeholder="Day 1" class="ehon-input rounded-lg px-2 py-1 text-xs font-bold sm:col-span-2" />
+          <input type="text" data-k="item" value="${escapeHtml(t.item || '')}" placeholder="交通項目" class="ehon-input col-span-2 rounded-lg px-2 py-1 text-xs sm:col-span-4" />
+          <input type="text" data-k="split" value="${escapeHtml(t.split || '')}" placeholder="分攤方式" class="ehon-input col-span-2 rounded-lg px-2 py-1 text-xs sm:col-span-3" />
+          <input type="number" min="0" step="1" data-k="per_person" value="${Number(t.per_person) || 0}" placeholder="每人預估" class="ehon-input rounded-lg px-2 py-1 text-right text-xs sm:col-span-2" />
+          <button type="button" class="btn-del-budget-row rounded-lg border border-[#3E3A39] bg-white px-2 py-1 text-xs font-bold hover:bg-[#F2A497]/50 sm:col-span-1">✕</button>
+        </div>`;
+
+      function openBudgetModal() {
+        const trip = getActiveTrip();
+        if (!trip) return;
+        const b = trip.overview?.budget || DEFAULT_BUDGET;
+        document.getElementById('budget-edit-person-body').innerHTML = (b.per_person || []).map(budgetPersonRowHtml).join('');
+        document.getElementById('budget-edit-dining-jpy').value = b.daily_dining_jpy ?? 20000;
+        document.getElementById('budget-edit-transport-jpy').value = b.daily_transport_jpy ?? 6189;
+        document.getElementById('budget-edit-hotels-list').innerHTML = (b.hotels || DEFAULT_BUDGET.hotels).map(budgetHotelRowHtml).join('');
+        document.getElementById('budget-edit-shared-list').innerHTML = (b.shared_items || DEFAULT_BUDGET.shared_items).map(budgetSharedRowHtml).join('');
+        document.getElementById('budget-edit-dining-list').innerHTML = (b.daily_dining || DEFAULT_BUDGET.daily_dining).map(budgetDiningRowHtml).join('');
+        document.getElementById('budget-edit-transport-list').innerHTML = (b.daily_transport || DEFAULT_BUDGET.daily_transport).map(budgetTransportRowHtml).join('');
+        const m = document.getElementById('budget-modal');
+        m.classList.remove('hidden'); m.classList.add('flex');
+      }
+
+      function closeBudgetModal() {
+        const m = document.getElementById('budget-modal');
+        m.classList.add('hidden'); m.classList.remove('flex');
+      }
+
+      document.getElementById('btn-edit-budget')?.addEventListener('click', openBudgetModal);
+      document.getElementById('btn-close-budget-modal')?.addEventListener('click', closeBudgetModal);
+      document.getElementById('btn-cancel-budget-modal')?.addEventListener('click', closeBudgetModal);
+
+      document.getElementById('btn-add-budget-person')?.addEventListener('click', () => {
+        document.getElementById('budget-edit-person-body').insertAdjacentHTML('beforeend', budgetPersonRowHtml());
+      });
+      document.getElementById('btn-add-budget-hotel')?.addEventListener('click', () => {
+        document.getElementById('budget-edit-hotels-list').insertAdjacentHTML('beforeend', budgetHotelRowHtml());
+      });
+      document.getElementById('btn-add-budget-shared')?.addEventListener('click', () => {
+        document.getElementById('budget-edit-shared-list').insertAdjacentHTML('beforeend', budgetSharedRowHtml());
+      });
+      document.getElementById('btn-add-budget-dining')?.addEventListener('click', () => {
+        document.getElementById('budget-edit-dining-list').insertAdjacentHTML('beforeend', budgetDiningRowHtml());
+      });
+      document.getElementById('btn-add-budget-transport')?.addEventListener('click', () => {
+        document.getElementById('budget-edit-transport-list').insertAdjacentHTML('beforeend', budgetTransportRowHtml());
+      });
+
+      document.getElementById('budget-modal')?.addEventListener('click', e => {
+        const delBtn = e.target.closest('.btn-del-budget-row');
+        if (delBtn) delBtn.closest('tr, .budget-hotel-row, .budget-shared-row, .budget-dining-row, .budget-transport-row')?.remove();
+      });
+
+      document.getElementById('btn-sync-daily-totals')?.addEventListener('click', () => {
+        const sumRows = (sel) => [...document.querySelectorAll(sel)].reduce((s, row) => s + (Number(row.querySelector('[data-k="per_person"]')?.value) || 0), 0);
+        const diningSum = sumRows('#budget-edit-dining-list .budget-dining-row');
+        const transSum = sumRows('#budget-edit-transport-list .budget-transport-row');
+        document.getElementById('budget-edit-dining-jpy').value = diningSum;
+        document.getElementById('budget-edit-transport-jpy').value = transSum;
+        const dailyTotal = diningSum + transSum;
+        document.querySelectorAll('#budget-edit-person-body .budget-person-row').forEach(row => {
+          const inp = row.querySelector('[data-k="daily"]');
+          if (inp) inp.value = dailyTotal;
+        });
+        showToast(`已加總餐飲 ¥${diningSum.toLocaleString()} ＋ 交通 ¥${transSum.toLocaleString()} ＝ ¥${dailyTotal.toLocaleString()}`);
+      });
+
+      document.getElementById('budget-form')?.addEventListener('submit', async e => {
+        e.preventDefault();
+        const trip = getActiveTrip();
+        if (!trip) return;
+        const val = (row, k) => (row.querySelector(`[data-k="${k}"]`)?.value || '').trim();
+        const num = (row, k) => Math.max(0, Math.round(Number(row.querySelector(`[data-k="${k}"]`)?.value) || 0));
+
+        const per_person = [...document.querySelectorAll('#budget-edit-person-body .budget-person-row')].map(row => {
+          const hotel = num(row, 'hotel');
+          const shared = num(row, 'shared');
+          const yakiniku = num(row, 'yakiniku');
+          const daily = num(row, 'daily');
+          return {
+            name: val(row, 'name'),
+            hotel,
+            shared,
+            yakiniku,
+            daily,
+            cash_prep: num(row, 'cash_prep'),
+            total_jpy: hotel + shared + yakiniku + daily
+          };
+        }).filter(r => r.name);
+
+        const hotels = [...document.querySelectorAll('#budget-edit-hotels-list .budget-hotel-row')].map(row => ({
+          name: val(row, 'name'),
+          nights: val(row, 'nights'),
+          total: num(row, 'total'),
+          per_person: num(row, 'per_person'),
+          members: val(row, 'members')
+        })).filter(r => r.name);
+
+        const shared_items = [...document.querySelectorAll('#budget-edit-shared-list .budget-shared-row')].map(row => ({
+          name: val(row, 'name'),
+          type: val(row, 'type'),
+          total: num(row, 'total'),
+          per_person: num(row, 'per_person'),
+          members: val(row, 'members')
+        })).filter(r => r.name);
+
+        const daily_dining = [...document.querySelectorAll('#budget-edit-dining-list .budget-dining-row')].map(row => ({
+          day: val(row, 'day'),
+          meal: val(row, 'meal'),
+          item: val(row, 'item'),
+          note: val(row, 'note'),
+          per_person: num(row, 'per_person')
+        })).filter(r => r.day || r.item);
+
+        const daily_transport = [...document.querySelectorAll('#budget-edit-transport-list .budget-transport-row')].map(row => ({
+          day: val(row, 'day'),
+          item: val(row, 'item'),
+          split: val(row, 'split'),
+          per_person: num(row, 'per_person')
+        })).filter(r => r.day || r.item);
+
+        const newBudget = {
+          per_person,
+          daily_dining_jpy: Math.max(0, Math.round(Number(document.getElementById('budget-edit-dining-jpy').value) || 0)),
+          daily_transport_jpy: Math.max(0, Math.round(Number(document.getElementById('budget-edit-transport-jpy').value) || 0)),
+          hotels,
+          shared_items,
+          daily_dining,
+          daily_transport
+        };
+
+        try {
+          await saveTripSettings(trip, { budget: newBudget });
+          renderBudgetView();
+          closeBudgetModal();
+          showToast('預算表已更新！');
+        } catch (err) {
+          showToast(`更新失敗：${err.message || ''}`);
+        }
       });
     });
   </script>

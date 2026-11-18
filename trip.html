@@ -83,6 +83,9 @@
         </div>
 
         <div class="header-actions flex flex-wrap items-center gap-2">
+          <button id="btn-toggle-view-mode" type="button" class="ehon-btn hidden items-center gap-1.5 rounded-2xl bg-[#FFFCF6] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:bg-[#F6D27A]/40 sm:text-sm">
+            👁️ 檢視模式
+          </button>
           <button id="btn-cloud-sync" type="button" class="ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#A8D3E6] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm">
             ☁️ 雲端同步（本機）
           </button>
@@ -636,9 +639,26 @@
     let activeTripId = null; // null => Trip Selection View; string => Detail View
     let shareToken = null;
     let isShareMode = false;
+    let isViewMode = false;
     let expandedParentIds = new Set();
     let expandedCardIds = new Set();
     let filters = { day: 'all', hideDone: false, hideOptional: false };
+
+    function isReadOnlyUI() {
+      return isShareMode || isViewMode;
+    }
+
+    function loadShareChecklistState() {
+      if (!shareToken) return {};
+      try {
+        return JSON.parse(localStorage.getItem(`ehon_share_checklist_${shareToken}`) || '{}');
+      } catch { return {}; }
+    }
+
+    function saveShareChecklistState(map) {
+      if (!shareToken) return;
+      localStorage.setItem(`ehon_share_checklist_${shareToken}`, JSON.stringify(map));
+    }
 
     function escapeHtml(str) {
       return String(str ?? '').replace(/[&<>"']/g, s => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[s]));
@@ -811,13 +831,21 @@
               <p class="mt-2 text-xs text-[#3E3A39]/75">請向行程建立者索取最新的分享連結。</p>
             </div>
           `;
-          updateSyncBadge('唯讀分享');
+          if (isShareMode) {
+          updateSyncBadge('旅伴專用');
+        } else {
+          updateSyncBadge();
+        }
           return;
         }
         state.trips = [data.trip];
         state.items = data.items || [];
         activeTripId = data.trip.id;
-        updateSyncBadge('唯讀分享');
+        if (isShareMode) {
+          updateSyncBadge('旅伴專用');
+        } else {
+          updateSyncBadge();
+        }
         renderView();
       } catch (err) {
         console.error(err);
@@ -958,10 +986,12 @@
                 <span class="rounded-full border-2 border-[#3E3A39] ${accent} px-3 py-0.5 text-xs font-bold text-[#3E3A39]">
                   🗓️ ${daysCount} 天行程
                 </span>
+                ${isReadOnlyUI() ? '' : `
                 <div class="flex items-center gap-1.5" onclick="event.stopPropagation()">
                   <button type="button" data-trip-action="edit" data-trip-id="${escapeHtml(trip.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-2.5 py-1 text-[11px] font-bold hover:bg-[#F6D27A]/40">編輯</button>
                   <button type="button" data-trip-action="delete" data-trip-id="${escapeHtml(trip.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-2.5 py-1 text-[11px] font-bold hover:bg-[#F2A497]/50">刪除</button>
                 </div>
+                `}
               </div>
 
               <h3 class="text-lg font-bold text-[#3E3A39]">${escapeHtml(trip.title)}</h3>
@@ -981,7 +1011,7 @@
         `;
       }).join('');
 
-      const addCardHtml = `
+      const addCardHtml = isReadOnlyUI() ? '' : `
         <button id="btn-card-new-trip" type="button" class="flex min-h-[210px] flex-col items-center justify-center gap-2 rounded-[24px] border-[3px] border-dashed border-[#3E3A39]/45 bg-[#FFFCF6]/70 p-6 text-center transition hover:border-[#3E3A39] hover:bg-[#F6D27A]/20">
           <span class="ehon-btn flex h-12 w-12 items-center justify-center rounded-2xl bg-[#F6D27A] text-xl font-bold text-[#3E3A39]">＋</span>
           <span class="text-sm font-bold text-[#3E3A39]">建立新的旅遊行程</span>
@@ -1087,7 +1117,7 @@
 
       const btnEditTips = document.getElementById('btn-edit-tips');
       const checklistAddForm = document.getElementById('checklist-add-form');
-      if (isShareMode) {
+      if (isReadOnlyUI()) {
         btnEditTips.classList.add('hidden');
         checklistAddForm.classList.add('hidden');
       } else {
@@ -1095,17 +1125,22 @@
         checklistAddForm.classList.remove('hidden');
       }
 
-      const checklist = getNormalizedChecklist(ov);
+      const shareCheckMap = isShareMode ? loadShareChecklistState() : null;
+      const checklist = getNormalizedChecklist(ov).map(item => (
+        isShareMode && Object.prototype.hasOwnProperty.call(shareCheckMap, item.id)
+          ? { ...item, checked: Boolean(shareCheckMap[item.id]) }
+          : item
+      ));
       const checkedCount = checklist.filter(c => c.checked).length;
       document.getElementById('checklist-progress').textContent = `${checkedCount} / ${checklist.length}`;
       document.getElementById('overview-checklist').innerHTML = checklist.map(item => `
         <div class="flex items-center justify-between gap-2 rounded-xl border border-[#3E3A39]/35 bg-white/85 px-3 py-1.5">
           <label class="flex min-w-0 flex-1 cursor-pointer items-center gap-2">
-            <input type="checkbox" data-checklist-action="toggle" data-cid="${escapeHtml(item.id)}" ${item.checked ? 'checked' : ''} ${isShareMode ? 'disabled' : ''} class="h-4 w-4 accent-[#3E3A39]" />
+            <input type="checkbox" data-checklist-action="toggle" data-cid="${escapeHtml(item.id)}" ${item.checked ? 'checked' : ''} class="h-4 w-4 accent-[#3E3A39]" />
             <span class="truncate font-bold ${item.checked ? 'line-through text-[#3E3A39]/50' : 'text-[#3E3A39]'}">${escapeHtml(item.label)}</span>
             ${item.required ? '<span class="shrink-0 rounded-lg border border-[#3E3A39] bg-[#F6D27A]/70 px-1.5 py-0.2 text-[10px] font-bold text-[#3E3A39]">必要</span>' : ''}
           </label>
-          ${(isShareMode || item.required) ? '' : `
+          ${(isReadOnlyUI() || item.required) ? '' : `
             <div class="flex shrink-0 items-center gap-1">
               <button type="button" data-checklist-action="edit" data-cid="${escapeHtml(item.id)}" class="rounded-lg border border-[#3E3A39]/40 bg-[#FFFCF6] px-2 py-0.5 text-[11px] font-bold hover:bg-[#F6D27A]/40">編輯</button>
               <button type="button" data-checklist-action="delete" data-cid="${escapeHtml(item.id)}" class="rounded-lg border border-[#3E3A39]/40 bg-[#FFFCF6] px-2 py-0.5 text-[11px] font-bold hover:bg-[#F2A497]/50">刪除</button>
@@ -1222,7 +1257,7 @@
               </div>
             ` : ''}
 
-            ${isShareMode ? '' : `
+            ${isReadOnlyUI() ? '' : `
               <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
                 <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border-2 border-[#3E3A39] bg-white px-2.5 py-1 text-[11px] font-bold">
                   <input type="checkbox" data-action="toggle-done" data-id="${escapeHtml(item.id)}" ${item.is_done ? 'checked' : ''} class="accent-[#3E3A39]" />
@@ -1294,7 +1329,7 @@
                 ${dateLabel ? `<span class="text-sm font-bold text-[#3E3A39]">${escapeHtml(dateLabel)}</span>` : ''}
                 <span class="text-xs font-bold text-[#3E3A39]/60">(${dayItems.length} 項)</span>
               </div>
-              ${isShareMode ? '' : `<button data-action="add-day" data-day="${dayNum}" type="button" class="ehon-btn rounded-xl bg-[#F2A497] px-3 py-1 text-xs font-bold text-[#3E3A39]">＋ 新增 Day ${dayNum} 行程</button>`}
+              ${isReadOnlyUI() ? '' : `<button data-action="add-day" data-day="${dayNum}" type="button" class="ehon-btn rounded-xl bg-[#F2A497] px-3 py-1 text-xs font-bold text-[#3E3A39]">＋ 新增 Day ${dayNum} 行程</button>`}
             </div>
 
             <div class="space-y-3">
@@ -1306,10 +1341,10 @@
                     <div class="flex w-10 shrink-0 justify-center sm:w-12">
                       <div class="h-5 border-l-2 border-dashed border-[#3E3A39]/35"></div>
                     </div>
-                    <div ${isShareMode ? '' : `data-action="edit-transit" data-id="${escapeHtml(parent.id)}"`} class="flex min-w-0 flex-1 items-start gap-2 rounded-2xl border-2 border-[#3E3A39]/25 bg-white/90 px-3 py-1.5 text-[11px] font-bold leading-snug text-[#3E3A39]/90 ${isShareMode ? '' : 'cursor-pointer transition hover:border-[#3E3A39] hover:bg-[#F6D27A]/20'}">
+                    <div ${isReadOnlyUI() ? '' : `data-action="edit-transit" data-id="${escapeHtml(parent.id)}"`} class="flex min-w-0 flex-1 items-start gap-2 rounded-2xl border-2 border-[#3E3A39]/25 bg-white/90 px-3 py-1.5 text-[11px] font-bold leading-snug text-[#3E3A39]/90 ${isReadOnlyUI() ? '' : 'cursor-pointer transition hover:border-[#3E3A39] hover:bg-[#F6D27A]/20'}">
                       <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-[1.5px] border-[#3E3A39] bg-[#B9DAA5] text-[10px]">🚆</span>
                       <span class="min-w-0 flex-1">${escapeHtml(parent.transit_info)}</span>
-                      ${isShareMode ? '' : '<span class="shrink-0 text-[10px] text-[#3E3A39]/55" title="點擊編輯交通">✏️</span>'}
+                      ${isReadOnlyUI() ? '' : '<span class="shrink-0 text-[10px] text-[#3E3A39]/55" title="點擊編輯交通">✏️</span>'}
                     </div>
                   </div>
                 ` : '';
@@ -1367,12 +1402,15 @@
       const btnShareTrip = document.getElementById('btn-share-trip');
       const subtitle = document.getElementById('header-subtitle');
 
+      const btnToggleViewMode = document.getElementById('btn-toggle-view-mode');
+
       if (isShareMode) {
         document.querySelectorAll('[data-hide-in-share="true"]').forEach(el => el.classList.add('hidden'));
         const tripLink = document.getElementById('nav-trip-link');
         const expLink = document.getElementById('nav-expenses-link');
         if (tripLink) tripLink.href = `./trip.html?share=${encodeURIComponent(shareToken)}`;
         if (expLink) expLink.href = `./expenses.html?share=${encodeURIComponent(shareToken)}`;
+        btnToggleViewMode?.classList.add('hidden');
         btnCloudSync.classList.add('hidden');
         btnNewTrip.classList.add('hidden');
         btnAddItem.classList.add('hidden');
@@ -1382,7 +1420,7 @@
         const trip = getActiveTrip();
         if (trip) {
           detailView.classList.remove('hidden');
-          subtitle.textContent = '唯讀分享行程・可直接點擊 Google Maps 導航';
+          subtitle.textContent = '旅伴專用・可直接點擊 Google Maps 導航（檢查清單勾選會儲存在您的瀏覽器）';
           renderTripHeader();
           renderFilters();
           renderTimeline();
@@ -1390,12 +1428,19 @@
         return;
       }
 
+      if (btnToggleViewMode) {
+        btnToggleViewMode.classList.remove('hidden');
+        btnToggleViewMode.classList.add('inline-flex');
+        btnToggleViewMode.textContent = isViewMode ? '✏️ 切換編輯模式' : '👁️ 切換檢視模式';
+        btnToggleViewMode.className = `ehon-btn inline-flex items-center gap-1.5 rounded-2xl ${isViewMode ? 'bg-[#F6D27A]' : 'bg-[#FFFCF6]'} px-3 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm`;
+      }
+
       const trip = getActiveTrip();
       if (!trip) {
         listView.classList.remove('hidden');
         detailView.classList.add('hidden');
-        btnNewTrip.classList.remove('hidden');
-        btnNewTrip.classList.add('inline-flex');
+        btnNewTrip.classList.toggle('hidden', isViewMode);
+        btnNewTrip.classList.toggle('inline-flex', !isViewMode);
         btnAddItem.classList.add('hidden');
         btnAddItem.classList.remove('inline-flex');
         subtitle.textContent = '選擇要查閱的旅遊行程，或建立一份全新的旅程';
@@ -1405,9 +1450,11 @@
         detailView.classList.remove('hidden');
         btnNewTrip.classList.add('hidden');
         btnNewTrip.classList.remove('inline-flex');
-        btnAddItem.classList.remove('hidden');
-        btnAddItem.classList.add('inline-flex');
-        subtitle.textContent = '每日時間軸查閱、新增編輯行程、航班住宿總覽與 Google Maps 一鍵導航';
+        btnAddItem.classList.toggle('hidden', isViewMode);
+        btnAddItem.classList.toggle('inline-flex', !isViewMode);
+        subtitle.textContent = isViewMode
+          ? '檢視模式・乾淨查閱每日時間軸與 Google Maps 導航'
+          : '每日時間軸查閱、新增編輯行程、航班住宿總覽與 Google Maps 一鍵導航';
         renderTripHeader();
         renderFilters();
         renderTimeline();
@@ -1708,14 +1755,32 @@
         }
       });
 
+      document.getElementById('btn-toggle-view-mode')?.addEventListener('click', () => {
+        isViewMode = !isViewMode;
+        renderView();
+      });
+
       // Checklist
       document.getElementById('overview-checklist').addEventListener('click', async e => {
         const target = e.target.closest('[data-checklist-action]');
-        if (!target || isShareMode) return;
+        if (!target) return;
         const trip = getActiveTrip();
         if (!trip) return;
         const act = target.dataset.checklistAction;
         const cid = target.dataset.cid;
+
+        if (isShareMode) {
+          if (act !== 'toggle') return;
+          const shareMap = loadShareChecklistState();
+          const list = getNormalizedChecklist(trip.overview);
+          const item = list.find(c => c.id === cid);
+          const currentVal = Object.prototype.hasOwnProperty.call(shareMap, cid) ? Boolean(shareMap[cid]) : Boolean(item?.checked);
+          shareMap[cid] = !currentVal;
+          saveShareChecklistState(shareMap);
+          renderTripHeader();
+          return;
+        }
+
         const list = getNormalizedChecklist(trip.overview);
         const idx = list.findIndex(c => c.id === cid);
         if (idx === -1) return;
@@ -1723,13 +1788,14 @@
         if (act === 'toggle') {
           list[idx].checked = !list[idx].checked;
         } else if (act === 'edit') {
+          if (isReadOnlyUI()) return;
           const nextLabel = prompt('修改檢查項目名稱：', list[idx].label);
           if (nextLabel === null) return;
           const trimmed = nextLabel.trim();
           if (!trimmed) { showToast('名稱不可為空白'); return; }
           list[idx].label = trimmed;
         } else if (act === 'delete') {
-          if (list[idx].required) return;
+          if (isReadOnlyUI() || list[idx].required) return;
           list.splice(idx, 1);
         }
 
@@ -1839,7 +1905,7 @@
           const lb = document.getElementById('photo-lightbox');
           lb.classList.remove('hidden'); lb.classList.add('flex');
         } else if (action === 'edit-transit') {
-          if (isShareMode) return;
+          if (isReadOnlyUI()) return;
           openItemModal(id);
           setTimeout(() => document.getElementById('field-transit-info')?.focus(), 50);
         } else if (action === 'edit') {
