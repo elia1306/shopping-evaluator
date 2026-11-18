@@ -702,6 +702,9 @@
         product_id: item.id, user_id: userId,
         suitability_score: normalizeScore10(item.suitabilityScore),
         suitability_summary: item.suitability || null,
+        pros: Array.isArray(item.pros) ? item.pros : [],
+        cons: Array.isArray(item.cons) ? item.cons : [],
+        quality_issues: Array.isArray(item.qualityIssues) ? item.qualityIssues : [],
         review_summary: item.reviews6m || null,
         recommendation: item.recommendation || null,
         analysis_payload: details,
@@ -1304,6 +1307,9 @@
       document.getElementById('field-suitability-score').value = '';
       window.__pendingPurchaseOptions = [];
       window.__pendingBrand = '';
+      window.__pendingPros = [];
+      window.__pendingCons = [];
+      window.__pendingQualityIssues = [];
       const statusEl = document.getElementById('field-image-status');
       statusEl.textContent = '';
       statusEl.classList.add('hidden');
@@ -1333,6 +1339,9 @@
         document.getElementById('field-image-url').value = item.image || '';
         window.__pendingPurchaseOptions = Array.isArray(item.purchaseOptions) ? item.purchaseOptions : [];
         window.__pendingBrand = item.brand || '';
+        window.__pendingPros = Array.isArray(item.pros) ? item.pros : [];
+        window.__pendingCons = Array.isArray(item.cons) ? item.cons : [];
+        window.__pendingQualityIssues = Array.isArray(item.qualityIssues) ? item.qualityIssues : [];
         setFormPreview(item.image || '');
       } else {
         document.getElementById('form-modal-title').textContent = '新增商品評估';
@@ -1642,6 +1651,9 @@
         if (data.locationsAndPrice) document.getElementById('field-locations').value = data.locationsAndPrice;
         if (data.sourceUrl) document.getElementById('field-source-url').value = data.sourceUrl;
         if (Array.isArray(data.purchase_options)) window.__pendingPurchaseOptions = data.purchase_options;
+        if (Array.isArray(data.pros)) window.__pendingPros = data.pros;
+        if (Array.isArray(data.cons)) window.__pendingCons = data.cons;
+        if (Array.isArray(data.quality_issues)) window.__pendingQualityIssues = data.quality_issues;
         showToast('已成功將 JSON 填入表單！');
         return true;
       }
@@ -1691,6 +1703,9 @@
           locationsAndPrice: document.getElementById('field-locations').value.trim() || '尚未查詢購買地點與價格',
           sourceUrl: document.getElementById('field-source-url').value.trim(),
           purchaseOptions: Array.isArray(window.__pendingPurchaseOptions) ? window.__pendingPurchaseOptions : [],
+          pros: Array.isArray(window.__pendingPros) ? window.__pendingPros : [],
+          cons: Array.isArray(window.__pendingCons) ? window.__pendingCons : [],
+          qualityIssues: Array.isArray(window.__pendingQualityIssues) ? window.__pendingQualityIssues : [],
           image: rawImage,
           updatedAt: today
         };
