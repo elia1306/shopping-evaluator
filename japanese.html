@@ -394,25 +394,28 @@
       { scene: '星巴克', category: '客製化(甜度/配料)', situation: '加焦糖醬', speaker: '調整', japanese: 'キャラメルソース追加', hiragana: 'きゃらめるそーす ついか', chinese: '加焦糖醬', note: '免費', starred: false },
       { scene: '星巴克', category: '客製化(甜度/配料)', situation: '加巧克力醬', speaker: '調整', japanese: 'チョコレートソース追加', hiragana: 'ちょこれーとそーす ついか', chinese: '加巧克力醬', note: '免費', starred: false },
 
-      // 機場出入境（範本）
+      // 機場出入境
       { scene: '機場出入境', category: '報到與託運', situation: '詢問行李重量/件數', speaker: '店員', japanese: 'お預けの手荷物は何個ですか？', hiragana: 'おあずけの てにもつは なんこ ですか？', chinese: '請問有幾件託運行李？', note: '地勤常用問句', starred: false },
       { scene: '機場出入境', category: '報到與託運', situation: '要求靠窗/走道位', speaker: '顧客', japanese: '【窓側】の席をお願いします。', hiragana: '【まどがわ】の せきを おねがいします。', chinese: '請給我【靠窗】的座位。', note: '走道側：通路側（つうろがわ）', starred: false },
-      { scene: '機場出入境', category: '海關/安檢', situation: '告知旅遊目的', speaker: '顧客', japanese: '観光です。【5日間】滞在します。', hiragana: 'かんこう です。【いつかかん】たいざい します。', chinese: '我是來觀光的，預計停留【5天】。', note: '準備好 Visit Japan Web QR Code', starred: true },
-      { scene: '機場出入境', category: '交通/找路', situation: '詢問乘車處', speaker: '顧客', japanese: '【電車】の乗り場はどこですか？', hiragana: '【でんしゃ】の のりばは どこ ですか？', chinese: '請問【電車】的乘車處在哪裡？', note: '巴士：バス / 計程車：タクシー', starred: false },
+      { scene: '機場出入境', category: '海關/安檢', situation: '告知旅遊目的（6天）', speaker: '顧客', japanese: '観光です。【6日間】滞在します。', hiragana: 'かんこう です。【むいかかん】たいざい します。', chinese: '我是來觀光的，預計停留【6天】。', note: '準備好 Visit Japan Web QR Code', starred: true },
+      { scene: '機場出入境', category: '交通/找路', situation: '詢問 JR 總武線快速乘車處', speaker: '顧客', japanese: '【JR総武線快速】の乗り場はどこですか？', hiragana: '【じぇいあーる そうぶせん かいそく】の のりばは どこ ですか？', chinese: '請問【JR 總武線快速】的乘車處在哪裡？', note: '巴士：バス / 計程車：タクシー', starred: true },
+      { scene: '機場出入境', category: '交通/找路', situation: '詢問是否有往錦糸町', speaker: '顧客', japanese: 'この電車は【錦糸町】に行きますか？', hiragana: 'この でんしゃは 【きんしちょう】に いきますか？', chinese: '請問這班電車有到【錦糸町】嗎？', note: '成田機場搭 JR 總武線快速可直達錦糸町', starred: true },
 
-      // 買東西退稅（範本）
-      { scene: '買東西退稅', category: '結帳與退稅', situation: '詢問是否可退稅', speaker: '顧客', japanese: '免税（タックスフリー）はできますか？', hiragana: 'めんぜい（たっくすふりー）は できますか？', chinese: '請問可以辦理退稅嗎？', note: '同一天同一家店未稅滿 5,000 日圓', starred: true },
-      { scene: '買東西退稅', category: '結帳與退稅', situation: '出示護照', speaker: '店員', japanese: 'パスポートをお願いします。', hiragana: 'ぱすぽーとを おねがいします。', chinese: '請出示護照。', note: '必須帶護照正本（影本/照片不可）', starred: false },
-      { scene: '買東西退稅', category: '結帳與退稅', situation: '免稅包裝提醒', speaker: '店員', japanese: '日本国内では開けないでください。', hiragana: 'にほん こくないでは あけないで ください。', chinese: '請勿在日本國內拆封。', note: '消耗品（藥妝/零食）會封袋', starred: false },
-      { scene: '買東西退稅', category: '結帳與購物', situation: '詢問有沒有新品', speaker: '顧客', japanese: '新しい在庫はありますか？', hiragana: 'あたらしい ざいこは ありますか？', chinese: '請問有全新的庫存嗎？', note: '藥妝/服飾適用', starred: false },
-      { scene: '買東西退稅', category: '結帳與購物', situation: '詢問試穿/試用', speaker: '顧客', japanese: '試着してもいいですか？', hiragana: 'しちゃく しても いいですか？', chinese: '請問可以試穿嗎？', note: '鞋類/服飾適用', starred: false },
-      { scene: '買東西退稅', category: '結帳與購物', situation: '需要購物袋', speaker: '顧客', japanese: 'レジ袋をお願いします。', hiragana: 'れじぶくろを おねがいします。', chinese: '請給我購物袋。', note: '日本塑膠袋大多需另加 3～10 日圓', starred: false },
+      // 買東西退稅
+      { scene: '買東西退稅', category: '結帳退稅', situation: '詢問是否可退稅', speaker: '顧客', japanese: '免税（タックスフリー）はできますか？', hiragana: 'めんぜい（たっくすふりー）は できますか？', chinese: '請問可以辦理退稅嗎？', note: '同一天同一家店未稅滿 5,000 日圓', starred: true },
+      { scene: '買東西退稅', category: '結帳退稅', situation: '出示護照', speaker: '店員', japanese: 'パスポートをお願いします。', hiragana: 'ぱすぽーとを おねがいします。', chinese: '請出示護照。', note: '必須帶護照正本（影本/照片不可）', starred: false },
+      { scene: '買東西退稅', category: '結帳退稅', situation: '免稅包裝提醒', speaker: '店員', japanese: '日本国内では開けないでください。', hiragana: 'にほん こくないでは あけないで ください。', chinese: '請勿在日本國內拆封。', note: '消耗品（藥妝/零食）會封袋', starred: false },
+      { scene: '買東西退稅', category: '結帳退稅', situation: '需要購物袋', speaker: '顧客', japanese: 'レジ袋をお願いします。', hiragana: 'れじぶくろを おねがいします。', chinese: '請給我購物袋。', note: '日本塑膠袋大多需另加 3～10 日圓', starred: false },
+      { scene: '買東西退稅', category: '商品詢問', situation: '詢問有沒有新品', speaker: '顧客', japanese: '新しい在庫はありますか？', hiragana: 'あたらしい ざいこは ありますか？', chinese: '請問有全新的庫存嗎？', note: '藥妝/服飾適用', starred: false },
+      { scene: '買東西退稅', category: '商品詢問', situation: '詢問試穿/試用', speaker: '顧客', japanese: '試着してもいいですか？', hiragana: 'しちゃく しても いいですか？', chinese: '請問可以試穿嗎？', note: '鞋類/服飾適用', starred: false },
 
       // 餐廳點餐
       { scene: '餐廳點餐', category: '入座帶位', situation: '詢問幾位用餐', speaker: '店員', japanese: '何名様ですか？', hiragana: 'なんめいさま ですか？', chinese: '請問幾位呢？', note: '常用手勢比出人數即可', starred: false },
-      { scene: '餐廳點餐', category: '入座帶位', situation: '回答人數（兩位）', speaker: '顧客', japanese: '【2人】です。', hiragana: '【ふたり】です。', chinese: '我們【兩位】。', note: '1人(ひとり) / 2人(ふたり) / 3人(さんにん) / 4人(よにん)', starred: true },
+      { scene: '餐廳點餐', category: '入座帶位', situation: '回答人數（7位／附5位念法）', speaker: '顧客', japanese: '【7人】です。', hiragana: '【ななにん】です。', chinese: '我們【7位】。', note: '5人：五人（ごにん）｜1人(ひとり) / 2人(ふたり) / 3人(さんにん) / 4人(よにん) / 6人(ろくにん)', starred: true },
       { scene: '餐廳點餐', category: '入座帶位', situation: '需要中文/英文菜單', speaker: '顧客', japanese: '【中国語 / 英語】のメニューはありますか？', hiragana: '【ちゅうごくご / えいご】の めにゅーは ありますか？', chinese: '請問有【中文 / 英文】菜單嗎？', note: '很多觀光區餐廳都有提供', starred: true },
       { scene: '餐廳點餐', category: '點餐實戰', situation: '詢問推薦餐點', speaker: '顧客', japanese: 'おすすめは何ですか？', hiragana: 'おすすめは なんですか？', chinese: '請問有什麼推薦的嗎？', note: '', starred: false },
+      { scene: '餐廳點餐', category: '點餐實戰', situation: '詢問這道菜會不會辣', speaker: '顧客', japanese: 'これは辛いですか？', hiragana: 'これは からいですか？', chinese: '請問這道菜會辣嗎？', note: '怕辣必問！', starred: true },
+      { scene: '餐廳點餐', category: '點餐實戰', situation: '請做不辣的', speaker: '顧客', japanese: '辛くしないでください。', hiragana: 'からく しないで ください。', chinese: '請不要放辣（做不辣）。', note: '小辣：少し辛く（すこし からく）', starred: false },
       { scene: '餐廳點餐', category: '點餐實戰', situation: '指菜單點餐（複數）', speaker: '顧客', japanese: 'これとこれを【一つ】ずつください。', hiragana: 'これと これを 【ひとつ】ずつ ください。', chinese: '這個和這個請各給我【一份】。', note: '2份：二つ(ふたつ) / 3份：三つ(みっつ)', starred: true },
       { scene: '餐廳點餐', category: '點餐實戰', situation: '不吃/過敏食材（去蔥/去香菜等）', speaker: '顧客', japanese: '【ネギ】抜きでお願いします。', hiragana: '【ねぎ】ぬきで おねがいします。', chinese: '請不要加【蔥】。', note: '香菜：パクチー / 辣：辛いの / 生食：生もの', starred: false },
       { scene: '餐廳點餐', category: '用餐需求', situation: '加點白開水', speaker: '顧客', japanese: 'お水をいただけますか？', hiragana: 'おみずを いただけますか？', chinese: '可以給我一杯水嗎？', note: '日本餐廳常直接附冰水（お冷）', starred: false },
@@ -443,8 +446,18 @@
       { scene: '藥妝店詢問', category: '藥物諮詢', situation: '詢問成分/效果', speaker: '顧客', japanese: '【頭痛】に効く薬はどれですか？', hiragana: '【ずつう】に きく くすりは どれですか？', chinese: '請問對【頭痛】有效的藥是哪一種？', note: '胃痛：胃痛(いつう) / 感冒：風邪(かぜ) / 過敏：アレルギー', starred: true },
       { scene: '藥妝店詢問', category: '藥物諮詢', situation: '詢問用法與次數', speaker: '顧客', japanese: '1日に何回飲みますか？', hiragana: 'いちにちに なんかい のみますか？', chinese: '請問一天吃幾次？', note: '飯後：食後（しょくご）/ 睡前：寝る前（ねるまえ）', starred: false },
       { scene: '藥妝店詢問', category: '藥物諮詢', situation: '詢問兒童是否可服用', speaker: '顧客', japanese: '子供でも飲めますか？', hiragana: 'こどもでも のめますか？', chinese: '請問小朋友也可以吃嗎？', note: '可告知小孩年齡（例：5歳です）', starred: false },
-      { scene: '藥妝店詢問', category: '美妝保養', situation: '詢問有無試用品', speaker: '顧客', japanese: 'テスターはありますか？', hiragana: 'てすたーは ありますか？', chinese: '請問有試用品嗎？', note: '', starred: false },
-      { scene: '藥妝店詢問', category: '美妝保養', situation: '詢問是否含酒精/香料', speaker: '顧客', japanese: 'アルコールフリーですか？', hiragana: 'あるこーる ふりー ですか？', chinese: '請問這是無酒精的嗎？', note: '無香料：無香料（むこうりょう）', starred: false },
+      { scene: '藥妝店詢問', category: '美妝保養對話', situation: '詢問哪款最受歡迎', speaker: '顧客', japanese: '一番人気なのはどれですか？', hiragana: 'いちばん にんきなのは どれですか？', chinese: '請問哪一款最受歡迎？', note: '', starred: false },
+      { scene: '藥妝店詢問', category: '美妝保養對話', situation: '詢問有無試用品/試色', speaker: '顧客', japanese: 'テスターはありますか？', hiragana: 'てすたーは ありますか？', chinese: '請問有試用品嗎？', note: '', starred: false },
+      { scene: '藥妝店詢問', category: '美妝保養對話', situation: '詢問適合敏感肌/乾肌嗎', speaker: '顧客', japanese: 'これは【敏感肌】でも使えますか？', hiragana: 'これは 【びんかんはだ】でも つかえますか？', chinese: '請問這個【敏感肌】也可以用嗎？', note: '乾肌：乾燥肌（かんそうはだ）/ 油肌：脂性肌（しせいはだ）', starred: true },
+      { scene: '藥妝店詢問', category: '美妝保養對話', situation: '詢問是否含酒精/香料', speaker: '顧客', japanese: 'アルコールフリーですか？', hiragana: 'あるこーる ふりー ですか？', chinese: '請問這是無酒精的嗎？', note: '無香料：無香料（むこうりょう）', starred: false },
+      { scene: '藥妝店詢問', category: '美妝保養對話', situation: '詢問是否有補充包', speaker: '顧客', japanese: '詰め替え用はありますか？', hiragana: 'つめかえようは ありますか？', chinese: '請問有補充包嗎？', note: '洗髮精、化妝水、洗衣球常有補充包', starred: false },
+      { scene: '藥妝店詢問', category: '美妝保養單字', situation: '化妝水', speaker: '單字', japanese: '化粧水', hiragana: 'けしょうすい', chinese: '化妝水', note: '', starred: false },
+      { scene: '藥妝店詢問', category: '美妝保養單字', situation: '乳液 / 精華液', speaker: '單字', japanese: '乳液 / 美容液', hiragana: 'にゅうえき / びようえき', chinese: '乳液 / 精華液', note: '', starred: false },
+      { scene: '藥妝店詢問', category: '美妝保養單字', situation: '防曬乳', speaker: '單字', japanese: '日焼け止め', hiragana: 'ひやけどめ', chinese: '防曬乳', note: '', starred: false },
+      { scene: '藥妝店詢問', category: '美妝保養單字', situation: '面膜', speaker: '單字', japanese: 'シートマスク / フェイスマスク', hiragana: 'しーとますく / ふぇいすますく', chinese: '面膜', note: '', starred: false },
+      { scene: '藥妝店詢問', category: '美妝保養單字', situation: '卸妝油/乳', speaker: '單字', japanese: 'クレンジング', hiragana: 'くれんじんぐ', chinese: '卸妝產品', note: '洗面乳：洗顔料（せんがんりょう）', starred: false },
+      { scene: '藥妝店詢問', category: '美妝保養單字', situation: '護唇膏 / 口紅', speaker: '單字', japanese: 'リップクリーム / 口紅', hiragana: 'りっぷくりーむ / くちべに', chinese: '護唇膏 / 口紅', note: '', starred: false },
+      { scene: '藥妝店詢問', category: '美妝保養單字', situation: '粉底 / 眉筆', speaker: '單字', japanese: 'ファンデーション / アイブロウ', hiragana: 'ふぁんでーしょん / あいぶろう', chinese: '粉底 / 眉筆', note: '睫毛膏：マスカラ / 腮紅：チーク', starred: false },
       { scene: '藥妝店詢問', category: '結帳退稅', situation: '指引至免稅專用櫃檯', speaker: '店員', japanese: '免税レジはあちらです。', hiragana: 'めんぜい れじは あちらです。', chinese: '免稅結帳櫃檯在那邊。', note: '大型藥妝店通常有獨立「Tax-Free」櫃檯', starred: false },
       { scene: '藥妝店詢問', category: '結帳退稅', situation: '出示優惠券（Coupon）', speaker: '顧客', japanese: 'このクーポンは使えますか？', hiragana: 'この くーぽんは つかえますか？', chinese: '請問這張優惠券可以使用嗎？', note: '常可搭配免稅再折 3%～7%', starred: true },
       { scene: '藥妝店詢問', category: '結帳退稅', situation: '詢問是否需要另外封袋', speaker: '顧客', japanese: '免税袋を別々にできますか？', hiragana: 'めんぜいぶくろを べつべつに できますか？', chinese: '免稅袋可以分開裝嗎？', note: '幫朋友代買或想分箱塞行李箱時超好用', starred: false },
@@ -571,14 +584,15 @@
         if (raw) {
           const parsed = JSON.parse(raw);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            const existingScenes = new Set(parsed.map(p => p.scene));
-            const newSeedItems = DEFAULT_SEED_PHRASES.filter(s => !existingScenes.has(s.scene));
-            if (newSeedItems.length > 0) {
-              const merged = [...parsed, ...newSeedItems.map(x => ({ ...x }))];
-              localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(merged));
-              return merged;
-            }
-            return parsed;
+            const starMap = new Map(parsed.map(p => [p.id, Boolean(p.starred)]));
+            const customItems = parsed.filter(p => !String(p.id || '').startsWith('seed-'));
+            const syncedSeeds = DEFAULT_SEED_PHRASES.map(s => ({
+              ...s,
+              starred: starMap.has(s.id) ? starMap.get(s.id) : s.starred,
+            }));
+            const merged = [...syncedSeeds, ...customItems];
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(merged));
+            return merged;
           }
         }
       } catch {}
