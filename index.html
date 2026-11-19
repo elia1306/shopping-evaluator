@@ -237,7 +237,7 @@
         </button>
       </div>
 
-      <form id="product-form" class="space-y-4">
+      <form id="product-form" novalidate class="space-y-4">
         <input type="hidden" id="field-id" />
 
         <!-- Quick Paste Gemini JSON -->
@@ -325,7 +325,7 @@
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <label for="field-suitability-score" class="mb-1 block text-sm font-medium text-slate-700">推薦指數 (1–10)</label>
-            <input id="field-suitability-score" type="number" min="1" max="10" placeholder="例：8" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100" />
+            <input id="field-suitability-score" type="number" min="1" max="10" step="any" placeholder="例：8" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100" />
           </div>
           <div>
             <label for="field-purchase-status" class="mb-1 block text-sm font-medium text-slate-700">購物進度</label>
@@ -382,7 +382,7 @@
           </div>
           <div>
             <label for="field-source-url" class="mb-1 block text-sm font-medium text-slate-700">參考來源 / 賣場連結</label>
-            <input id="field-source-url" type="url" placeholder="https://..." class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100" />
+            <input id="field-source-url" type="text" placeholder="https://..." class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100" />
           </div>
         </div>
 
@@ -722,6 +722,8 @@
       const { error: productError } = await supabaseClient.from('products').upsert(productRow, { onConflict: 'id,user_id' });
       if (productError) throw productError;
 
+      const parsedAnalyzedDate = item.researchDate ? new Date(String(item.researchDate).replace(/\//g, '-')) : null;
+      const safeAnalyzedAt = (parsedAnalyzedDate && !Number.isNaN(parsedAnalyzedDate.getTime())) ? parsedAnalyzedDate.toISOString() : null;
       const evaluationRow = {
         product_id: item.id, user_id: userId,
         suitability_score: normalizeScore10(item.suitabilityScore),
@@ -732,7 +734,7 @@
         review_summary: item.reviews6m || null,
         recommendation: item.recommendation || null,
         analysis_payload: details,
-        analyzed_at: item.researchDate ? new Date(item.researchDate).toISOString() : null
+        analyzed_at: safeAnalyzedAt
       };
 
       const tasks = [];
@@ -1800,37 +1802,66 @@
         setFormPreview(e.target.value.trim());
       });
 
+      function toPlainText(val) {
+        if (val == null) return '';
+        if (Array.isArray(val)) return val.map(v => String(v ?? '').trim()).filter(Boolean).join('\n');
+        return String(val).trim();
+      }
+
+      function toSafeNum(val) {
+        if (val == null || val === '') return '';
+        const n = Number(String(val).replace(/[^\d.]/g, ''));
+        return Number.isFinite(n) && n > 0 ? n : '';
+      }
+
       function applyJsonToForm(rawText) {
         const trimmed = String(rawText || '').trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
-        const start = trimmed.indexOf('{');
-        const end = trimmed.lastIndexOf('}');
-        const jsonText = (start !== -1 && end > start) ? trimmed.slice(start, end + 1) : trimmed;
+        const objStart = trimmed.indexOf('{');
+        const arrStart = trimmed.indexOf('[');
+        let jsonText = trimmed;
+        if (arrStart !== -1 && (objStart === -1 || arrStart < objStart) && trimmed.lastIndexOf(']') > arrStart) {
+          jsonText = trimmed.slice(arrStart, trimmed.lastIndexOf(']') + 1);
+        } else if (objStart !== -1 && trimmed.lastIndexOf('}') > objStart) {
+          jsonText = trimmed.slice(objStart, trimmed.lastIndexOf('}') + 1);
+        }
         let data;
         try {
           data = JSON.parse(jsonText);
+          if (Array.isArray(data)) data = data[0];
+          if (!data || typeof data !== 'object') throw new Error('Invalid JSON object');
         } catch (err) {
           showToast('JSON 格式有誤，請確認複製完整內容');
           return false;
         }
-        if (data.brand) window.__pendingBrand = String(data.brand).trim();
-        if (data.name || data.product_name) document.getElementById('field-name').value = data.name || data.product_name;
-        if (data.jpName || data.model) document.getElementById('field-jp-name').value = data.jpName || data.model;
-        if (data.subtitle || data.capacity) document.getElementById('field-subtitle').value = data.subtitle || data.capacity;
-        if (data.category) document.getElementById('field-category').value = data.category;
+        if (data.brand) window.__pendingBrand = normalizeBrand(data.brand);
+        if (data.name || data.product_name) document.getElementById('field-name').value = toPlainText(data.name || data.product_name);
+        if (data.jpName || data.model) document.getElementById('field-jp-name').value = toPlainText(data.jpName || data.model);
+        if (data.subtitle || data.capacity) document.getElementById('field-subtitle').value = toPlainText(data.subtitle || data.capacity);
+        if (data.category) document.getElementById('field-category').value = toPlainText(data.category);
         if (data.recommendation) document.getElementById('field-recommendation').value = normalizeRec(data.recommendation, normalizeScore10(data.suitability_score ?? data.suitabilityScore));
-        if (data.priceNumeric != null) document.getElementById('field-price-num').value = Number(data.priceNumeric) || '';
+        if (data.priceNumeric != null) document.getElementById('field-price-num').value = toSafeNum(data.priceNumeric);
         if (data.suitability_score != null || data.suitabilityScore != null) {
           document.getElementById('field-suitability-score').value = normalizeScore10(data.suitability_score ?? data.suitabilityScore) || '';
         }
-        if (data.purchaseStatus) document.getElementById('field-purchase-status').value = data.purchaseStatus === '研究中' ? '想買' : data.purchaseStatus;
-        if (data.budget != null) document.getElementById('field-budget').value = Number(data.budget) || '';
-        if (data.suitability || data.suitability_summary) document.getElementById('field-suitability').value = data.suitability || data.suitability_summary;
-        if (data.reviews6m || data.review_summary) document.getElementById('field-reviews').value = data.reviews6m || data.review_summary;
-        if (data.reviewSources) document.getElementById('field-review-sources').value = data.reviewSources;
-        if (data.researchDate) document.getElementById('field-research-date').value = data.researchDate;
-        if (data.analysisNotes || data.personal_notes) document.getElementById('field-analysis-notes').value = data.analysisNotes || data.personal_notes;
-        if (data.locationsAndPrice) document.getElementById('field-locations').value = data.locationsAndPrice;
-        if (data.sourceUrl) document.getElementById('field-source-url').value = data.sourceUrl;
+        if (data.purchaseStatus) {
+          const mappedStatus = data.purchaseStatus === '研究中' ? '想買' : String(data.purchaseStatus).trim();
+          const statusEl = document.getElementById('field-purchase-status');
+          const validValues = Array.from(statusEl.options).map(o => o.value);
+          statusEl.value = validValues.includes(mappedStatus) ? mappedStatus : '尚未列入';
+        }
+        if (data.budget != null) document.getElementById('field-budget').value = toSafeNum(data.budget);
+        if (data.suitability || data.suitability_summary) document.getElementById('field-suitability').value = toPlainText(data.suitability || data.suitability_summary);
+        if (data.reviews6m || data.review_summary) document.getElementById('field-reviews').value = toPlainText(data.reviews6m || data.review_summary);
+        if (data.reviewSources) document.getElementById('field-review-sources').value = toPlainText(data.reviewSources);
+        if (data.researchDate) {
+          const normDate = String(data.researchDate).trim().replace(/\//g, '-');
+          if (/^\d{4}-\d{2}-\d{2}$/.test(normDate)) {
+            document.getElementById('field-research-date').value = normDate;
+          }
+        }
+        if (data.analysisNotes || data.personal_notes) document.getElementById('field-analysis-notes').value = toPlainText(data.analysisNotes || data.personal_notes);
+        if (data.locationsAndPrice) document.getElementById('field-locations').value = toPlainText(data.locationsAndPrice);
+        if (data.sourceUrl) document.getElementById('field-source-url').value = toPlainText(data.sourceUrl);
         if (Array.isArray(data.purchase_options)) window.__pendingPurchaseOptions = data.purchase_options;
         if (Array.isArray(data.pros)) window.__pendingPros = data.pros;
         if (Array.isArray(data.cons)) window.__pendingCons = data.cons;
