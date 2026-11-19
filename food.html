@@ -943,7 +943,8 @@
               </div>
               <div class="mt-2.5 space-y-1 border-t border-[#3E3A39]/15 pt-2 text-xs text-[#3E3A39]">
                 ${s.recommended_items ? `<div><span class="font-bold">推薦：</span>${escapeHtml(s.recommended_items)}</div>` : ''}
-                ${s.price_range || s.notes ? `<div class="text-[#3E3A39]/80">${s.price_range ? `<span class="font-bold">${escapeHtml(s.price_range)}</span> ` : ''}${escapeHtml(s.notes || '')}</div>` : ''}
+                ${s.price_range ? `<div class="font-bold text-[#3E3A39]/90">${escapeHtml(s.price_range)}</div>` : ''}
+                ${s.notes ? `<div class="whitespace-pre-line break-words text-[#3E3A39]/80">${escapeHtml(s.notes)}</div>` : ''}
               </div>
               <div class="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-[#3E3A39]/15 pt-2.5 text-xs">
                 <div class="flex flex-wrap items-center gap-2">
@@ -999,7 +1000,7 @@
             <td class="px-4 py-3.5 text-xs text-slate-700">${escapeHtml(s.recommended_items || '—')}</td>
             <td class="px-4 py-3.5 text-xs text-slate-600">
               ${s.price_range ? `<div class="font-medium text-slate-800">${escapeHtml(s.price_range)}</div>` : ''}
-              ${s.notes ? `<div class="line-clamp-2 text-slate-500">${escapeHtml(s.notes)}</div>` : ''}
+              ${s.notes ? `<div class="whitespace-pre-line break-words text-slate-500">${escapeHtml(s.notes)}</div>` : ''}
             </td>
             <td class="px-4 py-3.5 text-center">
               <a href="${escapeHtml(mapsUrl)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 rounded-lg border border-sky-200 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700 hover:bg-sky-100">
