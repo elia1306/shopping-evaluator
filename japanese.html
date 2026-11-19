@@ -40,6 +40,9 @@
     }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    @media (max-width: 639px) {
+      input, select, textarea { font-size: 16px !important; }
+    }
   </style>
 </head>
 <body class="min-h-screen antialiased selection:bg-[#F6D27A] selection:text-[#3E3A39]">
@@ -128,7 +131,7 @@
           <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#3E3A39]/50" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
-          <input id="input-search" type="search" placeholder="搜尋情境、日文、平假名、中文、備註..." class="w-full rounded-xl border-2 border-[#3E3A39]/25 bg-white py-2 pl-9 pr-3 text-xs text-[#3E3A39] placeholder-[#3E3A39]/45 outline-none focus:border-[#3E3A39] sm:text-sm" />
+          <input id="input-search" type="search" enterkeyhint="search" placeholder="搜尋情境、日文、平假名、中文、備註..." class="w-full rounded-xl border-2 border-[#3E3A39]/25 bg-white py-2 pl-9 pr-3 text-base text-[#3E3A39] placeholder-[#3E3A39]/45 outline-none focus:border-[#3E3A39] sm:text-sm" />
         </div>
         <button id="btn-reset-filters" type="button" class="ehon-btn shrink-0 rounded-xl bg-[#FFFCF6] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:bg-[#F6D27A]/40">重設</button>
       </div>
@@ -1230,6 +1233,12 @@
     });
 
     document.getElementById('input-search').addEventListener('input', () => { renderStatsAndQuickButtons(); renderList(); });
+    document.getElementById('input-search').addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        e.target.blur();
+      }
+    });
     document.getElementById('btn-reset-filters').addEventListener('click', () => {
       document.getElementById('input-search').value = '';
       quickFilter = 'all';

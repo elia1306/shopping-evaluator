@@ -72,6 +72,7 @@
       }
       #toast { left: 12px !important; right: 12px !important; bottom: max(12px, env(safe-area-inset-bottom)) !important; width: auto; justify-content: center; text-align: center; }
       .overflow-x-auto { max-width: 100%; }
+      input, select, textarea { font-size: 16px !important; }
     }
   </style>
 </head>
@@ -167,7 +168,7 @@
             <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-            <input id="input-search" type="search" placeholder="搜尋品名、評價、地點..." class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-100" />
+            <input id="input-search" type="search" enterkeyhint="search" placeholder="搜尋品名、評價、地點..." class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-base text-slate-800 placeholder-slate-400 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-100 sm:text-sm" />
           </div>
           <select id="select-brand" aria-label="篩選品牌" class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-100">
             <option value="全部">全部品牌</option>
@@ -1606,6 +1607,12 @@
         filters.search = e.target.value;
         renderFilters();
         renderGrid();
+      });
+      document.getElementById('input-search').addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          e.target.blur();
+        }
       });
 
       document.getElementById('select-brand').addEventListener('change', e => {

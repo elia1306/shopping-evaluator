@@ -43,6 +43,9 @@
     }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    @media (max-width: 639px) {
+      input, select, textarea { font-size: 16px !important; }
+    }
   </style>
 </head>
 <body class="min-h-screen antialiased selection:bg-[#F6D27A] selection:text-[#3E3A39]">
@@ -164,7 +167,7 @@
             <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-            <input id="input-search" type="search" placeholder="搜尋店名、推薦品項、備註..." class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-100 sm:text-sm" />
+            <input id="input-search" type="search" enterkeyhint="search" placeholder="搜尋店名、推薦品項、備註..." class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-base text-slate-800 placeholder-slate-400 outline-none focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-100 sm:text-sm" />
           </div>
           <button id="btn-reset-filters" type="button" class="shrink-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-600 transition hover:bg-slate-100">重設</button>
         </div>
@@ -1234,7 +1237,14 @@
       });
       document.getElementById('input-search').addEventListener('input', e => {
         filters.search = e.target.value;
+        renderFilters();
         renderTable();
+      });
+      document.getElementById('input-search').addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          e.target.blur();
+        }
       });
       document.getElementById('btn-mode-type')?.addEventListener('click', () => {
         quickFilterMode = 'type';
