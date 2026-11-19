@@ -182,7 +182,7 @@
               <th scope="col" class="min-w-[200px] px-4 py-3.5">推薦品項</th>
               <th scope="col" class="min-w-[170px] px-4 py-3.5">價位 / 備註</th>
               <th scope="col" class="w-28 px-4 py-3.5 text-center">地圖</th>
-              <th scope="col" class="w-28 px-3 py-3.5 text-center">造訪 / 心得</th>
+              <th id="th-visited" scope="col" class="w-28 px-3 py-3.5 text-center">造訪 / 心得</th>
               <th id="th-actions" scope="col" class="w-28 px-4 py-3.5 text-right">操作</th>
             </tr>
           </thead>
@@ -837,7 +837,7 @@
                 <div class="flex flex-wrap items-center gap-2">
                   <a href="${escapeHtml(mapsUrl)}" target="_blank" rel="noopener noreferrer" class="ehon-btn rounded-xl bg-[#A8D3E6] px-2.5 py-1 font-bold text-[#3E3A39]">開啟地圖</a>
                   ${isShareMode
-                    ? `<span class="rounded-xl border-2 border-[#3E3A39] px-2.5 py-1 font-bold ${s.visited ? 'bg-[#B9DAA5] text-[#3E3A39]' : 'bg-white text-[#3E3A39]'}">${s.visited ? '已吃過' : '未去過'}</span>`
+                    ? ''
                     : `<button type="button" data-action="toggle-visited" data-id="${escapeHtml(s.id)}" class="rounded-xl border-2 border-[#3E3A39] px-2.5 py-1 font-bold ${s.visited ? 'bg-[#B9DAA5] text-[#3E3A39]' : 'bg-white text-[#3E3A39]'}">${s.visited ? '已吃過' : '未去過'}</button>`
                   }
                   ${renderReviewControl(s)}
@@ -894,17 +894,15 @@
                 開啟地圖
               </a>
             </td>
+            ${isShareMode ? '' : `
             <td class="px-3 py-3.5 text-center">
               <div class="flex flex-col items-center gap-1.5">
-                ${isShareMode
-                  ? `<span class="inline-block rounded-full px-2.5 py-1 text-xs font-medium ${s.visited ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-500'}">${s.visited ? '已吃過' : '未去過'}</span>`
-                  : `<button type="button" data-action="toggle-visited" data-id="${escapeHtml(s.id)}" class="rounded-full px-2.5 py-1 text-xs font-medium transition ${
-                      s.visited ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
-                    }">${s.visited ? '已吃過' : '未去過'}</button>`
-                }
+                <button type="button" data-action="toggle-visited" data-id="${escapeHtml(s.id)}" class="rounded-full px-2.5 py-1 text-xs font-medium transition ${
+                    s.visited ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                  }">${s.visited ? '已吃過' : '未去過'}</button>
                 ${renderReviewControl(s)}
               </div>
-            </td>
+            </td>`}
             ${isShareMode ? '' : `
             <td class="px-4 py-3.5 text-right text-xs">
               <button type="button" data-action="edit" data-id="${escapeHtml(s.id)}" class="mr-2 font-medium text-slate-600 hover:text-slate-900">編輯</button>
@@ -1053,7 +1051,9 @@
         if (expLink) expLink.href = `./expenses.html?share=${encodeURIComponent(shareToken)}`;
         document.getElementById('btn-cloud-sync')?.classList.add('hidden');
         document.getElementById('btn-add-spot')?.classList.add('hidden');
+        document.getElementById('th-visited')?.classList.add('hidden');
         document.getElementById('th-actions')?.classList.add('hidden');
+        document.getElementById('filter-visited')?.classList.add('hidden');
         const badge = document.getElementById('share-trip-badge');
         if (badge) badge.classList.remove('hidden');
         const subtitle = document.getElementById('header-subtitle');
