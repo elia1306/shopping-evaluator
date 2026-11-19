@@ -618,6 +618,10 @@
       });
       const cloudBtn = document.getElementById('btn-cloud-sync');
       if (cloudBtn) cloudBtn.classList.add('hidden');
+      const badge = document.getElementById('share-trip-badge');
+      if (badge) badge.classList.remove('hidden');
+      const subtitle = document.getElementById('header-subtitle');
+      if (subtitle) subtitle.textContent = '旅伴專用・可點擊 🔊 朗讀、👆 給店員看與收藏 ★ 常用句（儲存在您的瀏覽器）';
     }
 
     function updateSyncBadge(customText) {
@@ -681,13 +685,22 @@
 
     async function loadSharedJapanese(token) {
       if (!token || !supabaseClient) return;
+      const starMap = loadShareStarState();
       try {
-        const { data, error } = await supabaseClient.rpc('get_shared_japanese', { p_token: token });
-        if (error) throw error;
+        let data = null;
+        const { data: jpData, error } = await supabaseClient.rpc('get_shared_japanese', { p_token: token });
+        if (error) {
+          // 若雲端尚未建立 get_shared_japanese RPC，改用 get_shared_trip 驗證連結與取得行程名稱
+          const { data: tripData, error: tripErr } = await supabaseClient.rpc('get_shared_trip', { p_token: token });
+          if (tripErr) throw tripErr;
+          if (!tripData || !tripData.trip) throw new Error('找不到此分享連結或連結已失效');
+          data = { trip: tripData.trip, phrases: [] };
+        } else {
+          data = jpData;
+        }
         if (!data || !data.trip) throw new Error('找不到此分享連結或連結已失效');
 
         sharedTrip = data.trip;
-        const starMap = loadShareStarState();
         const rows = Array.isArray(data.phrases) ? data.phrases : [];
         phrases = (rows.length > 0 ? rows : DEFAULT_SEED_PHRASES).map(p => ({
           ...p,
@@ -702,9 +715,12 @@
         renderAll();
       } catch (err) {
         console.error(err);
-        phrases = DEFAULT_SEED_PHRASES.map(x => ({ ...x }));
+        phrases = DEFAULT_SEED_PHRASES.map(p => ({
+          ...p,
+          starred: Object.prototype.hasOwnProperty.call(starMap, p.id) ? Boolean(starMap[p.id]) : Boolean(p.starred),
+        }));
         renderAll();
-        showToast('載入分享日文筆記失敗，顯示預設範本');
+        showToast(err?.message || '找不到此分享連結，暫時顯示內建日文手冊');
       }
     }
 
