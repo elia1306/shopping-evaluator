@@ -459,19 +459,43 @@
     let quickFilter = 'all'; // 'all' | 'starred'
     let comboIds = [];
 
+    const SCENE_ORDER = [
+      '機場出入境',
+      '買東西退稅',
+      '藥妝店詢問',
+      '餐廳點餐',
+      '居酒屋點餐(文化)',
+      '星巴克',
+      '交通問路',
+      '飯店住宿',
+      '緊急求助',
+    ];
+
     const SCENE_ICON_MAP = {
-      '星巴克': '☕',
       '機場出入境': '✈️',
       '買東西退稅': '🛍️',
+      '藥妝店詢問': '💊',
       '餐廳點餐': '🍽️',
       '居酒屋點餐(文化)': '🏮',
-      '藥妝店詢問': '💊',
+      '星巴克': '☕',
       '交通問路': '🚆',
       '飯店住宿': '🏨',
       '緊急求助': '🆘',
     };
 
+    function sortScenes(scenes) {
+      return [...scenes].sort((a, b) => {
+        const ia = SCENE_ORDER.indexOf(a);
+        const ib = SCENE_ORDER.indexOf(b);
+        if (ia !== -1 && ib !== -1) return ia - ib;
+        if (ia !== -1) return -1;
+        if (ib !== -1) return 1;
+        return 0; // 兩者皆為使用者新增的新場景，保留建立/出現順序
+      });
+    }
+
     function getSceneLabel(scene) {
+      if (/^\p{Extended_Pictographic}/u.test(scene)) return scene;
       const icon = SCENE_ICON_MAP[scene] || '💬';
       return `${icon} ${scene}`;
     }
@@ -772,7 +796,7 @@
     }
 
     function renderSceneAndCategoryPills() {
-      const scenes = Array.from(new Set(phrases.map(p => p.scene).filter(Boolean)));
+      const scenes = sortScenes(Array.from(new Set(phrases.map(p => p.scene).filter(Boolean))));
       const sceneContainer = document.getElementById('scene-pills');
       const datalist = document.getElementById('scene-datalist');
 
