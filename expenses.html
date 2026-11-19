@@ -47,40 +47,42 @@
 
   <!-- Top Header -->
   <header class="sticky top-0 z-30 border-b-[3px] border-[#3E3A39] bg-[#FFFCF6]">
-    <div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div class="flex items-center gap-2.5">
-          <div class="ehon-btn flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#F6D27A] text-[#3E3A39]">
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+    <div class="mx-auto max-w-7xl px-3 py-2.5 sm:px-6 sm:py-4 lg:px-8">
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex min-w-0 items-center gap-2">
+            <div class="ehon-btn flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[#F6D27A] text-[#3E3A39] sm:h-10 sm:w-10">
+              <svg class="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h1 class="truncate text-lg font-bold tracking-tight text-[#3E3A39] sm:text-2xl">♥ 旅遊記帳與分帳 ♥</h1>
           </div>
-          <div class="min-w-0">
-            <div class="flex flex-wrap items-center gap-2">
-              <h1 class="whitespace-nowrap text-xl font-bold tracking-tight text-[#3E3A39] sm:text-2xl">♥ 旅遊記帳與分帳 ♥</h1>
-              <nav aria-label="切換頁面" class="inline-flex flex-wrap rounded-2xl border-[2.5px] border-[#3E3A39] bg-[#FFFCF6] p-0.5 text-xs font-bold">
-                <a href="./index.html" data-hide-in-share="true" class="whitespace-nowrap rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#F2A497]/40">推薦好物</a>
-                <a href="./food.html" id="nav-food-link" class="whitespace-nowrap rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#A8D3E6]/40">美食雷達</a>
-                <a href="./trip.html" id="nav-trip-link" class="whitespace-nowrap rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#B9DAA5]/40">旅遊行程</a>
-                <span class="whitespace-nowrap rounded-xl bg-[#F6D27A] px-3 py-1 text-[#3E3A39]">旅遊記帳</span>
-              </nav>
-            </div>
-            <div class="mt-0.5 flex flex-wrap items-center gap-2">
-              <p class="text-xs text-[#3E3A39]/75 sm:text-sm">日圓／台幣記帳、誰先付與平分對象、自動算出結算轉帳金額</p>
-            </div>
+
+          <div class="flex shrink-0 items-center gap-1.5 sm:gap-2">
+            <button id="btn-toggle-view-mode" type="button" title="切換檢視/編輯模式" aria-label="切換檢視/編輯模式" class="ehon-btn inline-flex h-9 items-center justify-center gap-1.5 rounded-2xl bg-[#FFFCF6] px-2.5 text-xs font-bold text-[#3E3A39] hover:bg-[#F6D27A]/40 sm:h-auto sm:px-3 sm:py-2 sm:text-sm">
+              <span id="btn-view-mode-icon">👁️</span>
+              <span id="btn-view-mode-label" class="hidden sm:inline">切換檢視模式</span>
+            </button>
+            <button id="btn-cloud-sync" type="button" title="雲端同步" aria-label="雲端同步" class="ehon-btn inline-flex h-9 items-center justify-center gap-1.5 rounded-2xl bg-[#A8D3E6] px-2.5 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:h-auto sm:px-3 sm:py-2 sm:text-sm">
+              <span aria-hidden="true">☁️</span>
+              <span id="btn-cloud-label" class="hidden sm:inline">雲端同步（本機）</span>
+            </button>
+            <button id="btn-add-expense" type="button" title="新增一筆消費" aria-label="新增一筆消費" class="ehon-btn inline-flex h-9 items-center justify-center gap-1 rounded-2xl bg-[#F2A497] px-2.5 text-sm font-bold text-[#3E3A39] hover:brightness-95 sm:h-auto sm:px-3.5 sm:py-2 sm:text-sm">
+              <span aria-hidden="true">＋</span>
+              <span class="hidden sm:inline">新增一筆消費</span>
+            </button>
           </div>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2">
-          <button id="btn-toggle-view-mode" type="button" class="ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#FFFCF6] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:bg-[#F6D27A]/40 sm:text-sm">
-            👁️ 切換檢視模式
-          </button>
-          <button id="btn-cloud-sync" type="button" class="ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#A8D3E6] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm">
-            ☁️ 雲端同步（本機）
-          </button>
-          <button id="btn-add-expense" type="button" class="ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#F2A497] px-3.5 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm">
-            ＋ 新增一筆消費
-          </button>
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <nav aria-label="切換頁面" class="inline-flex flex-wrap rounded-2xl border-[2.5px] border-[#3E3A39] bg-[#FFFCF6] p-0.5 text-xs font-bold">
+            <a href="./index.html" data-hide-in-share="true" class="whitespace-nowrap rounded-xl px-2.5 py-1 text-[#3E3A39] transition hover:bg-[#F2A497]/40 sm:px-3">推薦好物</a>
+            <a href="./food.html" id="nav-food-link" class="whitespace-nowrap rounded-xl px-2.5 py-1 text-[#3E3A39] transition hover:bg-[#A8D3E6]/40 sm:px-3">美食雷達</a>
+            <a href="./trip.html" id="nav-trip-link" class="whitespace-nowrap rounded-xl px-2.5 py-1 text-[#3E3A39] transition hover:bg-[#B9DAA5]/40 sm:px-3">旅遊行程</a>
+            <span class="whitespace-nowrap rounded-xl bg-[#F6D27A] px-2.5 py-1 text-[#3E3A39] sm:px-3">旅遊記帳</span>
+          </nav>
+          <p class="hidden text-xs text-[#3E3A39]/75 sm:block sm:text-sm">日圓／台幣記帳、誰先付與平分對象、自動算出結算轉帳金額</p>
         </div>
       </div>
     </div>
@@ -678,20 +680,24 @@
 
     function updateSyncBadge(customText) {
       const btn = document.getElementById('btn-cloud-sync');
+      const label = document.getElementById('btn-cloud-label');
       const loggedOut = document.getElementById('cloud-logged-out');
       const loggedIn = document.getElementById('cloud-logged-in');
       const emailEl = document.getElementById('cloud-user-email');
 
       if (btn) {
         if (customText) {
-          btn.textContent = `☁️ ${customText}`;
-          btn.className = 'ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#F6D27A] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm';
+          if (label) label.textContent = customText;
+          btn.title = customText;
+          btn.className = 'ehon-btn inline-flex h-9 items-center justify-center gap-1.5 rounded-2xl bg-[#F6D27A] px-2.5 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:h-auto sm:px-3 sm:py-2 sm:text-sm';
         } else if (currentUser) {
-          btn.textContent = '☁️ 雲端已連線';
-          btn.className = 'ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#B9DAA5] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm';
+          if (label) label.textContent = '雲端已連線';
+          btn.title = '雲端已連線';
+          btn.className = 'ehon-btn inline-flex h-9 items-center justify-center gap-1.5 rounded-2xl bg-[#B9DAA5] px-2.5 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:h-auto sm:px-3 sm:py-2 sm:text-sm';
         } else {
-          btn.textContent = '☁️ 雲端同步（本機）';
-          btn.className = 'ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#A8D3E6] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm';
+          if (label) label.textContent = '雲端同步（本機）';
+          btn.title = '雲端同步（本機）';
+          btn.className = 'ehon-btn inline-flex h-9 items-center justify-center gap-1.5 rounded-2xl bg-[#A8D3E6] px-2.5 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:h-auto sm:px-3 sm:py-2 sm:text-sm';
         }
       }
       if (customText) return;
@@ -1295,8 +1301,12 @@
         toggleBtn?.classList.add('hidden');
       } else if (toggleBtn) {
         toggleBtn.classList.remove('hidden');
-        toggleBtn.textContent = isViewMode ? '✏️ 切換編輯模式' : '👁️ 切換檢視模式';
-        toggleBtn.className = `ehon-btn inline-flex items-center gap-1.5 rounded-2xl ${isViewMode ? 'bg-[#F6D27A]' : 'bg-[#FFFCF6] hover:bg-[#F6D27A]/40'} px-3 py-2 text-xs font-bold text-[#3E3A39] sm:text-sm`;
+        const toggleIcon = document.getElementById('btn-view-mode-icon');
+        const toggleLabel = document.getElementById('btn-view-mode-label');
+        if (toggleIcon) toggleIcon.textContent = isViewMode ? '✏️' : '👁️';
+        if (toggleLabel) toggleLabel.textContent = isViewMode ? '切換編輯模式' : '切換檢視模式';
+        toggleBtn.title = isViewMode ? '切換編輯模式' : '切換檢視模式';
+        toggleBtn.className = `ehon-btn inline-flex h-9 items-center justify-center gap-1.5 rounded-2xl ${isViewMode ? 'bg-[#F6D27A]' : 'bg-[#FFFCF6] hover:bg-[#F6D27A]/40'} px-2.5 text-xs font-bold text-[#3E3A39] sm:h-auto sm:px-3 sm:py-2 sm:text-sm`;
       }
       const ro = isReadOnlyUI();
       document.getElementById('btn-add-expense')?.classList.toggle('hidden', ro);
