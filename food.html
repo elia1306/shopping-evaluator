@@ -108,11 +108,18 @@
           <span class="text-xs font-bold text-[#3E3A39]/80">全部</span>
           <span id="stat-total" class="text-sm font-bold leading-none text-[#3E3A39] sm:text-base">0</span>
         </button>
-        <button id="btn-toggle-food-advanced" type="button" aria-expanded="false" class="ehon-btn ml-auto inline-flex shrink-0 items-center gap-1 rounded-2xl bg-[#FFFCF6] px-3 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#A8D3E6]/40 sm:py-2">
-          <span>🔍 搜尋</span>
-          <span id="food-advanced-dot" class="hidden h-2 w-2 rounded-full bg-[#F2A497] ring-1 ring-[#3E3A39]"></span>
-          <span id="food-advanced-arrow">▾</span>
-        </button>
+        <div class="ml-auto flex shrink-0 items-center gap-1.5">
+          <button id="btn-quick-reset" type="button" title="重設所有篩選" class="ehon-btn hidden inline-flex shrink-0 items-center gap-1 rounded-2xl bg-[#F2A497]/35 px-2.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#F2A497]/60 sm:px-3 sm:py-2">
+            <span>↺</span>
+            <span>重設</span>
+          </button>
+          <button id="btn-toggle-food-advanced" type="button" aria-expanded="false" title="進階搜尋" aria-label="進階搜尋" class="ehon-btn inline-flex shrink-0 items-center gap-1 rounded-2xl bg-[#FFFCF6] px-2.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#A8D3E6]/40 sm:px-3 sm:py-2">
+            <span>🔍</span>
+            <span class="hidden sm:inline">搜尋</span>
+            <span id="food-advanced-dot" class="hidden h-2 w-2 rounded-full bg-[#F2A497] ring-1 ring-[#3E3A39]"></span>
+            <span id="food-advanced-arrow">▾</span>
+          </button>
+        </div>
       </div>
 
       <!-- Row 2: Switch between Type & Location Quick Filters -->
@@ -857,8 +864,13 @@
       }
       const advDot = document.getElementById('food-advanced-dot');
       if (advDot) {
-        const hasAdv = filters.region !== '全部' || filters.city !== '全部' || filters.area !== '全部' || filters.visited !== 'all' || Boolean(filters.search.trim());
+        const hasAdv = filters.region !== '全部' || filters.visited !== 'all' || Boolean(filters.search.trim());
         advDot.classList.toggle('hidden', !hasAdv);
+      }
+      const quickResetBtn = document.getElementById('btn-quick-reset');
+      if (quickResetBtn) {
+        const hasAnyFilter = filters.onlyStarred || filters.foodType !== '全部' || filters.city !== '全部' || filters.area !== '全部' || filters.region !== '全部' || filters.visited !== 'all' || Boolean(filters.search.trim());
+        quickResetBtn.classList.toggle('hidden', !hasAnyFilter);
       }
     }
 
@@ -1275,12 +1287,14 @@
         filters.visited = e.target.value;
         renderTable();
       });
-      document.getElementById('btn-reset-filters').addEventListener('click', () => {
+      function resetAllFilters() {
         filters = { region: '全部', city: '全部', area: '全部', foodType: '全部', onlyStarred: false, visited: 'all', search: '' };
         document.getElementById('input-search').value = '';
         document.getElementById('filter-visited').value = 'all';
         renderAll();
-      });
+      }
+      document.getElementById('btn-reset-filters').addEventListener('click', resetAllFilters);
+      document.getElementById('btn-quick-reset')?.addEventListener('click', resetAllFilters);
 
       async function handleSpotClick(e) {
         const btn = e.target.closest('[data-action]');
