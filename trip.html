@@ -71,7 +71,7 @@
               <h1 class="whitespace-nowrap text-xl font-bold tracking-tight text-[#3E3A39] sm:text-2xl">♥ 日本好好玩 ♥</h1>
               <nav id="main-page-nav" aria-label="切換頁面" class="inline-flex flex-wrap rounded-2xl border-[2.5px] border-[#3E3A39] bg-[#FFFCF6] p-0.5 text-xs font-bold">
                 <a href="./index.html" data-hide-in-share="true" class="whitespace-nowrap rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#F2A497]/40">購物評估</a>
-                <a href="./food.html" data-hide-in-share="true" class="whitespace-nowrap rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#A8D3E6]/40">美食地圖</a>
+                <a href="./food.html" id="nav-food-link" class="whitespace-nowrap rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#A8D3E6]/40">美食地圖</a>
                 <a href="./trip.html" id="nav-trip-link" class="whitespace-nowrap rounded-xl bg-[#F6D27A] px-3 py-1 text-[#3E3A39]">旅遊行程</a>
                 <a href="./expenses.html" id="nav-expenses-link" class="whitespace-nowrap rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#F2A497]/40">旅遊記帳</a>
               </nav>
@@ -1406,8 +1406,10 @@
 
       if (isShareMode) {
         document.querySelectorAll('[data-hide-in-share="true"]').forEach(el => el.classList.add('hidden'));
+        const foodLink = document.getElementById('nav-food-link');
         const tripLink = document.getElementById('nav-trip-link');
         const expLink = document.getElementById('nav-expenses-link');
+        if (foodLink) foodLink.href = `./food.html?share=${encodeURIComponent(shareToken)}`;
         if (tripLink) tripLink.href = `./trip.html?share=${encodeURIComponent(shareToken)}`;
         if (expLink) expLink.href = `./expenses.html?share=${encodeURIComponent(shareToken)}`;
         btnToggleViewMode?.classList.add('hidden');
