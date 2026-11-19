@@ -710,8 +710,9 @@
       const details = { ...item };
       delete details.image;
       delete details.imagePath;
+      const normalizedBrand = normalizeBrand(item.brand);
       const productRow = {
-        id: item.id, user_id: userId, brand: item.brand || null, product_name: item.name || '待評估商品',
+        id: item.id, user_id: userId, brand: normalizedBrand || null, product_name: item.name || '待評估商品',
         model: item.jpName || null, capacity: item.subtitle || null,
         category: item.category || '待分類', budget: Number(item.budget) || null,
         budget_currency: 'TWD', status: purchaseStatusToDb(item.purchaseStatus),
@@ -843,7 +844,7 @@
           const opts = poMap.get(p.id) || [];
           const image = (img?.image_path && signedMap.get(img.image_path)) || payload.image || '';
           restored.push({
-            ...payload, id: p.id, brand: p.brand || payload.brand || '', name: p.product_name, jpName: p.model || payload.jpName || '',
+            ...payload, id: p.id, brand: normalizeBrand(p.brand || payload.brand || ''), name: p.product_name, jpName: p.model || payload.jpName || '',
             subtitle: p.capacity || payload.subtitle || '', category: p.category || '待分類',
             budget: Number(p.budget) || 0, purchaseStatus: purchaseStatusFromDb(p.status),
             purchaseReview: p.purchase_review || payload.purchaseReview || '',
@@ -970,6 +971,20 @@
       }, 2600);
     }
 
+    const BRAND_ALIAS_MAP = {
+      'muji': '無印良品',
+      '無印良品': '無印良品',
+      'muji無印良品': '無印良品',
+      'muji 無印良品': '無印良品',
+    };
+
+    function normalizeBrand(raw) {
+      const trimmed = String(raw || '').trim();
+      if (!trimmed) return '';
+      const key = trimmed.toLowerCase();
+      return BRAND_ALIAS_MAP[key] || trimmed;
+    }
+
     function escapeHtml(str) {
       return String(str || '')
         .replace(/&/g, '&amp;')
@@ -986,7 +1001,7 @@
         if (filters.recommendation !== '全部' && item.recommendation !== filters.recommendation) return false;
         const brandFilter = filters.brand || '全部';
         const reviewFilter = filters.purchaseReview || '全部';
-        if (brandFilter !== '全部' && (item.brand || '').trim() !== brandFilter) return false;
+        if (brandFilter !== '全部' && normalizeBrand(item.brand) !== brandFilter) return false;
         if (reviewFilter === 'none' && (item.purchaseReview || '')) return false;
         if (reviewFilter !== '全部' && reviewFilter !== 'none' && (item.purchaseReview || '') !== reviewFilter) return false;
         if (filters.onlyWantToBuy && item.purchaseStatus !== '想買') return false;
@@ -1074,7 +1089,7 @@
         return `<button type="button" data-rec="${escapeHtml(rec)}" class="rec-pill rounded-full px-3 py-1 text-xs font-medium transition ${cls}">${escapeHtml(rec)}</button>`;
       }).join('');
 
-      const brands = Array.from(new Set(items.map(i => (i.brand || '').trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b, 'zh-Hant'));
+      const brands = Array.from(new Set(items.map(i => normalizeBrand(i.brand)).filter(Boolean))).sort((a, b) => a.localeCompare(b, 'zh-Hant'));
       const brandSelect = document.getElementById('select-brand');
       if (brandSelect) {
         if (filters.brand !== '全部' && !brands.includes(filters.brand)) filters.brand = '全部';
