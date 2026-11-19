@@ -957,9 +957,11 @@
       let list = items.filter(item => {
         if (filters.category !== '全部' && item.category !== filters.category) return false;
         if (filters.recommendation !== '全部' && item.recommendation !== filters.recommendation) return false;
-        if (filters.brand !== '全部' && (item.brand || '').trim() !== filters.brand) return false;
-        if (filters.purchaseReview === 'none' && (item.purchaseReview || '')) return false;
-        if (filters.purchaseReview !== '全部' && filters.purchaseReview !== 'none' && (item.purchaseReview || '') !== filters.purchaseReview) return false;
+        const brandFilter = filters.brand || '全部';
+        const reviewFilter = filters.purchaseReview || '全部';
+        if (brandFilter !== '全部' && (item.brand || '').trim() !== brandFilter) return false;
+        if (reviewFilter === 'none' && (item.purchaseReview || '')) return false;
+        if (reviewFilter !== '全部' && reviewFilter !== 'none' && (item.purchaseReview || '') !== reviewFilter) return false;
         if (filters.onlyWantToBuy && item.purchaseStatus !== '想買') return false;
         if (q) {
           const hay = [
@@ -1576,13 +1578,18 @@
         renderGrid();
       });
 
-      document.getElementById('btn-clear-filters').addEventListener('click', () => {
+      function resetFiltersState() {
         filters = { category: '全部', recommendation: '全部', brand: '全部', purchaseReview: '全部', onlyWantToBuy: false, search: '', sortBy: 'newest' };
         document.getElementById('input-search').value = '';
-        document.getElementById('select-brand').value = '全部';
+        const brandSel = document.getElementById('select-brand');
+        if (brandSel) brandSel.value = '全部';
         const revSel = document.getElementById('select-review');
         if (revSel) revSel.value = '全部';
         document.getElementById('select-sort').value = 'newest';
+      }
+
+      document.getElementById('btn-clear-filters').addEventListener('click', () => {
+        resetFiltersState();
         renderAll();
       });
 
@@ -1813,9 +1820,7 @@
           showToast('已更新商品評估');
         } else {
           items.unshift(payload);
-          filters = { category: '全部', recommendation: '全部', search: '', sortBy: 'newest' };
-          document.getElementById('input-search').value = '';
-          document.getElementById('select-sort').value = 'newest';
+          resetFiltersState();
           showToast('已新增至購物評估清單');
         }
 
