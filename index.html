@@ -120,58 +120,46 @@
 
   <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 
-    <!-- Personal Profile Banner -->
-    <section aria-label="個人評估設定" class="ehon-box mb-5 flex flex-col gap-2 bg-[#A8D3E6]/35 p-4 sm:flex-row sm:items-center sm:justify-between">
-      <div class="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs sm:text-sm">
-        <span class="font-bold text-[#3E3A39]">我的評估基準：</span>
-        <span class="text-[#3E3A39]"><strong class="font-bold">肌膚</strong>｜<span id="profile-skin-display"></span></span>
-        <span class="text-[#3E3A39]"><strong class="font-bold">頭髮</strong>｜<span id="profile-hair-display"></span></span>
-        <span class="text-[#3E3A39]"><strong class="font-bold">其他偏好</strong>｜<span id="profile-general-display"></span></span>
+    <!-- Personal Profile Banner (Collapsible) -->
+    <section aria-label="個人化設定" class="ehon-box mb-4 bg-[#A8D3E6]/35 px-4 py-2.5">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <button id="btn-toggle-profile" type="button" aria-expanded="false" class="inline-flex items-center gap-2 text-xs font-bold text-[#3E3A39] sm:text-sm">
+          <span>⚙️ 個人化設定</span>
+          <span id="profile-toggle-arrow" class="rounded-full border border-[#3E3A39]/40 bg-[#FFFCF6] px-2 py-0.5 text-[11px] font-bold">展開 ▾</span>
+        </button>
+        <button id="btn-edit-profile-inline" type="button" class="ehon-btn w-fit shrink-0 rounded-2xl bg-[#FFFCF6] px-3 py-1 text-xs font-bold text-[#3E3A39] hover:bg-[#F6D27A]">修改個人設定</button>
       </div>
-      <button id="btn-edit-profile-inline" type="button" class="ehon-btn w-fit shrink-0 rounded-2xl bg-[#FFFCF6] px-3 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#F6D27A]">修改個人設定</button>
-    </section>
-
-    <!-- KPI Summary Cards -->
-    <section aria-label="評估統計" class="mb-6 grid grid-cols-2 gap-3.5 sm:grid-cols-4">
-      <button type="button" data-kpi-rec="全部" class="kpi-btn ehon-box group flex flex-col bg-[#FFFCF6] p-4 text-left transition hover:-translate-y-0.5">
-        <span class="text-xs font-bold text-[#3E3A39]/80">全部評估商品</span>
-        <span id="stat-total" class="mt-1 text-2xl font-bold text-[#3E3A39]">0</span>
-      </button>
-      <button id="btn-kpi-want" type="button" class="ehon-box group flex flex-col bg-[#F6D27A] p-4 text-left transition hover:-translate-y-0.5">
-        <span class="text-xs font-bold text-[#3E3A39]">★ 星號想買</span>
-        <span id="stat-want" class="mt-1 text-2xl font-bold text-[#3E3A39]">0</span>
-      </button>
-      <button type="button" data-kpi-rec="推薦購買" class="kpi-btn ehon-box group flex flex-col bg-[#B9DAA5] p-4 text-left transition hover:-translate-y-0.5">
-        <span class="text-xs font-bold text-[#3E3A39]">推薦購買</span>
-        <span id="stat-rec" class="mt-1 text-2xl font-bold text-[#3E3A39]">0</span>
-      </button>
-      <button type="button" data-kpi-rec="暫不推薦" class="kpi-btn ehon-box group flex flex-col bg-[#F2A497] p-4 text-left transition hover:-translate-y-0.5">
-        <span class="text-xs font-bold text-[#3E3A39]">暫不推薦</span>
-        <span id="stat-skip" class="mt-1 text-2xl font-bold text-[#3E3A39]">0</span>
-      </button>
-    </section>
-
-    <!-- Filter & Search Bar -->
-    <section aria-label="篩選與搜尋" class="ehon-box mb-6 bg-[#FFFCF6] p-4">
-      <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div class="flex flex-col gap-3">
-          <!-- Category Pills -->
-          <div class="flex flex-wrap items-center gap-2">
-            <span class="mr-1 text-xs font-semibold uppercase tracking-wider text-slate-400">分類</span>
-            <div id="category-pills" class="flex flex-wrap gap-1.5"></div>
-          </div>
-          <!-- Recommendation Pills -->
-          <div class="flex flex-wrap items-center gap-2">
-            <span class="mr-1 text-xs font-semibold uppercase tracking-wider text-slate-400">標籤</span>
-            <div id="rec-pills" class="flex flex-wrap gap-1.5"></div>
-            <button id="btn-filter-want" type="button" class="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50/70 px-3 py-1 text-xs font-medium text-amber-800 transition hover:bg-amber-100">
-              <span>★</span> 只看想買
-            </button>
-          </div>
+      <div id="profile-content" class="mt-2.5 hidden border-t border-dashed border-[#3E3A39]/25 pt-2.5">
+        <div class="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs sm:text-sm">
+          <span class="text-[#3E3A39]"><strong class="font-bold">肌膚</strong>｜<span id="profile-skin-display"></span></span>
+          <span class="text-[#3E3A39]"><strong class="font-bold">頭髮</strong>｜<span id="profile-hair-display"></span></span>
+          <span class="text-[#3E3A39]"><strong class="font-bold">其他偏好</strong>｜<span id="profile-general-display"></span></span>
         </div>
+      </div>
+    </section>
 
-        <!-- Search + Sort -->
-        <div class="flex flex-col gap-2.5 sm:flex-row sm:items-center">
+    <!-- Integrated Quick Filter & Category Bar + Collapsible Advanced Search -->
+    <section aria-label="篩選與搜尋" class="ehon-box mb-6 bg-[#FFFCF6] p-3.5 sm:p-4">
+      <div class="flex flex-wrap items-center gap-2">
+        <button id="btn-kpi-want" type="button" class="ehon-btn inline-flex items-center gap-2 rounded-2xl bg-[#F6D27A] px-3.5 py-2 text-left transition hover:brightness-95">
+          <span class="text-xs font-bold text-[#3E3A39]">★ 星號想買</span>
+          <span id="stat-want" class="text-base font-bold leading-none text-[#3E3A39]">0</span>
+        </button>
+        <button id="btn-kpi-all" type="button" class="ehon-btn inline-flex items-center gap-2 rounded-2xl bg-[#FFFCF6] px-3.5 py-2 text-left transition hover:bg-slate-50">
+          <span class="text-xs font-bold text-[#3E3A39]/80">全部評估商品</span>
+          <span id="stat-total" class="text-base font-bold leading-none text-[#3E3A39]">0</span>
+        </button>
+        <div id="category-pills" class="flex flex-wrap items-center gap-1.5"></div>
+        <button id="btn-toggle-advanced-search" type="button" aria-expanded="false" class="ehon-btn ml-auto inline-flex items-center gap-1.5 rounded-2xl bg-[#FFFCF6] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:bg-[#A8D3E6]/40">
+          <span>🔍 進階搜尋</span>
+          <span id="advanced-active-dot" class="hidden h-2 w-2 rounded-full bg-[#F2A497] ring-1 ring-[#3E3A39]"></span>
+          <span id="advanced-toggle-arrow">▾</span>
+        </button>
+      </div>
+
+      <!-- Collapsible Advanced Search Panel -->
+      <div id="advanced-search-panel" class="mt-3.5 hidden space-y-3 border-t-2 border-dashed border-[#3E3A39]/20 pt-3.5">
+        <div class="flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:items-center">
           <div class="relative w-full sm:w-64">
             <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -194,6 +182,11 @@
             <option value="price-asc">參考價由低到高</option>
             <option value="price-desc">參考價由高到低</option>
           </select>
+          <button id="btn-reset-filters-inline" type="button" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-100">重設篩選</button>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="mr-1 text-xs font-semibold uppercase tracking-wider text-slate-400">評估結論</span>
+          <div id="rec-pills" class="flex flex-wrap gap-1.5"></div>
         </div>
       </div>
     </section>
@@ -998,36 +991,37 @@
     }
 
     function renderStats() {
-      document.getElementById('stat-total').textContent = items.length;
-      document.getElementById('stat-want').textContent = items.filter(i => i.purchaseStatus === '想買').length;
-      document.getElementById('stat-rec').textContent = items.filter(i => i.recommendation === '推薦購買').length;
-      document.getElementById('stat-skip').textContent = items.filter(i => i.recommendation === '暫不推薦').length;
+      const totalEl = document.getElementById('stat-total');
+      const wantEl = document.getElementById('stat-want');
+      if (totalEl) totalEl.textContent = items.length;
+      if (wantEl) wantEl.textContent = items.filter(i => i.purchaseStatus === '想買').length;
 
-      document.querySelectorAll('.kpi-btn').forEach(btn => {
-        const isActive = btn.dataset.kpiRec === filters.recommendation && !filters.onlyWantToBuy;
-        btn.classList.toggle('ring-2', isActive);
-        btn.classList.toggle('ring-indigo-500', isActive);
-      });
       const kpiWant = document.getElementById('btn-kpi-want');
       if (kpiWant) {
         kpiWant.classList.toggle('ring-2', filters.onlyWantToBuy);
-        kpiWant.classList.toggle('ring-indigo-500', filters.onlyWantToBuy);
+        kpiWant.classList.toggle('ring-[#3E3A39]', filters.onlyWantToBuy);
+      }
+      const kpiAll = document.getElementById('btn-kpi-all');
+      if (kpiAll) {
+        const isAllActive = !filters.onlyWantToBuy && filters.category === '全部' && filters.recommendation === '全部';
+        kpiAll.classList.toggle('ring-2', isAllActive);
+        kpiAll.classList.toggle('ring-[#3E3A39]', isAllActive);
       }
     }
 
     function renderFilters() {
       const baseCategories = ['化妝品', '保養品', '頭髮', '生活', '廚房', '衣服', '藥品'];
       const extraCategories = items.map(i => i.category).filter(c => c && !baseCategories.includes(c));
-      const categories = ['全部', ...baseCategories, ...Array.from(new Set(extraCategories))];
-      if (!categories.includes(filters.category)) filters.category = '全部';
+      const categories = [...baseCategories, ...Array.from(new Set(extraCategories))];
+      if (filters.category !== '全部' && !categories.includes(filters.category)) filters.category = '全部';
 
       const catContainer = document.getElementById('category-pills');
       catContainer.innerHTML = categories.map(cat => {
         const active = filters.category === cat;
-        return `<button type="button" data-cat="${escapeHtml(cat)}" class="cat-pill rounded-full px-3 py-1 text-xs font-medium transition ${
+        return `<button type="button" data-cat="${escapeHtml(cat)}" class="cat-pill rounded-full px-3.5 py-2 text-xs font-bold transition ${
           active
-            ? 'bg-slate-900 text-white shadow-sm'
-            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            ? 'bg-[#3E3A39] text-[#FFFCF6] shadow-sm'
+            : 'bg-slate-100 text-[#3E3A39] hover:bg-slate-200'
         }">${escapeHtml(cat)}</button>`;
       }).join('');
 
@@ -1044,13 +1038,6 @@
         return `<button type="button" data-rec="${escapeHtml(rec)}" class="rec-pill rounded-full px-3 py-1 text-xs font-medium transition ${cls}">${escapeHtml(rec)}</button>`;
       }).join('');
 
-      const wantBtn = document.getElementById('btn-filter-want');
-      if (wantBtn) {
-        wantBtn.className = filters.onlyWantToBuy
-          ? 'inline-flex items-center gap-1 rounded-full bg-amber-500 px-3 py-1 text-xs font-semibold text-white shadow-sm transition'
-          : 'inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50/70 px-3 py-1 text-xs font-medium text-amber-800 transition hover:bg-amber-100';
-      }
-
       const brands = Array.from(new Set(items.map(i => (i.brand || '').trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b, 'zh-Hant'));
       const brandSelect = document.getElementById('select-brand');
       if (brandSelect) {
@@ -1058,6 +1045,16 @@
         brandSelect.innerHTML = `<option value="全部">全部品牌 (${brands.length})</option>` +
           brands.map(b => `<option value="${escapeHtml(b)}">${escapeHtml(b)}</option>`).join('');
         brandSelect.value = filters.brand;
+      }
+
+      const advDot = document.getElementById('advanced-active-dot');
+      if (advDot) {
+        const hasAdv = Boolean(filters.search.trim()) ||
+          filters.brand !== '全部' ||
+          filters.purchaseReview !== '全部' ||
+          filters.recommendation !== '全部' ||
+          filters.sortBy !== 'newest';
+        advDot.classList.toggle('hidden', !hasAdv);
       }
     }
 
@@ -1089,10 +1086,6 @@
                 : `<div class="flex h-full w-full cursor-pointer items-center justify-center text-sm text-slate-400" data-action="detail" data-id="${escapeHtml(item.id)}">尚無圖片</div>`
               }
               <div class="pointer-events-none absolute left-3 top-3 flex flex-wrap gap-1.5">
-                <span class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold shadow-sm backdrop-blur-sm ${recStyle.badge}">
-                  <span class="h-1.5 w-1.5 rounded-full ${recStyle.dot}"></span>
-                  ${escapeHtml(item.recommendation)}
-                </span>
                 <span class="rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-slate-700 shadow-sm backdrop-blur-sm">
                   ${escapeHtml(item.category)}
                 </span>
@@ -1524,19 +1517,41 @@
         pushToCloud({ action: 'saveProfile', profile: userProfile });
       });
 
-      // KPI buttons
-      document.querySelectorAll('.kpi-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          filters.recommendation = btn.dataset.kpiRec;
-          renderAll();
-        });
+      // Collapsible Profile & Advanced Search toggles
+      document.getElementById('btn-toggle-profile')?.addEventListener('click', () => {
+        const content = document.getElementById('profile-content');
+        const arrow = document.getElementById('profile-toggle-arrow');
+        const btn = document.getElementById('btn-toggle-profile');
+        if (!content) return;
+        const willOpen = content.classList.contains('hidden');
+        content.classList.toggle('hidden', !willOpen);
+        if (arrow) arrow.textContent = willOpen ? '收合 ▴' : '展開 ▾';
+        if (btn) btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+      });
+
+      document.getElementById('btn-toggle-advanced-search')?.addEventListener('click', () => {
+        const panel = document.getElementById('advanced-search-panel');
+        const arrow = document.getElementById('advanced-toggle-arrow');
+        const btn = document.getElementById('btn-toggle-advanced-search');
+        if (!panel) return;
+        const willOpen = panel.classList.contains('hidden');
+        panel.classList.toggle('hidden', !willOpen);
+        if (arrow) arrow.textContent = willOpen ? '▴' : '▾';
+        if (btn) btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+      });
+
+      document.getElementById('btn-kpi-all')?.addEventListener('click', () => {
+        filters.category = '全部';
+        filters.onlyWantToBuy = false;
+        filters.recommendation = '全部';
+        renderAll();
       });
 
       // Delegated filter pills
       document.getElementById('category-pills').addEventListener('click', e => {
         const btn = e.target.closest('.cat-pill');
         if (!btn) return;
-        filters.category = btn.dataset.cat;
+        filters.category = filters.category === btn.dataset.cat ? '全部' : btn.dataset.cat;
         renderAll();
       });
 
@@ -1550,16 +1565,19 @@
       // Search & Sort
       document.getElementById('input-search').addEventListener('input', e => {
         filters.search = e.target.value;
+        renderFilters();
         renderGrid();
       });
 
       document.getElementById('select-brand').addEventListener('change', e => {
         filters.brand = e.target.value;
+        renderFilters();
         renderGrid();
       });
 
       document.getElementById('select-sort').addEventListener('change', e => {
         filters.sortBy = e.target.value;
+        renderFilters();
         renderGrid();
       });
 
@@ -1568,14 +1586,15 @@
         renderAll();
       });
 
-      document.getElementById('btn-filter-want').addEventListener('click', () => {
-        filters.onlyWantToBuy = !filters.onlyWantToBuy;
-        renderAll();
-      });
-
       document.getElementById('select-review')?.addEventListener('change', e => {
         filters.purchaseReview = e.target.value;
+        renderFilters();
         renderGrid();
+      });
+
+      document.getElementById('btn-reset-filters-inline')?.addEventListener('click', () => {
+        resetFiltersState();
+        renderAll();
       });
 
       function resetFiltersState() {

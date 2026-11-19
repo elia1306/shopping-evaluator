@@ -93,80 +93,48 @@
 
   <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 
-    <!-- KPI Summary Cards -->
-    <section aria-label="美食統計" class="mb-6 grid grid-cols-2 gap-3.5 sm:grid-cols-4">
-      <div class="ehon-box bg-[#FFFCF6] p-4">
-        <span class="text-xs font-bold text-[#3E3A39]/80">全部收藏餐廳</span>
-        <div id="stat-total" class="mt-1 text-2xl font-bold text-[#3E3A39]">0</div>
+    <!-- Integrated Quick Filter & Location Bar -->
+    <section aria-label="篩選與搜尋" class="ehon-box mb-5 space-y-3 bg-[#FFFCF6] p-3.5 sm:p-4">
+      <!-- Row 1: Starred + All + Food Type Pills -->
+      <div class="flex flex-wrap items-center gap-2">
+        <button id="btn-filter-star" type="button" class="ehon-btn inline-flex items-center gap-2 rounded-2xl bg-[#F6D27A] px-3.5 py-2 text-left transition hover:brightness-95">
+          <span class="text-xs font-bold text-[#3E3A39]">★ 星號想去</span>
+          <span id="stat-starred" class="text-base font-bold leading-none text-[#3E3A39]">0</span>
+        </button>
+        <button id="btn-filter-all" type="button" class="ehon-btn inline-flex items-center gap-2 rounded-2xl bg-[#FFFCF6] px-3.5 py-2 text-left transition hover:bg-slate-50">
+          <span class="text-xs font-bold text-[#3E3A39]/80">全部餐廳</span>
+          <span id="stat-total" class="text-base font-bold leading-none text-[#3E3A39]">0</span>
+        </button>
+        <div id="food-type-pills" class="flex flex-wrap items-center gap-1.5"></div>
       </div>
-      <div class="ehon-box bg-[#F6D27A] p-4">
-        <span class="text-xs font-bold text-[#3E3A39]">★ 星號想去</span>
-        <div id="stat-starred" class="mt-1 text-2xl font-bold text-[#3E3A39]">0</div>
-      </div>
-      <div class="ehon-box bg-[#B9DAA5] p-4">
-        <span class="text-xs font-bold text-[#3E3A39]">已吃過</span>
-        <div id="stat-visited" class="mt-1 text-2xl font-bold text-[#3E3A39]">0</div>
-      </div>
-      <div class="ehon-box bg-[#A8D3E6] p-4">
-        <span class="text-xs font-bold text-[#3E3A39]">涵蓋城市數</span>
-        <div id="stat-cities" class="mt-1 text-2xl font-bold text-[#3E3A39]">0</div>
-      </div>
-    </section>
 
-    <!-- Cascading Location + Food Type Filter Bar -->
-    <section aria-label="篩選與搜尋" class="ehon-box mb-6 space-y-4 bg-[#FFFCF6] p-4">
-      <!-- Row 1: Cascading Location Filters + Search -->
-      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <div>
-          <label for="filter-region" class="mb-1 block text-xs font-semibold text-slate-500">1. 大地區</label>
-          <select id="filter-region" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-100">
-            <option value="全部">全部大地區</option>
-          </select>
-        </div>
-        <div>
-          <label for="filter-city" class="mb-1 block text-xs font-semibold text-slate-500">2. 城市</label>
-          <select id="filter-city" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-100">
-            <option value="全部">全部城市</option>
-          </select>
-        </div>
-        <div>
-          <label for="filter-area" class="mb-1 block text-xs font-semibold text-slate-500">3. 區域（如新宿、原宿）</label>
-          <select id="filter-area" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-100">
-            <option value="全部">全部區域</option>
-          </select>
-        </div>
-        <div class="lg:col-span-2">
-          <label for="input-search" class="mb-1 block text-xs font-semibold text-slate-500">關鍵字搜尋</label>
-          <div class="flex gap-2">
-            <div class="relative flex-1">
-              <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <input id="input-search" type="search" placeholder="搜尋店名、推薦品項、備註..." class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-100" />
-            </div>
-            <button id="btn-reset-filters" type="button" class="shrink-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-600 transition hover:bg-slate-100">重設</button>
+      <!-- Row 2: Cascading Location Filters + Search + Visited/Review -->
+      <div class="grid grid-cols-2 gap-2 border-t-2 border-dashed border-[#3E3A39]/15 pt-3 sm:grid-cols-3 lg:grid-cols-6">
+        <select id="filter-region" aria-label="大地區" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-700 outline-none focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-100 sm:text-sm">
+          <option value="全部">全部大地區</option>
+        </select>
+        <select id="filter-city" aria-label="城市" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-700 outline-none focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-100 sm:text-sm">
+          <option value="全部">全部城市</option>
+        </select>
+        <select id="filter-area" aria-label="區域" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-700 outline-none focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-100 sm:text-sm">
+          <option value="全部">全部區域</option>
+        </select>
+        <select id="filter-visited" aria-label="造訪狀態" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-700 outline-none focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-100 sm:text-sm">
+          <option value="all">全部狀態</option>
+          <option value="unvisited">未去過</option>
+          <option value="visited">已吃過</option>
+          <option value="review:很好">😋 很好</option>
+          <option value="review:普通">😐 普通</option>
+          <option value="review:踩雷">💣 踩雷</option>
+        </select>
+        <div class="col-span-2 flex gap-2">
+          <div class="relative flex-1">
+            <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input id="input-search" type="search" placeholder="搜尋店名、推薦品項、備註..." class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-100 sm:text-sm" />
           </div>
-        </div>
-      </div>
-
-      <!-- Row 2: Food Type Pills + Quick Toggles -->
-      <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-3">
-        <div class="flex flex-wrap items-center gap-1.5">
-          <span class="mr-1 text-xs font-semibold text-slate-400">種類</span>
-          <div id="food-type-pills" class="flex flex-wrap gap-1.5"></div>
-        </div>
-        <div class="flex flex-wrap items-center gap-2">
-          <button id="btn-filter-star" type="button" class="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50/70 px-3 py-1 text-xs font-medium text-amber-800 transition hover:bg-amber-100">
-            <span>★</span> 只看星號想去
-          </button>
-          <select id="filter-visited" aria-label="造訪狀態" class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-700 outline-none">
-            <option value="all">全部狀態</option>
-            <option value="unvisited">未去過</option>
-            <option value="visited">已吃過</option>
-            <option value="review:很好">😋 很好</option>
-            <option value="review:普通">😐 普通</option>
-            <option value="review:踩雷">💣 踩雷</option>
-          </select>
+          <button id="btn-reset-filters" type="button" class="shrink-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-600 transition hover:bg-slate-100">重設</button>
         </div>
       </div>
     </section>
@@ -726,10 +694,10 @@
     }
 
     function renderStats() {
-      document.getElementById('stat-total').textContent = spots.length;
-      document.getElementById('stat-starred').textContent = spots.filter(s => s.starred).length;
-      document.getElementById('stat-visited').textContent = spots.filter(s => s.visited).length;
-      document.getElementById('stat-cities').textContent = new Set(spots.map(s => s.city).filter(Boolean)).size;
+      const totalEl = document.getElementById('stat-total');
+      const starredEl = document.getElementById('stat-starred');
+      if (totalEl) totalEl.textContent = spots.length;
+      if (starredEl) starredEl.textContent = spots.filter(s => s.starred).length;
     }
 
     function renderFilters() {
@@ -754,19 +722,26 @@
       areaSel.value = filters.area;
 
       const extraTypes = spots.map(s => s.food_type).filter(t => t && !BASE_FOOD_TYPES.includes(t));
-      const types = ['全部', ...BASE_FOOD_TYPES, ...Array.from(new Set(extraTypes))];
+      const types = [...BASE_FOOD_TYPES, ...Array.from(new Set(extraTypes))];
       const pillsEl = document.getElementById('food-type-pills');
       pillsEl.innerHTML = types.map(t => {
         const active = filters.foodType === t;
-        return `<button type="button" data-food-type="${escapeHtml(t)}" class="rounded-full px-3 py-1 text-xs font-medium transition ${
-          active ? 'bg-amber-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+        return `<button type="button" data-food-type="${escapeHtml(t)}" class="rounded-full px-3 py-1.5 text-xs font-bold transition ${
+          active ? 'bg-[#3E3A39] text-[#FFFCF6] shadow-sm' : 'bg-slate-100 text-[#3E3A39] hover:bg-slate-200'
         }">${escapeHtml(t)}</button>`;
       }).join('');
 
       const starBtn = document.getElementById('btn-filter-star');
-      starBtn.className = filters.onlyStarred
-        ? 'inline-flex items-center gap-1 rounded-full bg-amber-500 px-3 py-1 text-xs font-semibold text-white shadow-sm transition'
-        : 'inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50/70 px-3 py-1 text-xs font-medium text-amber-800 transition hover:bg-amber-100';
+      if (starBtn) {
+        starBtn.classList.toggle('ring-2', filters.onlyStarred);
+        starBtn.classList.toggle('ring-[#3E3A39]', filters.onlyStarred);
+      }
+      const allBtn = document.getElementById('btn-filter-all');
+      if (allBtn) {
+        const isAllActive = !filters.onlyStarred && filters.foodType === '全部';
+        allBtn.classList.toggle('ring-2', isAllActive);
+        allBtn.classList.toggle('ring-[#3E3A39]', isAllActive);
+      }
     }
 
     const REVIEW_META = {
@@ -1119,7 +1094,13 @@
       document.getElementById('food-type-pills').addEventListener('click', e => {
         const btn = e.target.closest('[data-food-type]');
         if (!btn) return;
-        filters.foodType = btn.dataset.foodType;
+        filters.foodType = filters.foodType === btn.dataset.foodType ? '全部' : btn.dataset.foodType;
+        renderFilters();
+        renderTable();
+      });
+      document.getElementById('btn-filter-all')?.addEventListener('click', () => {
+        filters.onlyStarred = false;
+        filters.foodType = '全部';
         renderFilters();
         renderTable();
       });
