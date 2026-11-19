@@ -595,7 +595,7 @@
     let activeViewTab = 'expenses';
     let shareToken = null;
     let isShareMode = false;
-    let isViewMode = false;
+    let isViewMode = localStorage.getItem('ehon_view_mode') === '1';
     let filters = { day: 'all', payer: '全部', category: '全部', needsReview: false };
 
     function isReadOnlyUI() {
@@ -1739,6 +1739,7 @@
       document.getElementById('btn-toggle-view-mode')?.addEventListener('click', () => {
         if (isShareMode) return;
         isViewMode = !isViewMode;
+        try { localStorage.setItem('ehon_view_mode', isViewMode ? '1' : '0'); } catch (e) {}
         renderAll();
         showToast(isViewMode ? '已切換為檢視模式（隱藏編輯按鈕）' : '已切換為編輯模式');
       });

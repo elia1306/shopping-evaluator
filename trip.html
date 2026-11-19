@@ -639,7 +639,7 @@
     let activeTripId = null; // null => Trip Selection View; string => Detail View
     let shareToken = null;
     let isShareMode = false;
-    let isViewMode = false;
+    let isViewMode = localStorage.getItem('ehon_view_mode') === '1';
     let expandedParentIds = new Set();
     let expandedCardIds = new Set();
     let filters = { day: 'all', hideDone: false, hideOptional: false };
@@ -1759,6 +1759,7 @@
 
       document.getElementById('btn-toggle-view-mode')?.addEventListener('click', () => {
         isViewMode = !isViewMode;
+        try { localStorage.setItem('ehon_view_mode', isViewMode ? '1' : '0'); } catch (e) {}
         renderView();
       });
 
