@@ -143,7 +143,7 @@
     <!-- Integrated Quick Filter & Category Bar + Collapsible Advanced Search -->
     <section aria-label="篩選與搜尋" class="ehon-box mb-4 space-y-2.5 bg-[#FFFCF6] p-3 sm:mb-6 sm:p-4">
       <div class="flex items-center gap-1.5 sm:gap-2">
-        <button id="btn-kpi-want" type="button" class="ehon-btn inline-flex shrink-0 items-center gap-1.5 rounded-2xl bg-[#F6D27A] px-3 py-1.5 text-left transition hover:brightness-95 sm:px-3.5 sm:py-2">
+        <button id="btn-kpi-want" type="button" class="ehon-btn inline-flex shrink-0 items-center gap-1.5 rounded-2xl bg-[#FFFCF6] px-3 py-1.5 text-left transition hover:bg-[#F6D27A]/45 sm:px-3.5 sm:py-2">
           <span class="text-xs font-bold text-[#3E3A39]">★ 想買</span>
           <span id="stat-want" class="text-sm font-bold leading-none text-[#3E3A39] sm:text-base">0</span>
         </button>
@@ -1004,14 +1004,14 @@
 
       const kpiWant = document.getElementById('btn-kpi-want');
       if (kpiWant) {
-        kpiWant.className = `ehon-btn inline-flex items-center gap-2 rounded-2xl px-3.5 py-2 text-left ${
-          filters.onlyWantToBuy ? 'bg-[#F6D27A]' : 'bg-[#F6D27A]/45 hover:bg-[#F6D27A]/75'
+        kpiWant.className = `ehon-btn inline-flex shrink-0 items-center gap-1.5 rounded-2xl px-3 py-1.5 text-left sm:px-3.5 sm:py-2 ${
+          filters.onlyWantToBuy ? 'bg-[#F6D27A]' : 'bg-[#FFFCF6] hover:bg-[#F6D27A]/45'
         }`;
       }
       const kpiAll = document.getElementById('btn-kpi-all');
       if (kpiAll) {
         const isAllActive = !filters.onlyWantToBuy && filters.category === '全部' && filters.recommendation === '全部';
-        kpiAll.className = `ehon-btn inline-flex items-center gap-2 rounded-2xl px-3.5 py-2 text-left ${
+        kpiAll.className = `ehon-btn inline-flex shrink-0 items-center gap-1.5 rounded-2xl px-3 py-1.5 text-left sm:px-3.5 sm:py-2 ${
           isAllActive ? 'bg-[#B9DAA5]' : 'bg-[#FFFCF6] hover:bg-[#B9DAA5]/35'
         }`;
       }
