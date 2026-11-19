@@ -85,6 +85,7 @@
               <span class="whitespace-nowrap rounded-xl bg-[#F6D27A] px-2.5 py-1 text-[#3E3A39] sm:px-3">美食雷達</span>
               <a href="./trip.html" id="nav-trip-link" class="whitespace-nowrap rounded-xl px-2.5 py-1 text-[#3E3A39] transition hover:bg-[#B9DAA5]/40 sm:px-3">旅遊行程</a>
               <a href="./expenses.html" id="nav-expenses-link" class="whitespace-nowrap rounded-xl px-2.5 py-1 text-[#3E3A39] transition hover:bg-[#F2A497]/40 sm:px-3">旅遊記帳</a>
+              <a href="./japanese.html" id="nav-japanese-link" class="whitespace-nowrap rounded-xl px-2.5 py-1 text-[#3E3A39] transition hover:bg-[#A8D3E6]/40 sm:px-3">日文筆記</a>
             </nav>
             <span id="share-trip-badge" class="hidden inline-flex items-center rounded-full border-2 border-[#3E3A39] bg-[#B9DAA5] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">旅伴專用</span>
           </div>
@@ -1067,8 +1068,10 @@
         document.querySelectorAll('[data-hide-in-share="true"]').forEach(el => el.classList.add('hidden'));
         const tripLink = document.getElementById('nav-trip-link');
         const expLink = document.getElementById('nav-expenses-link');
+        const jpLink = document.getElementById('nav-japanese-link');
         if (tripLink) tripLink.href = `./trip.html?share=${encodeURIComponent(shareToken)}`;
         if (expLink) expLink.href = `./expenses.html?share=${encodeURIComponent(shareToken)}`;
+        if (jpLink) jpLink.href = `./japanese.html?share=${encodeURIComponent(shareToken)}`;
         document.getElementById('btn-toggle-view-mode')?.classList.add('hidden');
         document.getElementById('btn-cloud-sync')?.classList.add('hidden');
         document.getElementById('btn-add-spot')?.classList.add('hidden');

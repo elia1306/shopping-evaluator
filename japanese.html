@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>♥ 日本好好說 ♥｜日系繪本旅遊日文筆記</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    @font-face {
+      font-family: 'jf-openhuninn';
+      src: url('https://cdn.jsdelivr.net/gh/justfont/open-huninn-font@master/font/jf-openhuninn-2.1.woff2') format('woff2'),
+           url('https://cdn.jsdelivr.net/gh/justfont/open-huninn-font@master/font/jf-openhuninn-2.0.woff2') format('woff2');
+      font-display: swap;
+    }
+    body {
+      font-family: 'jf-openhuninn', 'Noto Sans TC', 'Noto Sans JP', system-ui, -apple-system, sans-serif;
+      background-color: #FFFCF6;
+      color: #3E3A39;
+    }
+    .jp-text {
+      font-family: 'Noto Sans JP', 'jf-openhuninn', 'Noto Sans TC', sans-serif;
+    }
+    .ehon-box {
+      border: 3px solid #3E3A39 !important;
+      border-radius: 24px !important;
+      box-shadow: 0 4px 0 #3E3A39;
+    }
+    .ehon-btn {
+      border: 2.5px solid #3E3A39 !important;
+      box-shadow: 0 2px 0 #3E3A39;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+    .ehon-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 0 0 #3E3A39;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="min-h-screen antialiased selection:bg-[#F6D27A] selection:text-[#3E3A39]">
+
+  <!-- Top Header -->
+  <header class="sticky top-0 z-30 border-b-[3px] border-[#3E3A39] bg-[#FFFCF6]">
+    <div class="mx-auto max-w-7xl px-3 py-2.5 sm:px-6 sm:py-4 lg:px-8">
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex min-w-0 items-center gap-2">
+            <div class="ehon-btn flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[#A8D3E6] text-[#3E3A39] sm:h-10 sm:w-10">
+              <svg class="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-4 4v-4z" />
+              </svg>
+            </div>
+            <h1 class="truncate text-lg font-bold tracking-tight text-[#3E3A39] sm:text-2xl">♥ 日本好好說 ♥</h1>
+          </div>
+
+          <div class="header-actions flex shrink-0 items-center gap-1.5 sm:gap-2">
+            <button id="btn-toggle-view-mode" type="button" title="切換檢視/編輯模式" aria-label="切換檢視/編輯模式" class="ehon-btn inline-flex h-9 items-center justify-center gap-1.5 rounded-2xl bg-[#FFFCF6] px-2.5 text-xs font-bold text-[#3E3A39] hover:bg-[#F6D27A]/40 sm:h-auto sm:px-3 sm:py-2 sm:text-sm">
+              <span id="btn-view-mode-icon">👁️</span>
+              <span id="btn-view-mode-label" class="hidden sm:inline">切換檢視模式</span>
+            </button>
+            <button id="btn-cloud-sync" type="button" title="雲端同步" aria-label="雲端同步" class="ehon-btn inline-flex h-9 items-center justify-center gap-1.5 rounded-2xl bg-[#A8D3E6] px-2.5 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:h-auto sm:px-3 sm:py-2 sm:text-sm">
+              <span aria-hidden="true">☁️</span>
+              <span id="btn-cloud-label" class="hidden sm:inline">雲端同步（本機）</span>
+            </button>
+            <button id="btn-add-phrase" type="button" title="新增句子 / 匯入表格" aria-label="新增句子 / 匯入表格" class="ehon-btn inline-flex h-9 items-center justify-center gap-1 rounded-2xl bg-[#F2A497] px-2.5 text-sm font-bold text-[#3E3A39] hover:brightness-95 sm:h-auto sm:px-3.5 sm:py-2 sm:text-sm">
+              <span aria-hidden="true">＋</span>
+              <span class="hidden sm:inline">新增 / 匯入</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <nav aria-label="切換頁面" class="inline-flex flex-wrap rounded-2xl border-[2.5px] border-[#3E3A39] bg-[#FFFCF6] p-0.5 text-xs font-bold">
+              <a href="./index.html" data-hide-in-share="true" class="whitespace-nowrap rounded-xl px-2.5 py-1 text-[#3E3A39] transition hover:bg-[#F2A497]/40 sm:px-3">推薦好物</a>
+              <a href="./food.html" id="nav-food-link" class="whitespace-nowrap rounded-xl px-2.5 py-1 text-[#3E3A39] transition hover:bg-[#F6D27A]/40 sm:px-3">美食雷達</a>
+              <a href="./trip.html" id="nav-trip-link" class="whitespace-nowrap rounded-xl px-2.5 py-1 text-[#3E3A39] transition hover:bg-[#B9DAA5]/40 sm:px-3">旅遊行程</a>
+              <a href="./expenses.html" id="nav-expenses-link" class="whitespace-nowrap rounded-xl px-2.5 py-1 text-[#3E3A39] transition hover:bg-[#F2A497]/40 sm:px-3">旅遊記帳</a>
+              <span class="whitespace-nowrap rounded-xl bg-[#F6D27A] px-2.5 py-1 text-[#3E3A39] sm:px-3">日文筆記</span>
+            </nav>
+            <span id="share-trip-badge" class="hidden inline-flex items-center rounded-full border-2 border-[#3E3A39] bg-[#B9DAA5] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">旅伴專用</span>
+          </div>
+          <p id="header-subtitle" class="hidden text-xs text-[#3E3A39]/75 sm:block sm:text-sm">情境對話 × 平假名發音 × 語音朗讀 × 指給店員看大字卡</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-4 py-6 pb-24 sm:px-6 lg:px-8">
+
+    <!-- Quick Filter & Scene Bar -->
+    <section aria-label="場景與篩選" class="ehon-box mb-4 space-y-2.5 bg-[#FFFCF6] p-3 sm:mb-6 sm:p-4">
+      <!-- Row 1: Starred + All + Speech Speed + Collapsible Search -->
+      <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+        <button id="btn-filter-star" type="button" class="ehon-btn inline-flex shrink-0 items-center gap-1.5 rounded-2xl bg-[#FFFCF6] px-3 py-1.5 text-left transition hover:bg-[#F6D27A]/45 sm:px-3.5 sm:py-2">
+          <span class="text-xs font-bold text-[#3E3A39]">★ 常用</span>
+          <span id="stat-starred" class="text-sm font-bold leading-none text-[#3E3A39] sm:text-base">0</span>
+        </button>
+        <button id="btn-filter-all" type="button" class="ehon-btn inline-flex shrink-0 items-center gap-1.5 rounded-2xl bg-[#B9DAA5] px-3 py-1.5 text-left transition hover:brightness-95 sm:px-3.5 sm:py-2">
+          <span class="text-xs font-bold text-[#3E3A39]">全部</span>
+          <span id="stat-total" class="text-sm font-bold leading-none text-[#3E3A39] sm:text-base">0</span>
+        </button>
+        <button id="btn-speech-rate" type="button" title="切換日語朗讀速度" class="ehon-btn inline-flex shrink-0 items-center gap-1 rounded-2xl bg-[#FFFCF6] px-2.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#A8D3E6]/30 sm:px-3 sm:py-2">
+          <span>🔊</span>
+          <span id="speech-rate-label">0.9x</span>
+        </button>
+        <button id="btn-toggle-advanced" type="button" aria-expanded="false" class="ehon-btn ml-auto inline-flex shrink-0 items-center gap-1 rounded-2xl bg-[#FFFCF6] px-3 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#A8D3E6]/40 sm:py-2">
+          <span>🔍 搜尋 / 對象</span>
+          <span id="advanced-dot" class="hidden h-2 w-2 rounded-full bg-[#F2A497] ring-1 ring-[#3E3A39]"></span>
+          <span id="advanced-arrow">▾</span>
+        </button>
+      </div>
+
+      <!-- Row 2: Horizontal Scrollable Scene Pills -->
+      <div id="scene-pills" class="no-scrollbar flex flex-nowrap items-center gap-1.5 overflow-x-auto pb-0.5 sm:flex-wrap sm:overflow-visible sm:pb-0"></div>
+
+      <!-- Row 3: Category Pills within Selected Scene -->
+      <div id="category-pills" class="no-scrollbar hidden flex-nowrap items-center gap-1.5 overflow-x-auto border-t-2 border-dashed border-[#3E3A39]/15 pt-2 sm:flex-wrap sm:overflow-visible"></div>
+
+      <!-- Collapsible Advanced Search Panel -->
+      <div id="advanced-panel" class="hidden grid grid-cols-1 gap-2 border-t-2 border-dashed border-[#3E3A39]/15 pt-3 sm:grid-cols-4">
+        <select id="filter-speaker" aria-label="對象" class="w-full rounded-xl border-2 border-[#3E3A39]/25 bg-white px-3 py-2 text-xs font-bold text-[#3E3A39] outline-none focus:border-[#3E3A39] sm:text-sm">
+          <option value="全部">全部對象</option>
+          <option value="店員">店員</option>
+          <option value="顧客">顧客</option>
+          <option value="單字">單字</option>
+          <option value="調整">調整</option>
+        </select>
+        <div class="flex gap-2 sm:col-span-3">
+          <div class="relative flex-1">
+            <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#3E3A39]/50" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input id="input-search" type="search" placeholder="搜尋情境、日文、平假名、中文、備註..." class="w-full rounded-xl border-2 border-[#3E3A39]/25 bg-white py-2 pl-9 pr-3 text-xs text-[#3E3A39] placeholder-[#3E3A39]/45 outline-none focus:border-[#3E3A39] sm:text-sm" />
+          </div>
+          <button id="btn-reset-filters" type="button" class="ehon-btn shrink-0 rounded-xl bg-[#FFFCF6] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:bg-[#F6D27A]/40">重設</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cloud Seed Banner (shown when logged in & cloud is empty) -->
+    <div id="cloud-seed-banner" class="ehon-box mb-4 hidden flex-col items-start justify-between gap-3 bg-[#F6D27A]/35 p-4 sm:flex-row sm:items-center">
+      <div>
+        <p class="text-sm font-bold text-[#3E3A39]">☁️ 雲端目前還沒有日文筆記資料</p>
+        <p class="text-xs text-[#3E3A39]/80">要把目前的「星巴克・機場・退稅」內建筆記（<span id="seed-count-label">0</span> 筆）一鍵上傳到您的雲端帳號嗎？</p>
+      </div>
+      <div class="flex shrink-0 gap-2">
+        <button id="btn-upload-seed" type="button" class="ehon-btn rounded-xl bg-[#B9DAA5] px-3.5 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95">一鍵上傳到雲端</button>
+        <button id="btn-dismiss-seed" type="button" class="rounded-xl border-2 border-[#3E3A39]/30 bg-[#FFFCF6] px-3 py-2 text-xs font-bold text-[#3E3A39]/70 hover:bg-white">先不用</button>
+      </div>
+    </div>
+
+    <!-- Desktop Table + Mobile Card List -->
+    <section aria-label="日文筆記列表" class="ehon-box overflow-hidden bg-[#FFFCF6]">
+      <!-- Desktop Table -->
+      <div class="hidden overflow-x-auto md:block">
+        <table class="min-w-full divide-y-2 divide-[#3E3A39]/15 text-left text-sm">
+          <thead class="bg-[#F6D27A]/30 text-xs font-bold text-[#3E3A39]">
+            <tr>
+              <th scope="col" class="w-12 px-3 py-3 text-center">常用</th>
+              <th scope="col" class="w-12 px-2 py-3 text-center">指卡</th>
+              <th scope="col" class="min-w-[130px] px-3 py-3">分類 / 情境</th>
+              <th scope="col" class="w-20 px-3 py-3 text-center">對象</th>
+              <th scope="col" class="min-w-[240px] px-4 py-3">日文原文 &amp; 發音</th>
+              <th scope="col" class="min-w-[160px] px-3 py-3">中文意思</th>
+              <th scope="col" class="min-w-[140px] px-3 py-3">備註 / 價格</th>
+              <th scope="col" class="w-28 px-3 py-3 text-right">操作</th>
+            </tr>
+          </thead>
+          <tbody id="desktop-table-body" class="divide-y divide-[#3E3A39]/10 bg-[#FFFCF6]"></tbody>
+        </table>
+      </div>
+
+      <!-- Mobile Card List -->
+      <div id="mobile-card-list" class="divide-y-2 divide-[#3E3A39]/15 md:hidden"></div>
+
+      <!-- Empty State -->
+      <div id="empty-state" class="hidden px-6 py-14 text-center">
+        <p class="text-base font-bold text-[#3E3A39]">找不到符合條件的日文筆記 🗒️</p>
+        <p class="mt-1 text-xs text-[#3E3A39]/70">試著切換場景、清除搜尋條件，或點右上角「＋」新增句子。</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Floating Show-to-Staff Combo Bar -->
+  <div id="combo-bar" class="fixed bottom-4 left-1/2 z-30 hidden -translate-x-1/2 items-center gap-2 rounded-full border-[3px] border-[#3E3A39] bg-[#F6D27A] px-4 py-2 shadow-[0_4px_0_#3E3A39]">
+    <span class="text-xs font-bold text-[#3E3A39] sm:text-sm">已選 <span id="combo-count">0</span> 句</span>
+    <button id="btn-open-combo" type="button" class="ehon-btn rounded-full bg-[#FFFCF6] px-3 py-1 text-xs font-bold text-[#3E3A39] hover:bg-[#A8D3E6]">👆 組合給店員看</button>
+    <button id="btn-clear-combo" type="button" class="rounded-full px-2 py-1 text-xs font-bold text-[#3E3A39]/75 hover:text-[#3E3A39]">清空</button>
+  </div>
+
+  <!-- Show-to-Staff Big Card Modal -->
+  <div id="show-card-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/55 p-4" role="dialog" aria-modal="true" aria-labelledby="show-card-title">
+    <div class="ehon-box relative max-h-[90vh] w-full max-w-xl overflow-y-auto bg-[#FFFCF6] p-5 sm:p-7">
+      <div class="mb-4 flex items-center justify-between gap-2 border-b-2 border-dashed border-[#3E3A39]/20 pb-3">
+        <div>
+          <span id="show-card-badge" class="inline-block rounded-full border-2 border-[#3E3A39] bg-[#A8D3E6] px-2.5 py-0.5 text-xs font-bold text-[#3E3A39]">給店員看</span>
+          <h2 id="show-card-title" class="mt-1 text-sm font-bold text-[#3E3A39]/75">請看以下內容（すいません、こちらをお願いします）</h2>
+        </div>
+        <button id="btn-close-show-card" type="button" class="ehon-btn flex h-9 w-9 items-center justify-center rounded-full bg-[#FFFCF6] text-base font-bold text-[#3E3A39] hover:bg-[#F2A497]/50" aria-label="關閉">✕</button>
+      </div>
+
+      <div id="show-card-content" class="space-y-4"></div>
+
+      <div class="mt-6 flex flex-wrap items-center justify-end gap-2 border-t-2 border-dashed border-[#3E3A39]/20 pt-4">
+        <button id="btn-speak-show-card" type="button" class="ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#A8D3E6] px-4 py-2 text-sm font-bold text-[#3E3A39] hover:brightness-95">
+          <span>🔊</span>
+          <span>日語朗讀</span>
+        </button>
+        <button id="btn-copy-show-card" type="button" class="ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#F6D27A] px-4 py-2 text-sm font-bold text-[#3E3A39] hover:brightness-95">
+          <span>📋</span>
+          <span>複製日文</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add / Edit / Batch Import Modal -->
+  <div id="phrase-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true" aria-labelledby="phrase-modal-title">
+    <div class="ehon-box max-h-[90vh] w-full max-w-2xl overflow-y-auto bg-[#FFFCF6] p-5 sm:p-6">
+      <div class="mb-4 flex items-center justify-between gap-2">
+        <h2 id="phrase-modal-title" class="text-lg font-bold text-[#3E3A39]">新增日文筆記</h2>
+        <button id="btn-close-phrase-modal" type="button" class="ehon-btn flex h-8 w-8 items-center justify-center rounded-full bg-[#FFFCF6] text-sm font-bold text-[#3E3A39]" aria-label="關閉">✕</button>
+      </div>
+
+      <!-- Mode Switch Tabs (shown when adding) -->
+      <div id="modal-tab-bar" class="mb-4 inline-flex rounded-2xl border-2 border-[#3E3A39] bg-white p-0.5 text-xs font-bold">
+        <button id="tab-single" type="button" class="rounded-xl bg-[#F6D27A] px-3 py-1.5 text-[#3E3A39]">單筆新增</button>
+        <button id="tab-batch" type="button" class="rounded-xl px-3 py-1.5 text-[#3E3A39]/75 hover:bg-[#A8D3E6]/30">貼上表格 / JSON 匯入</button>
+      </div>
+
+      <!-- Single Form -->
+      <form id="phrase-form" class="space-y-3">
+        <input type="hidden" id="field-id" />
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div>
+            <label for="field-scene" class="mb-1 block text-xs font-bold text-[#3E3A39]">場景 *</label>
+            <input id="field-scene" type="text" list="scene-datalist" required placeholder="例如：星巴克、機場出入境" class="w-full rounded-xl border-2 border-[#3E3A39]/25 bg-white px-3 py-2 text-sm outline-none focus:border-[#3E3A39]" />
+            <datalist id="scene-datalist"></datalist>
+          </div>
+          <div>
+            <label for="field-category" class="mb-1 block text-xs font-bold text-[#3E3A39]">分類 *</label>
+            <input id="field-category" type="text" required placeholder="例如：實戰對話、飲料尺寸" class="w-full rounded-xl border-2 border-[#3E3A39]/25 bg-white px-3 py-2 text-sm outline-none focus:border-[#3E3A39]" />
+          </div>
+          <div>
+            <label for="field-speaker" class="mb-1 block text-xs font-bold text-[#3E3A39]">對象 *</label>
+            <select id="field-speaker" class="w-full rounded-xl border-2 border-[#3E3A39]/25 bg-white px-3 py-2 text-sm outline-none focus:border-[#3E3A39]">
+              <option value="顧客">顧客</option>
+              <option value="店員">店員</option>
+              <option value="單字">單字</option>
+              <option value="調整">調整</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label for="field-situation" class="mb-1 block text-xs font-bold text-[#3E3A39]">情境 / 項目 *</label>
+          <input id="field-situation" type="text" required placeholder="例如：確認內用/外帶" class="w-full rounded-xl border-2 border-[#3E3A39]/25 bg-white px-3 py-2 text-sm outline-none focus:border-[#3E3A39]" />
+        </div>
+
+        <div>
+          <label for="field-japanese" class="mb-1 block text-xs font-bold text-[#3E3A39]">日文原文 *</label>
+          <textarea id="field-japanese" rows="2" required placeholder="例如：店内をご利用ですか？" class="jp-text w-full rounded-xl border-2 border-[#3E3A39]/25 bg-white px-3 py-2 text-sm outline-none focus:border-[#3E3A39]"></textarea>
+        </div>
+
+        <div>
+          <label for="field-hiragana" class="mb-1 block text-xs font-bold text-[#3E3A39]">平假名發音</label>
+          <textarea id="field-hiragana" rows="2" placeholder="例如：てんないを ごりようですか？" class="jp-text w-full rounded-xl border-2 border-[#3E3A39]/25 bg-white px-3 py-2 text-sm outline-none focus:border-[#3E3A39]"></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <label for="field-chinese" class="mb-1 block text-xs font-bold text-[#3E3A39]">中文意思 *</label>
+            <input id="field-chinese" type="text" required placeholder="例如：請問要內用嗎？" class="w-full rounded-xl border-2 border-[#3E3A39]/25 bg-white px-3 py-2 text-sm outline-none focus:border-[#3E3A39]" />
+          </div>
+          <div>
+            <label for="field-note" class="mb-1 block text-xs font-bold text-[#3E3A39]">備註 / 價格</label>
+            <input id="field-note" type="text" placeholder="例如：外帶稅率 8%、內用稅率 10%" class="w-full rounded-xl border-2 border-[#3E3A39]/25 bg-white px-3 py-2 text-sm outline-none focus:border-[#3E3A39]" />
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between pt-2">
+          <label class="inline-flex cursor-pointer items-center gap-2 text-sm font-bold text-[#3E3A39]">
+            <input id="field-starred" type="checkbox" class="h-4 w-4 accent-[#F6D27A]" />
+            <span>★ 加入常用</span>
+          </label>
+          <div class="flex gap-2">
+            <button id="btn-delete-in-modal" type="button" class="ehon-btn hidden rounded-2xl bg-[#F2A497] px-4 py-2 text-sm font-bold text-[#3E3A39] hover:brightness-95">刪除</button>
+            <button type="submit" class="ehon-btn rounded-2xl bg-[#B9DAA5] px-5 py-2 text-sm font-bold text-[#3E3A39] hover:brightness-95">儲存筆記</button>
+          </div>
+        </div>
+      </form>
+
+      <!-- Batch Import Form -->
+      <div id="batch-import-panel" class="hidden space-y-3">
+        <div>
+          <label for="batch-scene" class="mb-1 block text-xs font-bold text-[#3E3A39]">匯入至哪個場景 *（JSON 若已含 scene 欄位則以 JSON 為主）</label>
+          <input id="batch-scene" type="text" list="scene-datalist" placeholder="例如：機場出入境、買東西退稅" class="w-full rounded-xl border-2 border-[#3E3A39]/25 bg-white px-3 py-2 text-sm outline-none focus:border-[#3E3A39]" />
+        </div>
+        <div>
+          <label for="batch-textarea" class="mb-1 block text-xs font-bold text-[#3E3A39]">貼上 Markdown 表格（7 欄）或 JSON 陣列</label>
+          <textarea id="batch-textarea" rows="8" placeholder="| 分類 | 情境 / 項目 | 對象 | 日文原文 | 平假名發音 | 中文意思 | 備註 / 價格 |&#10;| :--- | :--- | :--- | :--- | :--- | :--- | :--- |&#10;| 實戰對話 | 免稅結帳 | 顧客 | 免税できますか？ | めんぜい できますか？ | 請問可以退稅嗎？ | 需滿 5,000 日圓（未稅） |" class="w-full rounded-xl border-2 border-[#3E3A39]/25 bg-white p-3 font-mono text-xs outline-none focus:border-[#3E3A39]"></textarea>
+        </div>
+        <div class="flex items-center justify-between gap-2">
+          <p id="batch-preview-count" class="text-xs font-bold text-[#3E3A39]/70">將自動跳過 Markdown 表頭與分隔線</p>
+          <button id="btn-run-batch-import" type="button" class="ehon-btn rounded-2xl bg-[#B9DAA5] px-5 py-2 text-sm font-bold text-[#3E3A39] hover:brightness-95">解析並匯入</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cloud Auth Modal -->
+  <div id="cloud-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true" aria-labelledby="cloud-modal-title">
+    <div class="ehon-box w-full max-w-md bg-[#FFFCF6] p-5 sm:p-6">
+      <div class="mb-3 flex items-center justify-between">
+        <h2 id="cloud-modal-title" class="text-lg font-bold text-[#3E3A39]">☁️ 雲端同步（Supabase）</h2>
+        <button id="btn-close-cloud-modal" type="button" class="ehon-btn flex h-8 w-8 items-center justify-center rounded-full bg-[#FFFCF6] text-sm font-bold text-[#3E3A39]">✕</button>
+      </div>
+
+      <div id="cloud-logged-out" class="space-y-3">
+        <p class="text-xs text-[#3E3A39]/80">輸入您的 Email 接收免密碼登入連結（Magic Link），同網域四個頁面共用登入狀態。</p>
+        <input id="auth-email" type="email" placeholder="your@email.com" class="w-full rounded-xl border-2 border-[#3E3A39]/25 bg-white px-3 py-2 text-sm outline-none focus:border-[#3E3A39]" />
+        <button id="btn-send-magic-link" type="button" class="ehon-btn w-full rounded-2xl bg-[#A8D3E6] px-4 py-2 text-sm font-bold text-[#3E3A39] hover:brightness-95">寄送登入連結</button>
+      </div>
+
+      <div id="cloud-logged-in" class="hidden space-y-3">
+        <div class="rounded-2xl border-2 border-[#3E3A39]/20 bg-white p-3 text-xs">
+          <p class="font-bold text-[#3E3A39]">已連線帳號</p>
+          <p id="cloud-user-email" class="mt-0.5 text-[#3E3A39]/80"></p>
+        </div>
+        <div class="flex gap-2">
+          <button id="btn-cloud-refresh" type="button" class="ehon-btn flex-1 rounded-2xl bg-[#B9DAA5] px-4 py-2 text-sm font-bold text-[#3E3A39] hover:brightness-95">立即同步</button>
+          <button id="btn-cloud-logout" type="button" class="ehon-btn rounded-2xl bg-[#F2A497] px-4 py-2 text-sm font-bold text-[#3E3A39] hover:brightness-95">登出</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="pointer-events-none fixed bottom-5 right-5 z-50 hidden rounded-2xl border-2 border-[#3E3A39] bg-[#3E3A39] px-4 py-2.5 text-xs font-bold text-[#FFFCF6] shadow-lg sm:text-sm"></div>
+
+  <script>
+    const SUPABASE_URL = 'https://euphgazenhnurptrjazi.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_2hiYcmj_Aug9AH0VaY9M9w_vIUlzmBg';
+    const LOCAL_STORAGE_KEY = 'ehon_japanese_phrases_v1';
+    const SEED_DISMISSED_KEY = 'ehon_japanese_seed_dismissed';
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const shareToken = urlParams.get('share') || '';
+    const isShareMode = Boolean(shareToken);
+    const SHARE_STAR_KEY = shareToken ? `ehon_share_jp_stars_${shareToken}` : '';
+
+    let supabaseClient = null;
+    let currentUser = null;
+    let sharedTrip = null;
+    let isViewMode = localStorage.getItem('ehon_view_mode') === '1';
+    let speechRate = Number(localStorage.getItem('ehon_jp_speech_rate') || '0.9');
+
+    const DEFAULT_SEED_PHRASES = [
+      // 星巴克（完整 36 筆）
+      { scene: '星巴克', category: '實戰對話', situation: '確認內用/外帶', speaker: '店員', japanese: '店内をご利用ですか？', hiragana: 'てんないを ごりようですか？', chinese: '請問要內用嗎？', note: '外帶稅率 8%、內用稅率 10%', starred: true },
+      { scene: '星巴克', category: '實戰對話', situation: '回答內用', speaker: '顧客', japanese: '店内で。', hiragana: 'てんないで。', chinese: '我要內用。', note: '建議先找好座位再排隊點餐', starred: true },
+      { scene: '星巴克', category: '實戰對話', situation: '回答外帶', speaker: '顧客', japanese: '持ち帰りで。 / テイクアウトで。', hiragana: 'もちかえりで。 / ていくあうとで。', chinese: '我要外帶。', note: '說英語外來語也能通', starred: true },
+      { scene: '星巴克', category: '實戰對話', situation: '確認冷熱', speaker: '店員', japanese: 'ホットとアイス、どちらになさいますか？', hiragana: 'ほっとと あいす、どちらに なさいますか？', chinese: '請問要熱的還是冰的？', note: '', starred: false },
+      { scene: '星巴克', category: '實戰對話', situation: '確認尺寸', speaker: '店員', japanese: 'サイズはどうされますか？', hiragana: 'さいずは どうされますか？', chinese: '請問尺寸要多大的？', note: '', starred: false },
+      { scene: '星巴克', category: '實戰對話', situation: '完整點餐句', speaker: '顧客', japanese: '【アイス】の【トール】サイズで、【カフェラテ】を一つください。', hiragana: '【あいす】の【とーる】さいずで、【かふぇらて】を ひとつ ください。', chinese: '我要【冰】的【中杯】【拿鐵】一杯。', note: '括號內可自行替換單字', starred: true },
+      { scene: '星巴克', category: '實戰對話', situation: '指菜單點餐', speaker: '顧客', japanese: 'これを一つください。', hiragana: 'これを ひとつ ください。', chinese: '我要這一杯。', note: '期間限定星冰樂最實用', starred: true },
+      { scene: '星巴克', category: '實戰對話', situation: '輕食加熱', speaker: '顧客', japanese: '温めてください。', hiragana: 'あたためて ください。', chinese: '請幫我加熱。', note: '', starred: false },
+      { scene: '星巴克', category: '實戰對話', situation: '索取紙袋', speaker: '顧客', japanese: '紙袋をください。', hiragana: 'かみぶくろを ください。', chinese: '請給我紙袋。', note: '需額外付費（約 11～22 日圓）', starred: false },
+      { scene: '星巴克', category: '飲料尺寸', situation: '小杯 (240ml)', speaker: '單字', japanese: 'Short（ショート）', hiragana: 'しょーと', chinese: '小杯', note: '台灣無此尺寸', starred: false },
+      { scene: '星巴克', category: '飲料尺寸', situation: '中杯 (350ml)', speaker: '單字', japanese: 'Tall（トール）', hiragana: 'とーる', chinese: '中杯', note: '季節限定星冰樂多為單一中杯', starred: false },
+      { scene: '星巴克', category: '飲料尺寸', situation: '大杯 (470ml)', speaker: '單字', japanese: 'Grande（グランデ）', hiragana: 'ぐらんで', chinese: '大杯', note: '', starred: false },
+      { scene: '星巴克', category: '飲料尺寸', situation: '特大杯 (590ml)', speaker: '單字', japanese: 'Venti（ベンティ）', hiragana: 'べんてぃ', chinese: '特大杯', note: '', starred: false },
+      { scene: '星巴克', category: '常見飲品', situation: '每日精選咖啡', speaker: '單字', japanese: 'ドリップコーヒー', hiragana: 'どりっぷこーひー', chinese: '每日精選咖啡', note: '', starred: false },
+      { scene: '星巴克', category: '常見飲品', situation: '美式咖啡', speaker: '單字', japanese: 'カフェアメリカーノ', hiragana: 'かふぇあめりかーの', chinese: '美式咖啡', note: '', starred: false },
+      { scene: '星巴克', category: '常見飲品', situation: '拿鐵', speaker: '單字', japanese: 'カフェラテ', hiragana: 'かふぇらて', chinese: '拿鐵', note: '', starred: false },
+      { scene: '星巴克', category: '常見飲品', situation: '焦糖瑪奇朵', speaker: '單字', japanese: 'キャラメルマキアート', hiragana: 'きゃらめるまきあーと', chinese: '焦糖瑪奇朵', note: '', starred: false },
+      { scene: '星巴克', category: '常見飲品', situation: '摩卡', speaker: '單字', japanese: 'カフェモカ', hiragana: 'かふぇもか', chinese: '摩卡', note: '', starred: false },
+      { scene: '星巴克', category: '常見飲品', situation: '抹茶那堤', speaker: '單字', japanese: '抹茶ティーラテ', hiragana: 'まっちゃてぃーらて', chinese: '抹茶那堤', note: '', starred: false },
+      { scene: '星巴克', category: '常見飲品', situation: '焙茶那堤', speaker: '單字', japanese: 'ほうじ茶ティーラテ', hiragana: 'ほうじちゃてぃーらて', chinese: '焙茶那堤', note: '日本門市人氣推薦', starred: true },
+      { scene: '星巴克', category: '常見飲品', situation: '柚子柑橘茶', speaker: '單字', japanese: 'ゆず シトラス＆ティー', hiragana: 'ゆず しとらす＆てぃー', chinese: '柚子柑橘茶', note: '', starred: false },
+      { scene: '星巴克', category: '常見飲品', situation: '星冰樂', speaker: '單字', japanese: 'フラペチーノ', hiragana: 'ふらぺちーの', chinese: '星冰樂', note: '', starred: false },
+      { scene: '星巴克', category: '客製化(冰塊)', situation: '少冰', speaker: '調整', japanese: '氷少なめ', hiragana: 'こおり すくなめ', chinese: '少冰', note: '免費（句尾加「でお願いします」）', starred: false },
+      { scene: '星巴克', category: '客製化(冰塊)', situation: '去冰', speaker: '調整', japanese: '氷なし', hiragana: 'こおり なし', chinese: '去冰', note: '免費', starred: false },
+      { scene: '星巴克', category: '客製化(冰塊)', situation: '多冰', speaker: '調整', japanese: '氷多め', hiragana: 'こおり おおめ', chinese: '多冰', note: '免費', starred: false },
+      { scene: '星巴克', category: '客製化(奶類)', situation: '換豆漿', speaker: '調整', japanese: 'ソイミルクに変更', hiragana: 'そいみるくに へんこう', chinese: '換豆漿', note: '免費', starred: false },
+      { scene: '星巴克', category: '客製化(奶類)', situation: '換低脂奶', speaker: '調整', japanese: '低脂肪乳に変更', hiragana: 'ていしぼうにゅうに へんこう', chinese: '換低脂奶', note: '免費', starred: false },
+      { scene: '星巴克', category: '客製化(奶類)', situation: '換無脂奶', speaker: '調整', japanese: '無脂肪乳に変更', hiragana: 'むしぼうにゅうに へんこう', chinese: '換無脂奶', note: '免費', starred: false },
+      { scene: '星巴克', category: '客製化(奶類)', situation: '換燕麥奶', speaker: '調整', japanese: 'オーツミルクに変更', hiragana: 'おーつみるくに へんこう', chinese: '換燕麥奶', note: '需加價（約 55 日圓）', starred: false },
+      { scene: '星巴克', category: '客製化(奶類)', situation: '換杏仁奶', speaker: '調整', japanese: 'アーモンドミルクに変更', hiragana: 'あーもんどみるくに へんこう', chinese: '換杏仁奶', note: '需加價（約 55 日圓）', starred: false },
+      { scene: '星巴克', category: '客製化(甜度/配料)', situation: '少糖漿', speaker: '調整', japanese: 'シロップ少なめ', hiragana: 'しろっぷ すくなめ', chinese: '少糖漿', note: '免費（日本無半糖/微糖選項）', starred: true },
+      { scene: '星巴克', category: '客製化(甜度/配料)', situation: '無糖漿', speaker: '調整', japanese: 'シロップ抜き', hiragana: 'しろっぷ ぬき', chinese: '無糖漿', note: '免費', starred: false },
+      { scene: '星巴克', category: '客製化(甜度/配料)', situation: '不要鮮奶油', speaker: '調整', japanese: 'ホイップなし', hiragana: 'ほいっぷ なし', chinese: '不要鮮奶油', note: '免費', starred: false },
+      { scene: '星巴克', category: '客製化(甜度/配料)', situation: '多鮮奶油', speaker: '調整', japanese: 'ホイップ多め', hiragana: 'ほいっぷ おおめ', chinese: '多鮮奶油', note: '免費', starred: false },
+      { scene: '星巴克', category: '客製化(甜度/配料)', situation: '加焦糖醬', speaker: '調整', japanese: 'キャラメルソース追加', hiragana: 'きゃらめるそーす ついか', chinese: '加焦糖醬', note: '免費', starred: false },
+      { scene: '星巴克', category: '客製化(甜度/配料)', situation: '加巧克力醬', speaker: '調整', japanese: 'チョコレートソース追加', hiragana: 'ちょこれーとそーす ついか', chinese: '加巧克力醬', note: '免費', starred: false },
+
+      // 機場出入境（範本）
+      { scene: '機場出入境', category: '報到與託運', situation: '詢問行李重量/件數', speaker: '店員', japanese: 'お預けの手荷物は何個ですか？', hiragana: 'おあずけの てにもつは なんこ ですか？', chinese: '請問有幾件託運行李？', note: '地勤常用問句', starred: false },
+      { scene: '機場出入境', category: '報到與託運', situation: '要求靠窗/走道位', speaker: '顧客', japanese: '【窓側】の席をお願いします。', hiragana: '【まどがわ】の せきを おねがいします。', chinese: '請給我【靠窗】的座位。', note: '走道側：通路側（つうろがわ）', starred: false },
+      { scene: '機場出入境', category: '海關/安檢', situation: '告知旅遊目的', speaker: '顧客', japanese: '観光です。【5日間】滞在します。', hiragana: 'かんこう です。【いつかかん】たいざい します。', chinese: '我是來觀光的，預計停留【5天】。', note: '準備好 Visit Japan Web QR Code', starred: true },
+      { scene: '機場出入境', category: '交通/找路', situation: '詢問乘車處', speaker: '顧客', japanese: '【電車】の乗り場はどこですか？', hiragana: '【でんしゃ】の のりばは どこ ですか？', chinese: '請問【電車】的乘車處在哪裡？', note: '巴士：バス / 計程車：タクシー', starred: false },
+
+      // 買東西退稅（範本）
+      { scene: '買東西退稅', category: '結帳與退稅', situation: '詢問是否可退稅', speaker: '顧客', japanese: '免税（タックスフリー）はできますか？', hiragana: 'めんぜい（たっくすふりー）は できますか？', chinese: '請問可以辦理退稅嗎？', note: '同一天同一家店未稅滿 5,000 日圓', starred: true },
+      { scene: '買東西退稅', category: '結帳與退稅', situation: '出示護照', speaker: '店員', japanese: 'パスポートをお願いします。', hiragana: 'ぱすぽーとを おねがいします。', chinese: '請出示護照。', note: '必須帶護照正本（影本/照片不可）', starred: false },
+      { scene: '買東西退稅', category: '結帳與退稅', situation: '免稅包裝提醒', speaker: '店員', japanese: '日本国内では開けないでください。', hiragana: 'にほん こくないでは あけないで ください。', chinese: '請勿在日本國內拆封。', note: '消耗品（藥妝/零食）會封袋', starred: false },
+      { scene: '買東西退稅', category: '結帳與購物', situation: '詢問有沒有新品', speaker: '顧客', japanese: '新しい在庫はありますか？', hiragana: 'あたらしい ざいこは ありますか？', chinese: '請問有全新的庫存嗎？', note: '藥妝/服飾適用', starred: false },
+      { scene: '買東西退稅', category: '結帳與購物', situation: '詢問試穿/試用', speaker: '顧客', japanese: '試着してもいいですか？', hiragana: 'しちゃく しても いいですか？', chinese: '請問可以試穿嗎？', note: '鞋類/服飾適用', starred: false },
+      { scene: '買東西退稅', category: '結帳與購物', situation: '需要購物袋', speaker: '顧客', japanese: 'レジ袋をお願いします。', hiragana: 'れじぶくろを おねがいします。', chinese: '請給我購物袋。', note: '日本塑膠袋大多需另加 3～10 日圓', starred: false },
+    ].map((item, idx) => ({
+      id: `seed-${idx + 1}`,
+      ...item,
+      sort_order: idx + 1,
+    }));
+
+    let phrases = [];
+    let selectedScene = '全部';
+    let selectedCategory = '全部';
+    let quickFilter = 'all'; // 'all' | 'starred'
+    let comboIds = [];
+
+    const SCENE_ICON_MAP = {
+      '星巴克': '☕',
+      '機場出入境': '✈️',
+      '買東西退稅': '🛍️',
+      '餐廳點餐': '🍽️',
+      '交通問路': '🚆',
+      '飯店住宿': '🏨',
+      '緊急求助': '🆘',
+    };
+
+    function getSceneLabel(scene) {
+      const icon = SCENE_ICON_MAP[scene] || '💬';
+      return `${icon} ${scene}`;
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function formatJapaneseHighlight(text) {
+      const escaped = escapeHtml(text);
+      return escaped.replace(/【([^】]+)】/g, '<span class="mx-0.5 inline-block rounded-lg border border-[#3E3A39]/40 bg-[#F6D27A]/70 px-1.5 py-0.5 font-bold text-[#3E3A39]">$1</span>');
+    }
+
+    function getSpeakerBadgeClass(speaker) {
+      switch (speaker) {
+        case '店員': return 'bg-[#A8D3E6] text-[#3E3A39]';
+        case '顧客': return 'bg-[#F2A497] text-[#3E3A39]';
+        case '單字': return 'bg-[#B9DAA5] text-[#3E3A39]';
+        case '調整': return 'bg-[#F6D27A] text-[#3E3A39]';
+        default: return 'bg-white text-[#3E3A39]';
+      }
+    }
+
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.remove('hidden');
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => el.classList.add('hidden'), 2400);
+    }
+
+    function speakJapanese(text) {
+      if (!('speechSynthesis' in window)) {
+        showToast('此瀏覽器不支援語音朗讀');
+        return;
+      }
+      const clean = String(text || '')
+        .replace(/[【】]/g, '')
+        .replace(/（[^）]*）/g, '')
+        .split('/')[0]
+        .trim();
+      if (!clean) return;
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(clean);
+      utter.lang = 'ja-JP';
+      utter.rate = speechRate;
+      const voices = window.speechSynthesis.getVoices();
+      const jpVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('ja'));
+      if (jpVoice) utter.voice = jpVoice;
+      window.speechSynthesis.speak(utter);
+    }
+
+    async function copyText(text) {
+      const clean = String(text || '').replace(/[【】]/g, '').trim();
+      try {
+        await navigator.clipboard.writeText(clean);
+        showToast('已複製日文：' + clean);
+      } catch {
+        showToast('複製失敗，請手動選取');
+      }
+    }
+
+    function loadLocalPhrases() {
+      try {
+        const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch {}
+      return DEFAULT_SEED_PHRASES.map(x => ({ ...x }));
+    }
+
+    function saveLocalPhrases() {
+      if (isShareMode) return;
+      try {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(phrases));
+      } catch {}
+    }
+
+    function loadShareStarState() {
+      if (!SHARE_STAR_KEY) return {};
+      try {
+        return JSON.parse(localStorage.getItem(SHARE_STAR_KEY) || '{}') || {};
+      } catch {
+        return {};
+      }
+    }
+
+    function saveShareStarState(id, starred) {
+      if (!SHARE_STAR_KEY) return;
+      const map = loadShareStarState();
+      map[id] = starred;
+      try {
+        localStorage.setItem(SHARE_STAR_KEY, JSON.stringify(map));
+      } catch {}
+    }
+
+    function applyViewModeUI() {
+      const iconEl = document.getElementById('btn-view-mode-icon');
+      const labelEl = document.getElementById('btn-view-mode-label');
+      const addBtn = document.getElementById('btn-add-phrase');
+      const viewBtn = document.getElementById('btn-toggle-view-mode');
+
+      const effectiveView = isShareMode || isViewMode;
+      if (iconEl) iconEl.textContent = effectiveView ? '✏️' : '👁️';
+      if (labelEl) labelEl.textContent = effectiveView ? '切換編輯模式' : '切換檢視模式';
+      if (viewBtn) {
+        viewBtn.classList.toggle('bg-[#F6D27A]', effectiveView);
+        viewBtn.classList.toggle('bg-[#FFFCF6]', !effectiveView);
+      }
+      if (addBtn) {
+        addBtn.classList.toggle('hidden', effectiveView);
+      }
+      if (isShareMode && viewBtn) {
+        viewBtn.classList.add('hidden');
+      }
+    }
+
+    function setupShareNav() {
+      if (!isShareMode) return;
+      document.querySelectorAll('[data-hide-in-share="true"]').forEach(el => el.classList.add('hidden'));
+      ['nav-food-link', 'nav-trip-link', 'nav-expenses-link'].forEach(id => {
+        const link = document.getElementById(id);
+        if (link) {
+          const url = new URL(link.getAttribute('href'), window.location.href);
+          url.searchParams.set('share', shareToken);
+          link.setAttribute('href', url.pathname + url.search);
+        }
+      });
+      const cloudBtn = document.getElementById('btn-cloud-sync');
+      if (cloudBtn) cloudBtn.classList.add('hidden');
+    }
+
+    function updateSyncBadge(customText) {
+      const label = document.getElementById('btn-cloud-label');
+      const btn = document.getElementById('btn-cloud-sync');
+      if (!label || !btn) return;
+      if (customText) {
+        label.textContent = customText;
+        return;
+      }
+      if (currentUser) {
+        label.textContent = '雲端已連線';
+        btn.classList.remove('bg-[#A8D3E6]');
+        btn.classList.add('bg-[#B9DAA5]');
+      } else {
+        label.textContent = '雲端同步（本機）';
+        btn.classList.remove('bg-[#B9DAA5]');
+        btn.classList.add('bg-[#A8D3E6]');
+      }
+    }
+
+    async function syncFromCloud() {
+      if (!supabaseClient || !currentUser || isShareMode) return;
+      updateSyncBadge('同步中...');
+      try {
+        const { data, error } = await supabaseClient
+          .from('japanese_phrases')
+          .select('*')
+          .order('scene', { ascending: true })
+          .order('sort_order', { ascending: true })
+          .order('created_at', { ascending: true });
+        if (error) throw error;
+
+        const rows = data || [];
+        const seedBanner = document.getElementById('cloud-seed-banner');
+        if (rows.length === 0) {
+          // 雲端尚無資料，保留本機/預設筆記並提示可一鍵上傳
+          phrases = loadLocalPhrases();
+          if (seedBanner && localStorage.getItem(SEED_DISMISSED_KEY) !== '1') {
+            document.getElementById('seed-count-label').textContent = String(phrases.length);
+            seedBanner.classList.remove('hidden');
+            seedBanner.classList.add('flex');
+          }
+        } else {
+          phrases = rows;
+          saveLocalPhrases();
+          if (seedBanner) seedBanner.classList.add('hidden');
+        }
+        updateSyncBadge();
+        renderAll();
+      } catch (err) {
+        console.error(err);
+        updateSyncBadge();
+        if (String(err?.message || '').includes('japanese_phrases')) {
+          showToast('雲端資料表尚未建立，目前使用本機模式');
+        } else {
+          showToast('雲端同步失敗：' + (err?.message || '未知錯誤'));
+        }
+      }
+    }
+
+    async function loadSharedJapanese(token) {
+      if (!token || !supabaseClient) return;
+      try {
+        const { data, error } = await supabaseClient.rpc('get_shared_japanese', { p_token: token });
+        if (error) throw error;
+        if (!data || !data.trip) throw new Error('找不到此分享連結或連結已失效');
+
+        sharedTrip = data.trip;
+        const starMap = loadShareStarState();
+        const rows = Array.isArray(data.phrases) ? data.phrases : [];
+        phrases = (rows.length > 0 ? rows : DEFAULT_SEED_PHRASES).map(p => ({
+          ...p,
+          starred: Object.prototype.hasOwnProperty.call(starMap, p.id) ? Boolean(starMap[p.id]) : Boolean(p.starred),
+        }));
+
+        const badge = document.getElementById('share-trip-badge');
+        if (badge) {
+          badge.textContent = sharedTrip?.title ? `旅伴專用・${sharedTrip.title}` : '旅伴專用';
+          badge.classList.remove('hidden');
+        }
+        renderAll();
+      } catch (err) {
+        console.error(err);
+        phrases = DEFAULT_SEED_PHRASES.map(x => ({ ...x }));
+        renderAll();
+        showToast('載入分享日文筆記失敗，顯示預設範本');
+      }
+    }
+
+    async function initSupabase() {
+      if (!window.supabase?.createClient) return;
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+      });
+
+      if (isShareMode) {
+        await loadSharedJapanese(shareToken);
+        return;
+      }
+
+      supabaseClient.auth.onAuthStateChange((event, session) => {
+        currentUser = session?.user || null;
+        updateSyncBadge();
+        updateCloudModalState();
+        if (currentUser && event !== 'INITIAL_SESSION') {
+          setTimeout(() => syncFromCloud(), 0);
+        } else if (!currentUser && event !== 'INITIAL_SESSION') {
+          phrases = loadLocalPhrases();
+          renderAll();
+        }
+      });
+
+      const { data } = await supabaseClient.auth.getSession();
+      currentUser = data?.session?.user || null;
+      updateSyncBadge();
+      updateCloudModalState();
+      if (currentUser) await syncFromCloud();
+    }
+
+    function getFilteredPhrases() {
+      const speakerFilter = document.getElementById('filter-speaker').value;
+      const keyword = document.getElementById('input-search').value.trim().toLowerCase();
+
+      return phrases.filter(p => {
+        if (quickFilter === 'starred' && !p.starred) return false;
+        if (selectedScene !== '全部' && p.scene !== selectedScene) return false;
+        if (selectedScene !== '全部' && selectedCategory !== '全部' && p.category !== selectedCategory) return false;
+        if (speakerFilter !== '全部' && p.speaker !== speakerFilter) return false;
+        if (keyword) {
+          const hay = [p.scene, p.category, p.situation, p.speaker, p.japanese, p.hiragana, p.chinese, p.note]
+            .join(' ')
+            .toLowerCase();
+          if (!hay.includes(keyword)) return false;
+        }
+        return true;
+      });
+    }
+
+    function renderSceneAndCategoryPills() {
+      const scenes = Array.from(new Set(phrases.map(p => p.scene).filter(Boolean)));
+      const sceneContainer = document.getElementById('scene-pills');
+      const datalist = document.getElementById('scene-datalist');
+
+      datalist.innerHTML = scenes.map(s => `<option value="${escapeHtml(s)}"></option>`).join('');
+
+      const allScenes = ['全部', ...scenes];
+      sceneContainer.innerHTML = allScenes.map(scene => {
+        const active = selectedScene === scene;
+        const count = scene === '全部' ? phrases.length : phrases.filter(p => p.scene === scene).length;
+        const label = scene === '全部' ? `全部場景 (${count})` : `${getSceneLabel(scene)} (${count})`;
+        const cls = active
+          ? 'ehon-btn shrink-0 rounded-full bg-[#A8D3E6] px-3 py-1 text-xs font-bold text-[#3E3A39]'
+          : 'ehon-btn shrink-0 rounded-full bg-[#FFFCF6] px-3 py-1 text-xs font-bold text-[#3E3A39] hover:bg-[#A8D3E6]/35';
+        return `<button type="button" data-scene="${escapeHtml(scene)}" class="${cls}">${escapeHtml(label)}</button>`;
+      }).join('');
+
+      sceneContainer.querySelectorAll('button[data-scene]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          selectedScene = btn.getAttribute('data-scene');
+          selectedCategory = '全部';
+          renderAll();
+        });
+      });
+
+      const catContainer = document.getElementById('category-pills');
+      if (selectedScene === '全部') {
+        catContainer.classList.add('hidden');
+        catContainer.classList.remove('flex');
+        catContainer.innerHTML = '';
+        return;
+      }
+
+      const scenePhrases = phrases.filter(p => p.scene === selectedScene);
+      const categories = Array.from(new Set(scenePhrases.map(p => p.category).filter(Boolean)));
+      if (categories.length <= 1) {
+        catContainer.classList.add('hidden');
+        catContainer.classList.remove('flex');
+        catContainer.innerHTML = '';
+        return;
+      }
+
+      catContainer.classList.remove('hidden');
+      catContainer.classList.add('flex');
+      const allCats = ['全部', ...categories];
+      catContainer.innerHTML = allCats.map(cat => {
+        const active = selectedCategory === cat;
+        const label = cat === '全部' ? '全部分類' : cat;
+        const cls = active
+          ? 'shrink-0 rounded-full border-2 border-[#3E3A39] bg-[#F6D27A] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]'
+          : 'shrink-0 rounded-full border-2 border-[#3E3A39]/30 bg-white px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]/80 hover:border-[#3E3A39]';
+        return `<button type="button" data-category="${escapeHtml(cat)}" class="${cls}">${escapeHtml(label)}</button>`;
+      }).join('');
+
+      catContainer.querySelectorAll('button[data-category]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          selectedCategory = btn.getAttribute('data-category');
+          renderList();
+          renderSceneAndCategoryPills();
+        });
+      });
+    }
+
+    function renderStatsAndQuickButtons() {
+      const starredCount = phrases.filter(p => p.starred).length;
+      document.getElementById('stat-starred').textContent = String(starredCount);
+      document.getElementById('stat-total').textContent = String(phrases.length);
+
+      const starBtn = document.getElementById('btn-filter-star');
+      const allBtn = document.getElementById('btn-filter-all');
+      if (quickFilter === 'starred') {
+        starBtn.classList.add('bg-[#F6D27A]');
+        starBtn.classList.remove('bg-[#FFFCF6]');
+        allBtn.classList.add('bg-[#FFFCF6]');
+        allBtn.classList.remove('bg-[#B9DAA5]');
+      } else {
+        allBtn.classList.add('bg-[#B9DAA5]');
+        allBtn.classList.remove('bg-[#FFFCF6]');
+        starBtn.classList.add('bg-[#FFFCF6]');
+        starBtn.classList.remove('bg-[#F6D27A]');
+      }
+
+      const speaker = document.getElementById('filter-speaker').value;
+      const kw = document.getElementById('input-search').value.trim();
+      document.getElementById('advanced-dot').classList.toggle('hidden', speaker === '全部' && !kw);
+    }
+
+    function renderComboBar() {
+      const bar = document.getElementById('combo-bar');
+      const countEl = document.getElementById('combo-count');
+      if (comboIds.length === 0) {
+        bar.classList.add('hidden');
+        bar.classList.remove('flex');
+      } else {
+        countEl.textContent = String(comboIds.length);
+        bar.classList.remove('hidden');
+        bar.classList.add('flex');
+      }
+    }
+
+    function renderList() {
+      const list = getFilteredPhrases();
+      const tbody = document.getElementById('desktop-table-body');
+      const mobile = document.getElementById('mobile-card-list');
+      const empty = document.getElementById('empty-state');
+      const effectiveView = isShareMode || isViewMode;
+
+      if (list.length === 0) {
+        tbody.innerHTML = '';
+        mobile.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+      empty.classList.add('hidden');
+
+      tbody.innerHTML = list.map(p => {
+        const isInCombo = comboIds.includes(p.id);
+        return `
+          <tr class="transition hover:bg-[#F6D27A]/10">
+            <td class="px-3 py-3 text-center align-top">
+              <button type="button" data-action="star" data-id="${escapeHtml(p.id)}" class="text-lg leading-none transition hover:scale-110" title="收藏常用">${p.starred ? '★' : '☆'}</button>
+            </td>
+            <td class="px-2 py-3 text-center align-top">
+              <input type="checkbox" data-action="combo" data-id="${escapeHtml(p.id)}" ${isInCombo ? 'checked' : ''} title="加入組合指字卡" class="h-4 w-4 cursor-pointer accent-[#3E3A39]" />
+            </td>
+            <td class="px-3 py-3 align-top">
+              <div class="text-[11px] font-bold text-[#3E3A39]/60">${selectedScene === '全部' ? escapeHtml(getSceneLabel(p.scene)) + '・' : ''}${escapeHtml(p.category)}</div>
+              <div class="mt-0.5 font-bold text-[#3E3A39]">${escapeHtml(p.situation)}</div>
+            </td>
+            <td class="px-3 py-3 text-center align-top">
+              <span class="inline-block rounded-full border-2 border-[#3E3A39] px-2 py-0.5 text-[11px] font-bold ${getSpeakerBadgeClass(p.speaker)}">${escapeHtml(p.speaker)}</span>
+            </td>
+            <td class="px-4 py-3 align-top">
+              <div class="jp-text text-base font-bold leading-snug text-[#3E3A39]">${formatJapaneseHighlight(p.japanese)}</div>
+              ${p.hiragana ? `<div class="jp-text mt-1 text-xs text-[#3E3A39]/70">${escapeHtml(p.hiragana)}</div>` : ''}
+            </td>
+            <td class="px-3 py-3 align-top font-medium text-[#3E3A39]">${escapeHtml(p.chinese)}</td>
+            <td class="px-3 py-3 align-top text-xs text-[#3E3A39]/75">${escapeHtml(p.note || '—')}</td>
+            <td class="px-3 py-3 text-right align-top">
+              <div class="inline-flex items-center gap-1">
+                <button type="button" data-action="speak" data-id="${escapeHtml(p.id)}" class="rounded-xl border-2 border-[#3E3A39]/25 bg-white px-2 py-1 text-xs font-bold hover:bg-[#A8D3E6]/40" title="朗讀日文">🔊</button>
+                <button type="button" data-action="show" data-id="${escapeHtml(p.id)}" class="rounded-xl border-2 border-[#3E3A39]/25 bg-white px-2 py-1 text-xs font-bold hover:bg-[#F6D27A]/50" title="放大給店員看">👆</button>
+                <button type="button" data-action="copy" data-id="${escapeHtml(p.id)}" class="rounded-xl border-2 border-[#3E3A39]/25 bg-white px-2 py-1 text-xs font-bold hover:bg-[#B9DAA5]/40" title="複製日文">📋</button>
+                ${effectiveView ? '' : `<button type="button" data-action="edit" data-id="${escapeHtml(p.id)}" class="rounded-xl border-2 border-[#3E3A39]/25 bg-white px-2 py-1 text-xs font-bold hover:bg-[#F2A497]/40" title="編輯">✏️</button>`}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      mobile.innerHTML = list.map(p => {
+        const isInCombo = comboIds.includes(p.id);
+        return `
+          <article class="space-y-2 p-4">
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0">
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <span class="inline-block rounded-full border-2 border-[#3E3A39] px-2 py-0.5 text-[11px] font-bold ${getSpeakerBadgeClass(p.speaker)}">${escapeHtml(p.speaker)}</span>
+                  <span class="text-xs font-bold text-[#3E3A39]/65">${selectedScene === '全部' ? escapeHtml(getSceneLabel(p.scene)) + '・' : ''}${escapeHtml(p.category)}</span>
+                </div>
+                <h3 class="mt-1 text-sm font-bold text-[#3E3A39]">${escapeHtml(p.situation)}</h3>
+              </div>
+              <div class="flex shrink-0 items-center gap-2">
+                <label class="inline-flex items-center gap-1 rounded-xl border border-[#3E3A39]/25 bg-white px-2 py-1 text-[11px] font-bold">
+                  <input type="checkbox" data-action="combo" data-id="${escapeHtml(p.id)}" ${isInCombo ? 'checked' : ''} class="h-3.5 w-3.5 accent-[#3E3A39]" />
+                  <span>選</span>
+                </label>
+                <button type="button" data-action="star" data-id="${escapeHtml(p.id)}" class="text-xl leading-none" aria-label="收藏">${p.starred ? '★' : '☆'}</button>
+              </div>
+            </div>
+
+            <div class="rounded-2xl border-2 border-[#3E3A39]/15 bg-white p-3">
+              <div class="jp-text text-base font-bold leading-snug text-[#3E3A39]">${formatJapaneseHighlight(p.japanese)}</div>
+              ${p.hiragana ? `<div class="jp-text mt-1 text-xs text-[#3E3A39]/70">${escapeHtml(p.hiragana)}</div>` : ''}
+              <div class="mt-2 border-t border-dashed border-[#3E3A39]/15 pt-2 text-sm font-bold text-[#3E3A39]">${escapeHtml(p.chinese)}</div>
+              ${p.note ? `<div class="mt-1 text-xs text-[#3E3A39]/75">💡 ${escapeHtml(p.note)}</div>` : ''}
+            </div>
+
+            <div class="flex flex-wrap items-center justify-end gap-1.5">
+              <button type="button" data-action="speak" data-id="${escapeHtml(p.id)}" class="ehon-btn rounded-xl bg-[#A8D3E6] px-2.5 py-1 text-xs font-bold text-[#3E3A39]">🔊 唸出來</button>
+              <button type="button" data-action="show" data-id="${escapeHtml(p.id)}" class="ehon-btn rounded-xl bg-[#F6D27A] px-2.5 py-1 text-xs font-bold text-[#3E3A39]">👆 給店員看</button>
+              <button type="button" data-action="copy" data-id="${escapeHtml(p.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-2.5 py-1 text-xs font-bold text-[#3E3A39]">📋 複製</button>
+              ${effectiveView ? '' : `<button type="button" data-action="edit" data-id="${escapeHtml(p.id)}" class="ehon-btn rounded-xl bg-[#F2A497] px-2.5 py-1 text-xs font-bold text-[#3E3A39]">✏️ 編輯</button>`}
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function renderAll() {
+      applyViewModeUI();
+      renderStatsAndQuickButtons();
+      renderSceneAndCategoryPills();
+      renderList();
+      renderComboBar();
+    }
+
+    async function toggleStar(id) {
+      const item = phrases.find(p => p.id === id);
+      if (!item) return;
+      item.starred = !item.starred;
+      if (isShareMode) {
+        saveShareStarState(id, item.starred);
+      } else {
+        saveLocalPhrases();
+        if (supabaseClient && currentUser && !String(id).startsWith('seed-')) {
+          const { error } = await supabaseClient
+            .from('japanese_phrases')
+            .update({ starred: item.starred, updated_at: new Date().toISOString() })
+            .eq('id', id);
+          if (error) showToast('雲端更新收藏失敗');
+        }
+      }
+      renderAll();
+    }
+
+    function openShowCard(items) {
+      if (!items || items.length === 0) return;
+      const modal = document.getElementById('show-card-modal');
+      const content = document.getElementById('show-card-content');
+      const badge = document.getElementById('show-card-badge');
+
+      badge.textContent = items.length > 1 ? `組合點餐 / 對話卡（${items.length} 項）` : `${items[0].scene}・${items[0].situation}`;
+      content.innerHTML = items.map(item => `
+        <div class="rounded-2xl border-[2.5px] border-[#3E3A39] bg-white p-4">
+          <div class="jp-text text-2xl font-bold leading-relaxed text-[#3E3A39] sm:text-3xl">${formatJapaneseHighlight(item.japanese)}</div>
+          ${item.hiragana ? `<div class="jp-text mt-1.5 text-sm text-[#3E3A39]/65">${escapeHtml(item.hiragana)}</div>` : ''}
+          <div class="mt-3 border-t-2 border-dashed border-[#3E3A39]/15 pt-2 text-base font-bold text-[#3E3A39]/85">${escapeHtml(item.chinese)}</div>
+        </div>
+      `).join('');
+
+      const combinedJp = items.map(i => i.japanese.replace(/[【】]/g, '')).join('、');
+      document.getElementById('btn-speak-show-card').onclick = () => speakJapanese(combinedJp);
+      document.getElementById('btn-copy-show-card').onclick = () => copyText(combinedJp);
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function openPhraseModal(editItem = null) {
+      const modal = document.getElementById('phrase-modal');
+      const title = document.getElementById('phrase-modal-title');
+      const tabBar = document.getElementById('modal-tab-bar');
+      const deleteBtn = document.getElementById('btn-delete-in-modal');
+
+      switchModalTab('single');
+      if (editItem) {
+        title.textContent = '編輯日文筆記';
+        tabBar.classList.add('hidden');
+        deleteBtn.classList.remove('hidden');
+        document.getElementById('field-id').value = editItem.id;
+        document.getElementById('field-scene').value = editItem.scene || '';
+        document.getElementById('field-category').value = editItem.category || '';
+        document.getElementById('field-speaker').value = editItem.speaker || '顧客';
+        document.getElementById('field-situation').value = editItem.situation || '';
+        document.getElementById('field-japanese').value = editItem.japanese || '';
+        document.getElementById('field-hiragana').value = editItem.hiragana || '';
+        document.getElementById('field-chinese').value = editItem.chinese || '';
+        document.getElementById('field-note').value = editItem.note || '';
+        document.getElementById('field-starred').checked = Boolean(editItem.starred);
+      } else {
+        title.textContent = '新增日文筆記';
+        tabBar.classList.remove('hidden');
+        deleteBtn.classList.add('hidden');
+        document.getElementById('phrase-form').reset();
+        document.getElementById('field-id').value = '';
+        if (selectedScene !== '全部') {
+          document.getElementById('field-scene').value = selectedScene;
+          document.getElementById('batch-scene').value = selectedScene;
+        }
+      }
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function switchModalTab(tab) {
+      const singleForm = document.getElementById('phrase-form');
+      const batchPanel = document.getElementById('batch-import-panel');
+      const tabSingle = document.getElementById('tab-single');
+      const tabBatch = document.getElementById('tab-batch');
+
+      if (tab === 'batch') {
+        singleForm.classList.add('hidden');
+        batchPanel.classList.remove('hidden');
+        tabBatch.classList.add('bg-[#F6D27A]', 'text-[#3E3A39]');
+        tabSingle.classList.remove('bg-[#F6D27A]');
+      } else {
+        batchPanel.classList.add('hidden');
+        singleForm.classList.remove('hidden');
+        tabSingle.classList.add('bg-[#F6D27A]', 'text-[#3E3A39]');
+        tabBatch.classList.remove('bg-[#F6D27A]');
+      }
+    }
+
+    function parseBatchInput(rawText, defaultScene) {
+      const trimmed = rawText.trim();
+      if (!trimmed) return [];
+
+      if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+        const parsed = JSON.parse(trimmed);
+        const arr = Array.isArray(parsed) ? parsed : [parsed];
+        return arr.map(r => ({
+          scene: String(r.scene || defaultScene || '旅遊常用').trim(),
+          category: String(r.category || '實戰對話').trim(),
+          situation: String(r.situation || '').trim(),
+          speaker: String(r.speaker || '顧客').trim(),
+          japanese: String(r.japanese || '').trim(),
+          hiragana: String(r.hiragana || '').trim(),
+          chinese: String(r.chinese || '').trim(),
+          note: String(r.note || '').trim(),
+          starred: Boolean(r.starred),
+        })).filter(r => r.japanese && r.chinese);
+      }
+
+      // Parse Markdown table rows
+      const lines = trimmed.split(/\r?\n/).map(l => l.trim()).filter(l => l.includes('|'));
+      const results = [];
+      for (const line of lines) {
+        const cells = line.replace(/^\|/, '').replace(/\|$/, '').split('|').map(c => c.trim());
+        if (cells.length < 6) continue;
+        // Skip header or separator row
+        if (cells[0] === '分類' || /^:?-+:?$/.test(cells[0])) continue;
+        const [category, situation, speaker, japanese, hiragana, chinese, note = ''] = cells;
+        if (!japanese || !chinese) continue;
+        results.push({
+          scene: defaultScene || '旅遊常用',
+          category: category || '實戰對話',
+          situation: situation || japanese.slice(0, 12),
+          speaker: speaker || '顧客',
+          japanese,
+          hiragana: hiragana === '—' ? '' : (hiragana || ''),
+          chinese,
+          note: note === '—' ? '' : note,
+          starred: false,
+        });
+      }
+      return results;
+    }
+
+    async function savePhraseToCloudOrLocal(payload, existingId) {
+      if (supabaseClient && currentUser) {
+        if (existingId && !String(existingId).startsWith('seed-')) {
+          const { data, error } = await supabaseClient
+            .from('japanese_phrases')
+            .update({ ...payload, updated_at: new Date().toISOString() })
+            .eq('id', existingId)
+            .select()
+            .single();
+          if (error) throw error;
+          return data;
+        } else {
+          const { data, error } = await supabaseClient
+            .from('japanese_phrases')
+            .insert({ ...payload, user_id: currentUser.id, sort_order: phrases.length + 1 })
+            .select()
+            .single();
+          if (error) throw error;
+          return data;
+        }
+      }
+      return {
+        id: existingId || `local-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        ...payload,
+        sort_order: phrases.length + 1,
+      };
+    }
+
+    function updateCloudModalState() {
+      const outEl = document.getElementById('cloud-logged-out');
+      const inEl = document.getElementById('cloud-logged-in');
+      const emailEl = document.getElementById('cloud-user-email');
+      if (currentUser) {
+        outEl.classList.add('hidden');
+        inEl.classList.remove('hidden');
+        emailEl.textContent = currentUser.email || currentUser.id;
+      } else {
+        inEl.classList.add('hidden');
+        outEl.classList.remove('hidden');
+      }
+    }
+
+    // Event Delegation for list actions
+    function handleListClick(e) {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      const action = btn.getAttribute('data-action');
+      const id = btn.getAttribute('data-id');
+      const item = phrases.find(p => p.id === id);
+      if (!item) return;
+
+      if (action === 'star') toggleStar(id);
+      else if (action === 'speak') speakJapanese(item.japanese);
+      else if (action === 'copy') copyText(item.japanese);
+      else if (action === 'show') openShowCard([item]);
+      else if (action === 'edit') openPhraseModal(item);
+      else if (action === 'combo') {
+        if (comboIds.includes(id)) {
+          comboIds = comboIds.filter(x => x !== id);
+        } else {
+          comboIds = [...comboIds, id];
+        }
+        renderList();
+        renderComboBar();
+      }
+    }
+
+    document.getElementById('desktop-table-body').addEventListener('click', handleListClick);
+    document.getElementById('mobile-card-list').addEventListener('click', handleListClick);
+
+    document.getElementById('btn-filter-star').addEventListener('click', () => {
+      quickFilter = 'starred';
+      renderAll();
+    });
+    document.getElementById('btn-filter-all').addEventListener('click', () => {
+      quickFilter = 'all';
+      renderAll();
+    });
+
+    document.getElementById('btn-speech-rate').addEventListener('click', () => {
+      const rates = [0.8, 0.9, 1.0, 1.1];
+      const next = rates[(rates.indexOf(speechRate) + 1) % rates.length];
+      speechRate = next;
+      localStorage.setItem('ehon_jp_speech_rate', String(next));
+      document.getElementById('speech-rate-label').textContent = `${next}x`;
+      showToast(`語速已切換為 ${next}x`);
+    });
+
+    document.getElementById('btn-toggle-advanced').addEventListener('click', () => {
+      const panel = document.getElementById('advanced-panel');
+      const arrow = document.getElementById('advanced-arrow');
+      const isHidden = panel.classList.toggle('hidden');
+      arrow.textContent = isHidden ? '▾' : '▴';
+    });
+
+    document.getElementById('filter-speaker').addEventListener('change', () => { renderStatsAndQuickButtons(); renderList(); });
+    document.getElementById('input-search').addEventListener('input', () => { renderStatsAndQuickButtons(); renderList(); });
+    document.getElementById('btn-reset-filters').addEventListener('click', () => {
+      document.getElementById('filter-speaker').value = '全部';
+      document.getElementById('input-search').value = '';
+      quickFilter = 'all';
+      selectedScene = '全部';
+      selectedCategory = '全部';
+      renderAll();
+    });
+
+    document.getElementById('btn-toggle-view-mode').addEventListener('click', () => {
+      isViewMode = !isViewMode;
+      try { localStorage.setItem('ehon_view_mode', isViewMode ? '1' : '0'); } catch {}
+      renderAll();
+    });
+
+    document.getElementById('btn-open-combo').addEventListener('click', () => {
+      const selected = comboIds.map(id => phrases.find(p => p.id === id)).filter(Boolean);
+      openShowCard(selected);
+    });
+    document.getElementById('btn-clear-combo').addEventListener('click', () => {
+      comboIds = [];
+      renderAll();
+    });
+    document.getElementById('btn-close-show-card').addEventListener('click', () => {
+      document.getElementById('show-card-modal').classList.add('hidden');
+      document.getElementById('show-card-modal').classList.remove('flex');
+    });
+
+    document.getElementById('btn-add-phrase').addEventListener('click', () => openPhraseModal(null));
+    document.getElementById('btn-close-phrase-modal').addEventListener('click', () => {
+      document.getElementById('phrase-modal').classList.add('hidden');
+      document.getElementById('phrase-modal').classList.remove('flex');
+    });
+    document.getElementById('tab-single').addEventListener('click', () => switchModalTab('single'));
+    document.getElementById('tab-batch').addEventListener('click', () => switchModalTab('batch'));
+
+    document.getElementById('phrase-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const existingId = document.getElementById('field-id').value;
+      const payload = {
+        scene: document.getElementById('field-scene').value.trim(),
+        category: document.getElementById('field-category').value.trim(),
+        speaker: document.getElementById('field-speaker').value,
+        situation: document.getElementById('field-situation').value.trim(),
+        japanese: document.getElementById('field-japanese').value.trim(),
+        hiragana: document.getElementById('field-hiragana').value.trim(),
+        chinese: document.getElementById('field-chinese').value.trim(),
+        note: document.getElementById('field-note').value.trim(),
+        starred: document.getElementById('field-starred').checked,
+      };
+      try {
+        const saved = await savePhraseToCloudOrLocal(payload, existingId);
+        if (existingId) {
+          const idx = phrases.findIndex(p => p.id === existingId);
+          if (idx >= 0) phrases[idx] = saved;
+        } else {
+          phrases.push(saved);
+        }
+        saveLocalPhrases();
+        document.getElementById('phrase-modal').classList.add('hidden');
+        document.getElementById('phrase-modal').classList.remove('flex');
+        renderAll();
+        showToast(existingId ? '已更新日文筆記' : '已新增日文筆記');
+      } catch (err) {
+        showToast('儲存失敗：' + (err?.message || '請稍後再試'));
+      }
+    });
+
+    document.getElementById('btn-delete-in-modal').addEventListener('click', async () => {
+      const id = document.getElementById('field-id').value;
+      if (!id || !confirm('確定要刪除這筆日文筆記嗎？')) return;
+      try {
+        if (supabaseClient && currentUser && !String(id).startsWith('seed-')) {
+          const { error } = await supabaseClient.from('japanese_phrases').delete().eq('id', id);
+          if (error) throw error;
+        }
+        phrases = phrases.filter(p => p.id !== id);
+        saveLocalPhrases();
+        document.getElementById('phrase-modal').classList.add('hidden');
+        document.getElementById('phrase-modal').classList.remove('flex');
+        renderAll();
+        showToast('已刪除日文筆記');
+      } catch (err) {
+        showToast('刪除失敗：' + (err?.message || '未知錯誤'));
+      }
+    });
+
+    document.getElementById('btn-run-batch-import').addEventListener('click', async () => {
+      const defaultScene = document.getElementById('batch-scene').value.trim();
+      const raw = document.getElementById('batch-textarea').value;
+      try {
+        const parsed = parseBatchInput(raw, defaultScene);
+        if (parsed.length === 0) {
+          showToast('解析不到有效資料，請檢查格式');
+          return;
+        }
+        if (supabaseClient && currentUser) {
+          const baseOrder = phrases.length + 1;
+          const rows = parsed.map((p, idx) => ({ ...p, user_id: currentUser.id, sort_order: baseOrder + idx }));
+          const { data, error } = await supabaseClient.from('japanese_phrases').insert(rows).select();
+          if (error) throw error;
+          phrases.push(...(data || []));
+        } else {
+          const rows = parsed.map((p, idx) => ({
+            id: `local-${Date.now()}-${idx}`,
+            ...p,
+            sort_order: phrases.length + idx + 1,
+          }));
+          phrases.push(...rows);
+        }
+        saveLocalPhrases();
+        document.getElementById('batch-textarea').value = '';
+        document.getElementById('phrase-modal').classList.add('hidden');
+        document.getElementById('phrase-modal').classList.remove('flex');
+        if (defaultScene) selectedScene = defaultScene;
+        renderAll();
+        showToast(`成功匯入 ${parsed.length} 筆日文筆記！`);
+      } catch (err) {
+        showToast('匯入失敗：' + (err?.message || '格式錯誤'));
+      }
+    });
+
+    document.getElementById('btn-upload-seed').addEventListener('click', async () => {
+      if (!supabaseClient || !currentUser) return;
+      try {
+        const rows = phrases.map((p, idx) => ({
+          user_id: currentUser.id,
+          scene: p.scene,
+          category: p.category,
+          situation: p.situation,
+          speaker: p.speaker,
+          japanese: p.japanese,
+          hiragana: p.hiragana || '',
+          chinese: p.chinese,
+          note: p.note || '',
+          starred: Boolean(p.starred),
+          sort_order: idx + 1,
+        }));
+        const { data, error } = await supabaseClient.from('japanese_phrases').insert(rows).select();
+        if (error) throw error;
+        phrases = data || [];
+        saveLocalPhrases();
+        document.getElementById('cloud-seed-banner').classList.add('hidden');
+        renderAll();
+        showToast(`已將 ${phrases.length} 筆筆記上傳至雲端！`);
+      } catch (err) {
+        showToast('上傳失敗：' + (err?.message || '請確認資料表已建立'));
+      }
+    });
+
+    document.getElementById('btn-dismiss-seed').addEventListener('click', () => {
+      localStorage.setItem(SEED_DISMISSED_KEY, '1');
+      document.getElementById('cloud-seed-banner').classList.add('hidden');
+    });
+
+    document.getElementById('btn-cloud-sync').addEventListener('click', () => {
+      updateCloudModalState();
+      document.getElementById('cloud-modal').classList.remove('hidden');
+      document.getElementById('cloud-modal').classList.add('flex');
+    });
+    document.getElementById('btn-close-cloud-modal').addEventListener('click', () => {
+      document.getElementById('cloud-modal').classList.add('hidden');
+      document.getElementById('cloud-modal').classList.remove('flex');
+    });
+    document.getElementById('btn-send-magic-link').addEventListener('click', async () => {
+      const email = document.getElementById('auth-email').value.trim();
+      if (!email || !supabaseClient) return showToast('請輸入有效 Email');
+      const { error } = await supabaseClient.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: window.location.origin + window.location.pathname }
+      });
+      if (error) showToast('寄送失敗：' + error.message);
+      else showToast('登入連結已寄出，請至信箱點擊！');
+    });
+    document.getElementById('btn-cloud-refresh').addEventListener('click', () => syncFromCloud());
+    document.getElementById('btn-cloud-logout').addEventListener('click', async () => {
+      if (!supabaseClient) return;
+      await supabaseClient.auth.signOut();
+      currentUser = null;
+      updateSyncBadge();
+      updateCloudModalState();
+      showToast('已登出');
+    });
+
+    // Init
+    document.getElementById('speech-rate-label').textContent = `${speechRate}x`;
+    setupShareNav();
+    phrases = loadLocalPhrases();
+    renderAll();
+    initSupabase();
+  </script>
+</body>
+</html>
