@@ -178,6 +178,13 @@
           <select id="select-brand" aria-label="篩選品牌" class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-100">
             <option value="全部">全部品牌</option>
           </select>
+          <select id="select-review" aria-label="篩選買過心得" class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-100">
+            <option value="全部">全部心得</option>
+            <option value="很好">😋 很好</option>
+            <option value="普通">😐 普通</option>
+            <option value="踩雷">💣 踩雷</option>
+            <option value="none">尚未填寫心得</option>
+          </select>
           <select id="select-sort" aria-label="排序方式" class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-100">
             <option value="newest">最新評估</option>
             <option value="rec-first">推薦優先</option>
@@ -315,7 +322,7 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <label for="field-suitability-score" class="mb-1 block text-sm font-medium text-slate-700">推薦指數 (1–10)</label>
             <input id="field-suitability-score" type="number" min="1" max="10" placeholder="例：8" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100" />
@@ -324,6 +331,15 @@
             <label for="field-purchase-status" class="mb-1 block text-sm font-medium text-slate-700">購物進度</label>
             <select id="field-purchase-status" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100">
               <option value="尚未列入">尚未列入</option><option value="想買">想買</option><option value="等待入手">等待入手</option><option value="已購買">已購買</option><option value="不考慮">不考慮</option>
+            </select>
+          </div>
+          <div>
+            <label for="field-purchase-review" class="mb-1 block text-sm font-medium text-slate-700">買過心得（選填）</label>
+            <select id="field-purchase-review" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100">
+              <option value="">尚未評價</option>
+              <option value="很好">😋 很好</option>
+              <option value="普通">😐 普通</option>
+              <option value="踩雷">💣 踩雷</option>
             </select>
           </div>
           <div>
@@ -549,6 +565,7 @@
       category: '全部',
       recommendation: '全部',
       brand: '全部',
+      purchaseReview: '全部',
       onlyWantToBuy: false,
       search: '',
       sortBy: 'newest'
@@ -693,6 +710,7 @@
         model: item.jpName || null, capacity: item.subtitle || null,
         category: item.category || '待分類', budget: Number(item.budget) || null,
         budget_currency: 'TWD', status: purchaseStatusToDb(item.purchaseStatus),
+        purchase_review: item.purchaseReview || null,
         personal_notes: item.analysisNotes || null
       };
       const { error: productError } = await supabaseClient.from('products').upsert(productRow, { onConflict: 'id,user_id' });
@@ -797,6 +815,7 @@
             ...payload, id: p.id, brand: p.brand || payload.brand || '', name: p.product_name, jpName: p.model || payload.jpName || '',
             subtitle: p.capacity || payload.subtitle || '', category: p.category || '待分類',
             budget: Number(p.budget) || 0, purchaseStatus: purchaseStatusFromDb(p.status),
+            purchaseReview: p.purchase_review || payload.purchaseReview || '',
             suitability: ev?.suitability_summary || payload.suitability || '尚未評估',
             suitabilityScore: normalizeScore10(ev?.suitability_score ?? payload.suitability_score ?? payload.suitabilityScore),
             reviews6m: ev?.review_summary || payload.reviews6m || '尚未查詢近六個月評價',
@@ -935,6 +954,8 @@
         if (filters.category !== '全部' && item.category !== filters.category) return false;
         if (filters.recommendation !== '全部' && item.recommendation !== filters.recommendation) return false;
         if (filters.brand !== '全部' && (item.brand || '').trim() !== filters.brand) return false;
+        if (filters.purchaseReview === 'none' && (item.purchaseReview || '')) return false;
+        if (filters.purchaseReview !== '全部' && filters.purchaseReview !== 'none' && (item.purchaseReview || '') !== filters.purchaseReview) return false;
         if (filters.onlyWantToBuy && item.purchaseStatus !== '想買') return false;
         if (q) {
           const hay = [
@@ -1138,8 +1159,21 @@
               </div>
 
               <!-- Card Footer -->
-              <div class="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
-                <span class="text-[11px] text-slate-400">更新於 ${escapeHtml(item.updatedAt || '')}</span>
+              <div class="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-3">
+                <div class="flex items-center gap-2">
+                  <select data-action="change-purchase-review" data-id="${escapeHtml(item.id)}" aria-label="買過心得" class="rounded-full border border-slate-200 px-2.5 py-1 text-[11px] font-medium outline-none cursor-pointer ${
+                    item.purchaseReview === '很好' ? 'bg-[#B9DAA5] text-[#3E3A39]'
+                      : item.purchaseReview === '普通' ? 'bg-[#F6D27A] text-[#3E3A39]'
+                      : item.purchaseReview === '踩雷' ? 'bg-[#F2A497] text-[#3E3A39]'
+                      : 'bg-slate-50 text-slate-500'
+                  }">
+                    <option value="" ${!item.purchaseReview ? 'selected' : ''}>心得：—</option>
+                    <option value="很好" ${item.purchaseReview === '很好' ? 'selected' : ''}>😋 很好</option>
+                    <option value="普通" ${item.purchaseReview === '普通' ? 'selected' : ''}>😐 普通</option>
+                    <option value="踩雷" ${item.purchaseReview === '踩雷' ? 'selected' : ''}>💣 踩雷</option>
+                  </select>
+                  <span class="text-[11px] text-slate-400">${escapeHtml(item.updatedAt || '')}</span>
+                </div>
                 <div class="flex items-center gap-1.5">
                   <button type="button" data-action="edit" data-id="${escapeHtml(item.id)}" class="rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900">編輯</button>
                   <button type="button" data-action="delete" data-id="${escapeHtml(item.id)}" class="rounded-lg px-2.5 py-1.5 text-xs font-medium text-rose-600 transition hover:bg-rose-50">刪除</button>
@@ -1328,6 +1362,7 @@
         document.getElementById('field-price-num').value = item.priceNumeric || '';
         document.getElementById('field-suitability-score').value = normalizeScore10(item.suitabilityScore) || '';
         document.getElementById('field-purchase-status').value = (item.purchaseStatus === '研究中' ? '想買' : item.purchaseStatus) || '想買';
+        document.getElementById('field-purchase-review').value = item.purchaseReview || '';
         document.getElementById('field-budget').value = item.budget || '';
         document.getElementById('field-suitability').value = item.suitability || '';
         document.getElementById('field-reviews').value = item.reviews6m || '';
@@ -1523,10 +1558,17 @@
         renderAll();
       });
 
+      document.getElementById('select-review')?.addEventListener('change', e => {
+        filters.purchaseReview = e.target.value;
+        renderGrid();
+      });
+
       document.getElementById('btn-clear-filters').addEventListener('click', () => {
-        filters = { category: '全部', recommendation: '全部', brand: '全部', onlyWantToBuy: false, search: '', sortBy: 'newest' };
+        filters = { category: '全部', recommendation: '全部', brand: '全部', purchaseReview: '全部', onlyWantToBuy: false, search: '', sortBy: 'newest' };
         document.getElementById('input-search').value = '';
         document.getElementById('select-brand').value = '全部';
+        const revSel = document.getElementById('select-review');
+        if (revSel) revSel.value = '全部';
         document.getElementById('select-sort').value = 'newest';
         renderAll();
       });
@@ -1563,6 +1605,37 @@
         if (action === 'edit') openFormModal(id);
         if (action === 'delete') openConfirmDelete(id);
         if (action === 'toggle-star') toggleWantStar(id);
+      });
+
+      document.getElementById('product-grid').addEventListener('change', async e => {
+        const sel = e.target.closest('[data-action="change-purchase-review"]');
+        if (!sel) return;
+        const id = sel.dataset.id;
+        const idx = items.findIndex(i => i.id === id);
+        if (idx === -1) return;
+        const review = sel.value || '';
+        items[idx].purchaseReview = review;
+        if (review && items[idx].purchaseStatus !== '已購買') {
+          items[idx].purchaseStatus = '已購買';
+        }
+        saveItems();
+        renderStats();
+        renderGrid();
+        if (currentUser && supabaseClient) {
+          try {
+            const { error } = await supabaseClient
+              .from('products')
+              .update({
+                purchase_review: review || null,
+                status: purchaseStatusToDb(items[idx].purchaseStatus)
+              })
+              .eq('id', id);
+            if (error) throw error;
+          } catch (err) {
+            console.error('Failed to update purchase review:', err);
+            showToast(`雲端心得更新失敗：${err.message || ''}`);
+          }
+        }
       });
 
       // Modals close
@@ -1693,7 +1766,10 @@
           recommendation: document.getElementById('field-recommendation').value || '推薦購買',
           priceNumeric: Number(document.getElementById('field-price-num').value) || 0,
           suitabilityScore: normalizeScore10(document.getElementById('field-suitability-score').value),
-          purchaseStatus: document.getElementById('field-purchase-status').value || '尚未列入',
+          purchaseReview: document.getElementById('field-purchase-review').value || '',
+          purchaseStatus: (document.getElementById('field-purchase-review').value && document.getElementById('field-purchase-status').value === '尚未列入')
+            ? '已購買'
+            : (document.getElementById('field-purchase-status').value || '尚未列入'),
           budget: Number(document.getElementById('field-budget').value) || 0,
           suitability: document.getElementById('field-suitability').value.trim() || '尚未評估',
           reviews6m: document.getElementById('field-reviews').value.trim() || '尚未查詢近六個月評價',

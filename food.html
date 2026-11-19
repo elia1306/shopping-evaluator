@@ -772,12 +772,9 @@
     };
 
     function renderReviewControl(s) {
+      if (isShareMode) return '';
       const review = s.visit_review || '';
       const meta = REVIEW_META[review];
-      if (isShareMode) {
-        if (!meta) return '';
-        return `<span class="inline-block rounded-full border border-[#3E3A39]/40 px-2 py-0.5 text-[11px] font-bold ${meta.cls}">${meta.label}</span>`;
-      }
       const colorCls = meta ? meta.cls : 'bg-slate-50 text-slate-500';
       return `
         <select data-action="change-review" data-id="${escapeHtml(s.id)}" aria-label="去過心得" class="rounded-full border border-slate-200 px-2 py-0.5 text-[11px] font-medium outline-none cursor-pointer ${colorCls}">
@@ -1061,6 +1058,12 @@
         if (badge) badge.classList.remove('hidden');
         const subtitle = document.getElementById('header-subtitle');
         if (subtitle) subtitle.textContent = '旅伴專用・可點擊 ★ 標記想去的餐廳（儲存在您的瀏覽器），並開啟 Google Maps 導航';
+        const visitedSelect = document.getElementById('filter-visited');
+        if (visitedSelect) {
+          Array.from(visitedSelect.options).forEach(opt => {
+            if (opt.value.startsWith('review:')) opt.remove();
+          });
+        }
         spots = [];
       } else {
         spots = loadLocalSpots();
