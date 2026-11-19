@@ -56,9 +56,9 @@
     *, *::before, *::after { box-sizing: border-box; }
     html, body { width: 100%; max-width: 100%; overflow-x: clip; }
     img, input, select, textarea, button { max-width: 100%; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     @media (max-width: 640px) {
-      header .flex.flex-wrap.items-center.gap-2 > button,
-      header .flex.flex-wrap.items-center.gap-2 > label { flex: 1 1 calc(50% - 6px); justify-content: center; min-width: 0; }
       main section { min-width: 0; }
       #product-grid { grid-template-columns: minmax(0, 1fr) !important; }
       #cloud-modal, #form-modal, #detail-modal, #profile-modal, #confirm-modal {
@@ -79,40 +79,42 @@
 
   <!-- Top Header -->
   <header class="sticky top-0 z-30 border-b-[3px] border-[#3E3A39] bg-[#FFFCF6]">
-    <div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div class="flex items-center gap-2.5">
-          <span class="ehon-btn inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#F2A497] text-[#3E3A39]">
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-            </svg>
-          </span>
-          <div class="min-w-0">
-            <div class="flex flex-wrap items-center gap-2">
-              <h1 class="whitespace-nowrap text-xl font-bold tracking-tight text-[#3E3A39] sm:text-2xl">♥ 日本好好買 ♥</h1>
-              <nav aria-label="切換頁面" class="inline-flex rounded-2xl border-[2.5px] border-[#3E3A39] bg-[#FFFCF6] p-0.5 text-xs font-bold">
-                <span class="whitespace-nowrap rounded-xl bg-[#F6D27A] px-3 py-1 text-[#3E3A39]">購物評估</span>
-                <a href="./food.html" class="whitespace-nowrap rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#A8D3E6]/40">美食地圖</a>
-                <a href="./trip.html" class="whitespace-nowrap rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#B9DAA5]/40">旅遊行程</a>
-                <a href="./expenses.html" class="whitespace-nowrap rounded-xl px-3 py-1 text-[#3E3A39] transition hover:bg-[#F2A497]/40">旅遊記帳</a>
-              </nav>
-            </div>
-            <div class="mt-0.5 flex flex-wrap items-center gap-2">
-              <p class="text-xs text-[#3E3A39]/75 sm:text-sm">圖片收藏 × 個人適合度 × 近六個月評價 × 購買通路</p>
-            </div>
+    <div class="mx-auto max-w-7xl px-3 py-2.5 sm:px-6 sm:py-4 lg:px-8">
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex min-w-0 items-center gap-2">
+            <span class="ehon-btn inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[#F2A497] text-[#3E3A39] sm:h-10 sm:w-10">
+              <svg class="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+              </svg>
+            </span>
+            <h1 class="truncate text-lg font-bold tracking-tight text-[#3E3A39] sm:text-2xl">♥ 日本好好買 ♥</h1>
+          </div>
+
+          <div class="flex shrink-0 items-center gap-1.5 sm:gap-2">
+            <button id="btn-toggle-view-mode" type="button" title="切換檢視/編輯模式" aria-label="切換檢視/編輯模式" class="ehon-btn inline-flex h-9 items-center justify-center gap-1.5 rounded-2xl bg-[#FFFCF6] px-2.5 text-xs font-bold text-[#3E3A39] hover:bg-[#F6D27A]/40 sm:h-auto sm:px-3 sm:py-2 sm:text-sm">
+              <span id="btn-view-mode-icon">👁️</span>
+              <span id="btn-view-mode-label" class="hidden sm:inline">切換檢視模式</span>
+            </button>
+            <button id="btn-open-cloud" type="button" title="雲端同步" aria-label="雲端同步" class="ehon-btn inline-flex h-9 items-center justify-center gap-1.5 rounded-2xl bg-[#A8D3E6] px-2.5 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:h-auto sm:px-3 sm:py-2 sm:text-sm">
+              <span aria-hidden="true">☁️</span>
+              <span id="btn-cloud-label" class="hidden sm:inline">雲端同步（本機）</span>
+            </button>
+            <button id="btn-open-add" type="button" title="新增評估商品" aria-label="新增評估商品" class="ehon-btn inline-flex h-9 items-center justify-center gap-1 rounded-2xl bg-[#F2A497] px-2.5 text-sm font-bold text-[#3E3A39] hover:brightness-95 sm:h-auto sm:px-3.5 sm:py-2 sm:text-sm">
+              <span aria-hidden="true">＋</span>
+              <span class="hidden sm:inline">新增評估商品</span>
+            </button>
           </div>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2">
-          <button id="btn-toggle-view-mode" type="button" class="ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#FFFCF6] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:bg-[#F6D27A]/40 sm:text-sm">
-            👁️ 切換檢視模式
-          </button>
-          <button id="btn-open-cloud" type="button" class="ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#A8D3E6] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm">
-            ☁️ 雲端同步（本機）
-          </button>
-          <button id="btn-open-add" type="button" class="ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#F2A497] px-3.5 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm">
-            ＋ 新增評估商品
-          </button>
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <nav aria-label="切換頁面" class="inline-flex rounded-2xl border-[2.5px] border-[#3E3A39] bg-[#FFFCF6] p-0.5 text-xs font-bold">
+            <span class="whitespace-nowrap rounded-xl bg-[#F6D27A] px-2.5 py-1 text-[#3E3A39] sm:px-3">購物評估</span>
+            <a href="./food.html" class="whitespace-nowrap rounded-xl px-2.5 py-1 text-[#3E3A39] transition hover:bg-[#A8D3E6]/40 sm:px-3">美食地圖</a>
+            <a href="./trip.html" class="whitespace-nowrap rounded-xl px-2.5 py-1 text-[#3E3A39] transition hover:bg-[#B9DAA5]/40 sm:px-3">旅遊行程</a>
+            <a href="./expenses.html" class="whitespace-nowrap rounded-xl px-2.5 py-1 text-[#3E3A39] transition hover:bg-[#F2A497]/40 sm:px-3">旅遊記帳</a>
+          </nav>
+          <p class="hidden text-xs text-[#3E3A39]/75 sm:block sm:text-sm">圖片收藏 × 個人適合度 × 近六個月評價 × 購買通路</p>
         </div>
       </div>
     </div>
@@ -139,23 +141,23 @@
     </section>
 
     <!-- Integrated Quick Filter & Category Bar + Collapsible Advanced Search -->
-    <section aria-label="篩選與搜尋" class="ehon-box mb-6 bg-[#FFFCF6] p-3.5 sm:p-4">
-      <div class="flex flex-wrap items-center gap-2">
-        <button id="btn-kpi-want" type="button" class="ehon-btn inline-flex items-center gap-2 rounded-2xl bg-[#F6D27A] px-3.5 py-2 text-left transition hover:brightness-95">
-          <span class="text-xs font-bold text-[#3E3A39]">★ 星號想買</span>
-          <span id="stat-want" class="text-base font-bold leading-none text-[#3E3A39]">0</span>
+    <section aria-label="篩選與搜尋" class="ehon-box mb-4 space-y-2.5 bg-[#FFFCF6] p-3 sm:mb-6 sm:p-4">
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <button id="btn-kpi-want" type="button" class="ehon-btn inline-flex shrink-0 items-center gap-1.5 rounded-2xl bg-[#F6D27A] px-3 py-1.5 text-left transition hover:brightness-95 sm:px-3.5 sm:py-2">
+          <span class="text-xs font-bold text-[#3E3A39]">★ 想買</span>
+          <span id="stat-want" class="text-sm font-bold leading-none text-[#3E3A39] sm:text-base">0</span>
         </button>
-        <button id="btn-kpi-all" type="button" class="ehon-btn inline-flex items-center gap-2 rounded-2xl bg-[#FFFCF6] px-3.5 py-2 text-left transition hover:bg-slate-50">
-          <span class="text-xs font-bold text-[#3E3A39]/80">全部評估商品</span>
-          <span id="stat-total" class="text-base font-bold leading-none text-[#3E3A39]">0</span>
+        <button id="btn-kpi-all" type="button" class="ehon-btn inline-flex shrink-0 items-center gap-1.5 rounded-2xl bg-[#FFFCF6] px-3 py-1.5 text-left transition hover:bg-slate-50 sm:px-3.5 sm:py-2">
+          <span class="text-xs font-bold text-[#3E3A39]/80">全部</span>
+          <span id="stat-total" class="text-sm font-bold leading-none text-[#3E3A39] sm:text-base">0</span>
         </button>
-        <div id="category-pills" class="flex flex-wrap items-center gap-1.5"></div>
-        <button id="btn-toggle-advanced-search" type="button" aria-expanded="false" class="ehon-btn ml-auto inline-flex items-center gap-1.5 rounded-2xl bg-[#FFFCF6] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:bg-[#A8D3E6]/40">
-          <span>🔍 進階搜尋</span>
+        <button id="btn-toggle-advanced-search" type="button" aria-expanded="false" class="ehon-btn ml-auto inline-flex shrink-0 items-center gap-1 rounded-2xl bg-[#FFFCF6] px-3 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#A8D3E6]/40 sm:py-2">
+          <span>🔍 進階</span>
           <span id="advanced-active-dot" class="hidden h-2 w-2 rounded-full bg-[#F2A497] ring-1 ring-[#3E3A39]"></span>
           <span id="advanced-toggle-arrow">▾</span>
         </button>
       </div>
+      <div id="category-pills" class="no-scrollbar flex flex-nowrap items-center gap-1.5 overflow-x-auto pb-0.5 sm:flex-wrap sm:overflow-visible sm:pb-0"></div>
 
       <!-- Collapsible Advanced Search Panel -->
       <div id="advanced-search-panel" class="mt-3.5 hidden space-y-3 border-t-2 border-dashed border-[#3E3A39]/20 pt-3.5">
@@ -604,16 +606,20 @@
 
     function updateSyncBadge(stateText = '') {
       const btn = document.getElementById('btn-open-cloud');
+      const label = document.getElementById('btn-cloud-label');
       if (btn) {
         if (stateText) {
-          btn.textContent = `☁️ ${stateText}`;
-          btn.className = 'ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#F6D27A] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm';
+          if (label) label.textContent = stateText;
+          btn.title = stateText;
+          btn.className = 'ehon-btn inline-flex h-9 items-center justify-center gap-1.5 rounded-2xl bg-[#F6D27A] px-2.5 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:h-auto sm:px-3 sm:py-2 sm:text-sm';
         } else if (currentUser) {
-          btn.textContent = '☁️ 雲端已連線';
-          btn.className = 'ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#B9DAA5] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm';
+          if (label) label.textContent = '雲端已連線';
+          btn.title = '雲端已連線';
+          btn.className = 'ehon-btn inline-flex h-9 items-center justify-center gap-1.5 rounded-2xl bg-[#B9DAA5] px-2.5 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:h-auto sm:px-3 sm:py-2 sm:text-sm';
         } else {
-          btn.textContent = '☁️ 雲端同步（本機）';
-          btn.className = 'ehon-btn inline-flex items-center gap-1.5 rounded-2xl bg-[#A8D3E6] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:text-sm';
+          if (label) label.textContent = '雲端同步（本機）';
+          btn.title = '雲端同步（本機）';
+          btn.className = 'ehon-btn inline-flex h-9 items-center justify-center gap-1.5 rounded-2xl bg-[#A8D3E6] px-2.5 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:h-auto sm:px-3 sm:py-2 sm:text-sm';
         }
       }
       const state = document.getElementById('cloud-auth-state');
@@ -1020,7 +1026,7 @@
       const catContainer = document.getElementById('category-pills');
       catContainer.innerHTML = categories.map(cat => {
         const active = filters.category === cat;
-        return `<button type="button" data-cat="${escapeHtml(cat)}" class="cat-pill ehon-btn rounded-2xl px-3.5 py-2 text-xs font-bold ${
+        return `<button type="button" data-cat="${escapeHtml(cat)}" class="cat-pill ehon-btn shrink-0 rounded-2xl px-3 py-1.5 text-xs font-bold sm:px-3.5 sm:py-2 ${
           active
             ? 'bg-[#A8D3E6] text-[#3E3A39]'
             : 'bg-[#FFFCF6] text-[#3E3A39] hover:bg-[#A8D3E6]/35'
@@ -1189,9 +1195,13 @@
 
     function renderAll() {
       const toggleBtn = document.getElementById('btn-toggle-view-mode');
+      const toggleIcon = document.getElementById('btn-view-mode-icon');
+      const toggleLabel = document.getElementById('btn-view-mode-label');
       if (toggleBtn) {
-        toggleBtn.textContent = isViewMode ? '✏️ 切換編輯模式' : '👁️ 切換檢視模式';
-        toggleBtn.className = `ehon-btn inline-flex items-center gap-1.5 rounded-2xl ${isViewMode ? 'bg-[#F6D27A]' : 'bg-[#FFFCF6] hover:bg-[#F6D27A]/40'} px-3 py-2 text-xs font-bold text-[#3E3A39] sm:text-sm`;
+        if (toggleIcon) toggleIcon.textContent = isViewMode ? '✏️' : '👁️';
+        if (toggleLabel) toggleLabel.textContent = isViewMode ? '切換編輯模式' : '切換檢視模式';
+        toggleBtn.title = isViewMode ? '切換編輯模式' : '切換檢視模式';
+        toggleBtn.className = `ehon-btn inline-flex h-9 items-center justify-center gap-1.5 rounded-2xl ${isViewMode ? 'bg-[#F6D27A]' : 'bg-[#FFFCF6] hover:bg-[#F6D27A]/40'} px-2.5 text-xs font-bold text-[#3E3A39] sm:h-auto sm:px-3 sm:py-2 sm:text-sm`;
       }
       document.getElementById('btn-open-add')?.classList.toggle('hidden', isViewMode);
       document.getElementById('btn-open-add')?.classList.toggle('inline-flex', !isViewMode);
