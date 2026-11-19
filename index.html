@@ -998,14 +998,16 @@
 
       const kpiWant = document.getElementById('btn-kpi-want');
       if (kpiWant) {
-        kpiWant.classList.toggle('ring-2', filters.onlyWantToBuy);
-        kpiWant.classList.toggle('ring-[#3E3A39]', filters.onlyWantToBuy);
+        kpiWant.className = `ehon-btn inline-flex items-center gap-2 rounded-2xl px-3.5 py-2 text-left ${
+          filters.onlyWantToBuy ? 'bg-[#F6D27A]' : 'bg-[#F6D27A]/45 hover:bg-[#F6D27A]/75'
+        }`;
       }
       const kpiAll = document.getElementById('btn-kpi-all');
       if (kpiAll) {
         const isAllActive = !filters.onlyWantToBuy && filters.category === '全部' && filters.recommendation === '全部';
-        kpiAll.classList.toggle('ring-2', isAllActive);
-        kpiAll.classList.toggle('ring-[#3E3A39]', isAllActive);
+        kpiAll.className = `ehon-btn inline-flex items-center gap-2 rounded-2xl px-3.5 py-2 text-left ${
+          isAllActive ? 'bg-[#B9DAA5]' : 'bg-[#FFFCF6] hover:bg-[#B9DAA5]/35'
+        }`;
       }
     }
 
@@ -1018,10 +1020,10 @@
       const catContainer = document.getElementById('category-pills');
       catContainer.innerHTML = categories.map(cat => {
         const active = filters.category === cat;
-        return `<button type="button" data-cat="${escapeHtml(cat)}" class="cat-pill rounded-full px-3.5 py-2 text-xs font-bold transition ${
+        return `<button type="button" data-cat="${escapeHtml(cat)}" class="cat-pill ehon-btn rounded-2xl px-3.5 py-2 text-xs font-bold ${
           active
-            ? 'bg-[#3E3A39] text-[#FFFCF6] shadow-sm'
-            : 'bg-slate-100 text-[#3E3A39] hover:bg-slate-200'
+            ? 'bg-[#A8D3E6] text-[#3E3A39]'
+            : 'bg-[#FFFCF6] text-[#3E3A39] hover:bg-[#A8D3E6]/35'
         }">${escapeHtml(cat)}</button>`;
       }).join('');
 
