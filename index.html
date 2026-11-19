@@ -701,7 +701,7 @@
         .trim();
     }
 
-    async function saveItemToCloud(item) {
+    async function saveItemToCloud(item, isNew = false) {
       if (!supabaseClient || !currentUser) return;
       if (!isUuid(item.id)) item.id = crypto.randomUUID();
       const userId = currentUser.id;
@@ -731,48 +731,68 @@
         analysis_payload: details,
         analyzed_at: item.researchDate ? new Date(item.researchDate).toISOString() : null
       };
-      const { data: existingEvaluation, error: lookupError } = await supabaseClient
-        .from('evaluations').select('id').eq('product_id', item.id).eq('user_id', userId).maybeSingle();
-      if (lookupError) throw lookupError;
-      const evaluationWrite = existingEvaluation?.id
-        ? await supabaseClient.from('evaluations').update(evaluationRow).eq('id', existingEvaluation.id)
-        : await supabaseClient.from('evaluations').insert(evaluationRow);
-      if (evaluationWrite.error) throw evaluationWrite.error;
+
+      const tasks = [];
+
+      tasks.push((async () => {
+        if (isNew) {
+          const { error } = await supabaseClient.from('evaluations').insert(evaluationRow);
+          if (error) throw error;
+          return;
+        }
+        const { data: existingEvaluation, error: lookupError } = await supabaseClient
+          .from('evaluations').select('id').eq('product_id', item.id).eq('user_id', userId).maybeSingle();
+        if (lookupError) throw lookupError;
+        const evaluationWrite = existingEvaluation?.id
+          ? await supabaseClient.from('evaluations').update(evaluationRow).eq('id', existingEvaluation.id)
+          : await supabaseClient.from('evaluations').insert(evaluationRow);
+        if (evaluationWrite.error) throw evaluationWrite.error;
+      })());
 
       if (typeof item.image === 'string' && item.image.startsWith('data:image/')) {
-        const response = await fetch(item.image);
-        const blob = await response.blob();
-        const ext = blob.type.includes('png') ? 'png' : 'jpg';
-        const path = `${userId}/${item.id}/original.${ext}`;
-        const { error: uploadError } = await supabaseClient.storage.from(STORAGE_BUCKET).upload(path, blob, {
-          upsert: true, contentType: blob.type || 'image/jpeg'
-        });
-        if (uploadError) throw uploadError;
-        await supabaseClient.from('product_images').delete().eq('product_id', item.id).eq('user_id', userId);
-        const { error: imageError } = await supabaseClient.from('product_images').insert({
-          product_id: item.id, user_id: userId, image_path: path,
-          image_type: 'original', file_name: `original.${ext}`,
-          mime_type: blob.type || 'image/jpeg', file_size: blob.size, sort_order: 0
-        });
-        if (imageError) throw imageError;
-        item.imagePath = path;
+        tasks.push((async () => {
+          const response = await fetch(item.image);
+          const blob = await response.blob();
+          const ext = blob.type.includes('png') ? 'png' : 'jpg';
+          const path = `${userId}/${item.id}/original.${ext}`;
+          const { error: uploadError } = await supabaseClient.storage.from(STORAGE_BUCKET).upload(path, blob, {
+            upsert: true, contentType: blob.type || 'image/jpeg'
+          });
+          if (uploadError) throw uploadError;
+          if (!isNew) {
+            await supabaseClient.from('product_images').delete().eq('product_id', item.id).eq('user_id', userId);
+          }
+          const { error: imageError } = await supabaseClient.from('product_images').insert({
+            product_id: item.id, user_id: userId, image_path: path,
+            image_type: 'original', file_name: `original.${ext}`,
+            mime_type: blob.type || 'image/jpeg', file_size: blob.size, sort_order: 0
+          });
+          if (imageError) throw imageError;
+          item.imagePath = path;
+        })());
       }
 
       if (Array.isArray(item.purchaseOptions) && item.purchaseOptions.length) {
-        await supabaseClient.from('purchase_options').delete().eq('product_id', item.id).eq('user_id', userId);
-        const poRows = item.purchaseOptions.map(po => ({
-          product_id: item.id, user_id: userId,
-          merchant: String(po.merchant || '未指定通路'),
-          country: po.country ? String(po.country) : null,
-          product_url: po.product_url ? String(po.product_url) : null,
-          price: po.price != null ? Number(po.price) || null : null,
-          currency: po.currency ? String(po.currency) : 'TWD',
-          availability: po.availability ? String(po.availability) : null,
-          notes: po.notes ? String(po.notes) : null
-        }));
-        const { error: poErr } = await supabaseClient.from('purchase_options').insert(poRows);
-        if (poErr) throw poErr;
+        tasks.push((async () => {
+          if (!isNew) {
+            await supabaseClient.from('purchase_options').delete().eq('product_id', item.id).eq('user_id', userId);
+          }
+          const poRows = item.purchaseOptions.map(po => ({
+            product_id: item.id, user_id: userId,
+            merchant: String(po.merchant || '未指定通路'),
+            country: po.country ? String(po.country) : null,
+            product_url: po.product_url ? String(po.product_url) : null,
+            price: po.price != null ? Number(po.price) || null : null,
+            currency: po.currency ? String(po.currency) : 'TWD',
+            availability: po.availability ? String(po.availability) : null,
+            notes: po.notes ? String(po.notes) : null
+          }));
+          const { error: poErr } = await supabaseClient.from('purchase_options').insert(poRows);
+          if (poErr) throw poErr;
+        })());
       }
+
+      await Promise.all(tasks);
     }
 
     async function syncFromCloud() {
@@ -803,17 +823,23 @@
           if (!poMap.has(po.product_id)) poMap.set(po.product_id, []);
           poMap.get(po.product_id).push(po);
         }
+        const imagePaths = Array.from(new Set(images.map(i => i.image_path).filter(Boolean)));
+        const signedMap = new Map();
+        if (imagePaths.length) {
+          const { data: signedList } = await supabaseClient.storage.from(STORAGE_BUCKET).createSignedUrls(imagePaths, 3600);
+          if (Array.isArray(signedList)) {
+            for (const entry of signedList) {
+              if (entry.path && entry.signedUrl) signedMap.set(entry.path, entry.signedUrl);
+            }
+          }
+        }
         const restored = [];
         for (const p of (products || [])) {
           const ev = evMap.get(p.id);
           const payload = ev?.analysis_payload && typeof ev.analysis_payload === 'object' ? ev.analysis_payload : {};
           const img = imageMap.get(p.id);
           const opts = poMap.get(p.id) || [];
-          let image = payload.image || '';
-          if (img?.image_path) {
-            const { data: signed } = await supabaseClient.storage.from(STORAGE_BUCKET).createSignedUrl(img.image_path, 3600);
-            image = signed?.signedUrl || '';
-          }
+          const image = (img?.image_path && signedMap.get(img.image_path)) || payload.image || '';
           restored.push({
             ...payload, id: p.id, brand: p.brand || payload.brand || '', name: p.product_name, jpName: p.model || payload.jpName || '',
             subtitle: p.capacity || payload.subtitle || '', category: p.category || '待分類',
@@ -861,7 +887,7 @@
       updateSyncBadge('正在儲存雲端...');
       try {
         if (payload.action === 'upsertItem' && payload.item) {
-          await saveItemToCloud(payload.item);
+          await saveItemToCloud(payload.item, Boolean(payload.isNew));
           saveItems();
         } else if (payload.action === 'deleteItem' && payload.id) {
           const { data: imageRows } = await supabaseClient.from('product_images').select('image_path').eq('product_id', payload.id);
@@ -1858,7 +1884,7 @@
         saveItems();
         closeFormModal();
         renderAll();
-        pushToCloud({ action: 'upsertItem', item: payload });
+        pushToCloud({ action: 'upsertItem', item: payload, isNew: !id });
       });
 
       // Confirm Delete

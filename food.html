@@ -609,13 +609,18 @@
           .order('created_at', { ascending: false });
         if (error) throw error;
         const rows = data || [];
-        for (const s of rows) {
-          if (s.image_path) {
-            const { data: signed } = await supabaseClient.storage.from(STORAGE_BUCKET).createSignedUrl(s.image_path, 3600);
-            s.image = signed?.signedUrl || s.image_url || '';
-          } else {
-            s.image = s.image_url || '';
+        const paths = Array.from(new Set(rows.map(s => s.image_path).filter(Boolean)));
+        const signedMap = new Map();
+        if (paths.length) {
+          const { data: signedList } = await supabaseClient.storage.from(STORAGE_BUCKET).createSignedUrls(paths, 3600);
+          if (Array.isArray(signedList)) {
+            for (const entry of signedList) {
+              if (entry.path && entry.signedUrl) signedMap.set(entry.path, entry.signedUrl);
+            }
           }
+        }
+        for (const s of rows) {
+          s.image = (s.image_path && signedMap.get(s.image_path)) || s.image_url || '';
         }
         spots = rows;
         saveLocalSpots();
