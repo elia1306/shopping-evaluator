@@ -83,7 +83,6 @@
               <a href="./expenses.html" id="nav-expenses-link" class="whitespace-nowrap rounded-xl px-2.5 py-1 text-[#3E3A39] transition hover:bg-[#F2A497]/40 sm:px-3">旅遊記帳</a>
               <span class="whitespace-nowrap rounded-xl bg-[#F6D27A] px-2.5 py-1 text-[#3E3A39] sm:px-3">日文手冊</span>
             </nav>
-            <span id="share-trip-badge" class="hidden inline-flex items-center rounded-full border-2 border-[#3E3A39] bg-[#B9DAA5] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">旅伴專用</span>
           </div>
           <p id="header-subtitle" class="hidden text-xs text-[#3E3A39]/75 sm:block sm:text-sm">情境對話 × 平假名發音 × 語音朗讀 × 指給店員看大字卡</p>
         </div>
@@ -642,8 +641,6 @@
       });
       const cloudBtn = document.getElementById('btn-cloud-sync');
       if (cloudBtn) cloudBtn.classList.add('hidden');
-      const badge = document.getElementById('share-trip-badge');
-      if (badge) badge.classList.remove('hidden');
       const subtitle = document.getElementById('header-subtitle');
       if (subtitle) subtitle.textContent = '旅伴專用・可點擊 🔊 朗讀、👆 給店員看與收藏 ★ 常用句（儲存在您的瀏覽器）';
     }
@@ -731,11 +728,6 @@
           starred: Object.prototype.hasOwnProperty.call(starMap, p.id) ? Boolean(starMap[p.id]) : Boolean(p.starred),
         }));
 
-        const badge = document.getElementById('share-trip-badge');
-        if (badge) {
-          badge.textContent = sharedTrip?.title ? `旅伴專用・${sharedTrip.title}` : '旅伴專用';
-          badge.classList.remove('hidden');
-        }
         renderAll();
       } catch (err) {
         console.error(err);

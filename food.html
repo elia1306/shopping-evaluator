@@ -87,7 +87,6 @@
               <a href="./expenses.html" id="nav-expenses-link" class="whitespace-nowrap rounded-xl px-2.5 py-1 text-[#3E3A39] transition hover:bg-[#F2A497]/40 sm:px-3">旅遊記帳</a>
               <a href="./japanese.html" id="nav-japanese-link" class="whitespace-nowrap rounded-xl px-2.5 py-1 text-[#3E3A39] transition hover:bg-[#A8D3E6]/40 sm:px-3">日文手冊</a>
             </nav>
-            <span id="share-trip-badge" class="hidden inline-flex items-center rounded-full border-2 border-[#3E3A39] bg-[#B9DAA5] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">旅伴專用</span>
           </div>
           <p id="header-subtitle" class="hidden text-xs text-[#3E3A39]/75 sm:block sm:text-sm">地區分類 × 食物種類 × 推薦必點 × Google Maps</p>
         </div>
@@ -561,11 +560,6 @@
           image: s.image || s.image_url || '',
         }));
 
-        const badge = document.getElementById('share-trip-badge');
-        if (badge) {
-          badge.textContent = sharedTrip?.title ? `旅伴專用・${sharedTrip.title}` : '旅伴專用';
-          badge.classList.remove('hidden');
-        }
         renderAll();
       } catch (err) {
         console.error(err);
@@ -1078,8 +1072,6 @@
         document.getElementById('th-visited')?.classList.add('hidden');
         document.getElementById('th-actions')?.classList.add('hidden');
         document.getElementById('filter-visited')?.classList.add('hidden');
-        const badge = document.getElementById('share-trip-badge');
-        if (badge) badge.classList.remove('hidden');
         const subtitle = document.getElementById('header-subtitle');
         if (subtitle) subtitle.textContent = '旅伴專用・可點擊 ★ 標記想吃的餐廳（儲存在您的瀏覽器），並開啟 Google Maps 導航';
         const visitedSelect = document.getElementById('filter-visited');
