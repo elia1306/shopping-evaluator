@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>♥ 日本好好說 ♥｜日系繪本旅遊日文筆記</title>
+  <title>♥ 日文手冊 ♥｜日系繪本旅遊日文手冊</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -55,7 +55,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-4 4v-4z" />
               </svg>
             </div>
-            <h1 class="truncate text-lg font-bold tracking-tight text-[#3E3A39] sm:text-2xl">♥ 日本好好說 ♥</h1>
+            <h1 class="truncate text-lg font-bold tracking-tight text-[#3E3A39] sm:text-2xl">♥ 日文手冊 ♥</h1>
           </div>
 
           <div class="header-actions flex shrink-0 items-center gap-1.5 sm:gap-2">
@@ -81,7 +81,7 @@
               <a href="./food.html" id="nav-food-link" class="whitespace-nowrap rounded-xl px-2.5 py-1 text-[#3E3A39] transition hover:bg-[#F6D27A]/40 sm:px-3">美食雷達</a>
               <a href="./trip.html" id="nav-trip-link" class="whitespace-nowrap rounded-xl px-2.5 py-1 text-[#3E3A39] transition hover:bg-[#B9DAA5]/40 sm:px-3">旅遊行程</a>
               <a href="./expenses.html" id="nav-expenses-link" class="whitespace-nowrap rounded-xl px-2.5 py-1 text-[#3E3A39] transition hover:bg-[#F2A497]/40 sm:px-3">旅遊記帳</a>
-              <span class="whitespace-nowrap rounded-xl bg-[#F6D27A] px-2.5 py-1 text-[#3E3A39] sm:px-3">日文筆記</span>
+              <span class="whitespace-nowrap rounded-xl bg-[#F6D27A] px-2.5 py-1 text-[#3E3A39] sm:px-3">日文手冊</span>
             </nav>
             <span id="share-trip-badge" class="hidden inline-flex items-center rounded-full border-2 border-[#3E3A39] bg-[#B9DAA5] px-2.5 py-0.5 text-[11px] font-bold text-[#3E3A39]">旅伴專用</span>
           </div>
@@ -95,51 +95,43 @@
 
     <!-- Quick Filter & Scene Bar -->
     <section aria-label="場景與篩選" class="ehon-box mb-4 space-y-2.5 bg-[#FFFCF6] p-3 sm:mb-6 sm:p-4">
-      <!-- Row 1: Starred + All + Speech Speed + Collapsible Search -->
-      <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
-        <button id="btn-filter-star" type="button" class="ehon-btn inline-flex shrink-0 items-center gap-1.5 rounded-2xl bg-[#FFFCF6] px-3 py-1.5 text-left transition hover:bg-[#F6D27A]/45 sm:px-3.5 sm:py-2">
+      <!-- Row 1: Starred + All + Speech Speed + Search Toggle (always single row on mobile) -->
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <button id="btn-filter-star" type="button" class="ehon-btn inline-flex shrink-0 items-center gap-1 rounded-2xl bg-[#FFFCF6] px-2.5 py-1.5 text-left transition hover:bg-[#F6D27A]/45 sm:gap-1.5 sm:px-3.5 sm:py-2">
           <span class="text-xs font-bold text-[#3E3A39]">★ 常用</span>
-          <span id="stat-starred" class="text-sm font-bold leading-none text-[#3E3A39] sm:text-base">0</span>
+          <span id="stat-starred" class="text-xs font-bold leading-none text-[#3E3A39] sm:text-base">0</span>
         </button>
-        <button id="btn-filter-all" type="button" class="ehon-btn inline-flex shrink-0 items-center gap-1.5 rounded-2xl bg-[#B9DAA5] px-3 py-1.5 text-left transition hover:brightness-95 sm:px-3.5 sm:py-2">
+        <button id="btn-filter-all" type="button" class="ehon-btn inline-flex shrink-0 items-center gap-1 rounded-2xl bg-[#B9DAA5] px-2.5 py-1.5 text-left transition hover:brightness-95 sm:gap-1.5 sm:px-3.5 sm:py-2">
           <span class="text-xs font-bold text-[#3E3A39]">全部</span>
-          <span id="stat-total" class="text-sm font-bold leading-none text-[#3E3A39] sm:text-base">0</span>
+          <span id="stat-total" class="text-xs font-bold leading-none text-[#3E3A39] sm:text-base">0</span>
         </button>
-        <button id="btn-speech-rate" type="button" title="切換日語朗讀速度" class="ehon-btn inline-flex shrink-0 items-center gap-1 rounded-2xl bg-[#FFFCF6] px-2.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#A8D3E6]/30 sm:px-3 sm:py-2">
+        <button id="btn-speech-rate" type="button" title="切換日語朗讀速度" class="ehon-btn inline-flex shrink-0 items-center gap-1 rounded-2xl bg-[#FFFCF6] px-2 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#A8D3E6]/30 sm:px-3 sm:py-2">
           <span>🔊</span>
           <span id="speech-rate-label">0.9x</span>
         </button>
-        <button id="btn-toggle-advanced" type="button" aria-expanded="false" class="ehon-btn ml-auto inline-flex shrink-0 items-center gap-1 rounded-2xl bg-[#FFFCF6] px-3 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#A8D3E6]/40 sm:py-2">
-          <span>🔍 搜尋 / 對象</span>
+        <button id="btn-toggle-advanced" type="button" aria-expanded="false" class="ehon-btn ml-auto inline-flex shrink-0 items-center gap-1 rounded-2xl bg-[#FFFCF6] px-2.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#A8D3E6]/40 sm:px-3 sm:py-2">
+          <span>🔍</span>
+          <span class="hidden sm:inline">搜尋</span>
           <span id="advanced-dot" class="hidden h-2 w-2 rounded-full bg-[#F2A497] ring-1 ring-[#3E3A39]"></span>
           <span id="advanced-arrow">▾</span>
         </button>
       </div>
 
       <!-- Row 2: Horizontal Scrollable Scene Pills -->
-      <div id="scene-pills" class="no-scrollbar flex flex-nowrap items-center gap-1.5 overflow-x-auto pb-0.5 sm:flex-wrap sm:overflow-visible sm:pb-0"></div>
+      <div id="scene-pills" class="no-scrollbar flex w-full min-w-0 flex-nowrap items-center gap-1.5 overflow-x-auto px-0.5 py-1 sm:flex-wrap sm:overflow-visible sm:p-0"></div>
 
       <!-- Row 3: Category Pills within Selected Scene -->
-      <div id="category-pills" class="no-scrollbar hidden flex-nowrap items-center gap-1.5 overflow-x-auto border-t-2 border-dashed border-[#3E3A39]/15 pt-2 sm:flex-wrap sm:overflow-visible"></div>
+      <div id="category-pills" class="no-scrollbar hidden w-full min-w-0 flex-nowrap items-center gap-1.5 overflow-x-auto border-t-2 border-dashed border-[#3E3A39]/15 px-0.5 pb-1 pt-2 sm:flex-wrap sm:overflow-visible sm:pb-0"></div>
 
-      <!-- Collapsible Advanced Search Panel -->
-      <div id="advanced-panel" class="hidden grid grid-cols-1 gap-2 border-t-2 border-dashed border-[#3E3A39]/15 pt-3 sm:grid-cols-4">
-        <select id="filter-speaker" aria-label="對象" class="w-full rounded-xl border-2 border-[#3E3A39]/25 bg-white px-3 py-2 text-xs font-bold text-[#3E3A39] outline-none focus:border-[#3E3A39] sm:text-sm">
-          <option value="全部">全部對象</option>
-          <option value="店員">店員</option>
-          <option value="顧客">顧客</option>
-          <option value="單字">單字</option>
-          <option value="調整">調整</option>
-        </select>
-        <div class="flex gap-2 sm:col-span-3">
-          <div class="relative flex-1">
-            <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#3E3A39]/50" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <input id="input-search" type="search" placeholder="搜尋情境、日文、平假名、中文、備註..." class="w-full rounded-xl border-2 border-[#3E3A39]/25 bg-white py-2 pl-9 pr-3 text-xs text-[#3E3A39] placeholder-[#3E3A39]/45 outline-none focus:border-[#3E3A39] sm:text-sm" />
-          </div>
-          <button id="btn-reset-filters" type="button" class="ehon-btn shrink-0 rounded-xl bg-[#FFFCF6] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:bg-[#F6D27A]/40">重設</button>
+      <!-- Collapsible Search Bar -->
+      <div id="advanced-panel" class="hidden flex items-center gap-2 border-t-2 border-dashed border-[#3E3A39]/15 pt-3">
+        <div class="relative flex-1">
+          <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#3E3A39]/50" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input id="input-search" type="search" placeholder="搜尋情境、日文、平假名、中文、備註..." class="w-full rounded-xl border-2 border-[#3E3A39]/25 bg-white py-2 pl-9 pr-3 text-xs text-[#3E3A39] placeholder-[#3E3A39]/45 outline-none focus:border-[#3E3A39] sm:text-sm" />
         </div>
+        <button id="btn-reset-filters" type="button" class="ehon-btn shrink-0 rounded-xl bg-[#FFFCF6] px-3 py-2 text-xs font-bold text-[#3E3A39] hover:bg-[#F6D27A]/40">重設</button>
       </div>
     </section>
 
@@ -413,6 +405,48 @@
       { scene: '買東西退稅', category: '結帳與購物', situation: '詢問有沒有新品', speaker: '顧客', japanese: '新しい在庫はありますか？', hiragana: 'あたらしい ざいこは ありますか？', chinese: '請問有全新的庫存嗎？', note: '藥妝/服飾適用', starred: false },
       { scene: '買東西退稅', category: '結帳與購物', situation: '詢問試穿/試用', speaker: '顧客', japanese: '試着してもいいですか？', hiragana: 'しちゃく しても いいですか？', chinese: '請問可以試穿嗎？', note: '鞋類/服飾適用', starred: false },
       { scene: '買東西退稅', category: '結帳與購物', situation: '需要購物袋', speaker: '顧客', japanese: 'レジ袋をお願いします。', hiragana: 'れじぶくろを おねがいします。', chinese: '請給我購物袋。', note: '日本塑膠袋大多需另加 3～10 日圓', starred: false },
+
+      // 餐廳點餐
+      { scene: '餐廳點餐', category: '入座帶位', situation: '詢問幾位用餐', speaker: '店員', japanese: '何名様ですか？', hiragana: 'なんめいさま ですか？', chinese: '請問幾位呢？', note: '常用手勢比出人數即可', starred: false },
+      { scene: '餐廳點餐', category: '入座帶位', situation: '回答人數（兩位）', speaker: '顧客', japanese: '【2人】です。', hiragana: '【ふたり】です。', chinese: '我們【兩位】。', note: '1人(ひとり) / 2人(ふたり) / 3人(さんにん) / 4人(よにん)', starred: true },
+      { scene: '餐廳點餐', category: '入座帶位', situation: '需要中文/英文菜單', speaker: '顧客', japanese: '【中国語 / 英語】のメニューはありますか？', hiragana: '【ちゅうごくご / えいご】の めにゅーは ありますか？', chinese: '請問有【中文 / 英文】菜單嗎？', note: '很多觀光區餐廳都有提供', starred: true },
+      { scene: '餐廳點餐', category: '點餐實戰', situation: '詢問推薦餐點', speaker: '顧客', japanese: 'おすすめは何ですか？', hiragana: 'おすすめは なんですか？', chinese: '請問有什麼推薦的嗎？', note: '', starred: false },
+      { scene: '餐廳點餐', category: '點餐實戰', situation: '指菜單點餐（複數）', speaker: '顧客', japanese: 'これとこれを【一つ】ずつください。', hiragana: 'これと これを 【ひとつ】ずつ ください。', chinese: '這個和這個請各給我【一份】。', note: '2份：二つ(ふたつ) / 3份：三つ(みっつ)', starred: true },
+      { scene: '餐廳點餐', category: '點餐實戰', situation: '不吃/過敏食材（去蔥/去香菜等）', speaker: '顧客', japanese: '【ネギ】抜きでお願いします。', hiragana: '【ねぎ】ぬきで おねがいします。', chinese: '請不要加【蔥】。', note: '香菜：パクチー / 辣：辛いの / 生食：生もの', starred: false },
+      { scene: '餐廳點餐', category: '用餐需求', situation: '加點白開水', speaker: '顧客', japanese: 'お水をいただけますか？', hiragana: 'おみずを いただけますか？', chinese: '可以給我一杯水嗎？', note: '日本餐廳常直接附冰水（お冷）', starred: false },
+      { scene: '餐廳點餐', category: '用餐需求', situation: '需要分食小盤子', speaker: '顧客', japanese: '取り皿を【2枚】いただけますか？', hiragana: 'とりざらを 【にまい】 いただけますか？', chinese: '可以給我【2個】分食小盤嗎？', note: '', starred: false },
+      { scene: '餐廳點餐', category: '結帳付款', situation: '請幫我結帳', speaker: '顧客', japanese: 'お会計お願いします。', hiragana: 'おかいけい おねがいします。', chinese: '麻煩幫我結帳。', note: '有些店是拿桌上的帳單傳票去櫃檯結帳', starred: true },
+      { scene: '餐廳點餐', category: '結帳付款', situation: '詢問能否刷卡/電子支付', speaker: '顧客', japanese: 'クレジットカードは使えますか？', hiragana: 'くれじっとかーどは つかえますか？', chinese: '請問可以刷信用卡嗎？', note: 'Suica/交通卡：交通系IC（こうつうけいあいしー）', starred: false },
+      { scene: '餐廳點餐', category: '結帳付款', situation: '詢問能否分開結帳', speaker: '顧客', japanese: '別々でお願いします。', hiragana: 'べつべつで おねがいします。', chinese: '請幫我們分開結帳。', note: '一起結帳：一緒（いっしょ）でお願いします', starred: false },
+      { scene: '餐廳點餐', category: '結帳付款', situation: '讚美食物好吃', speaker: '顧客', japanese: 'ごちそうさまでした！とても美味しかったです。', hiragana: 'ごちそうさまでした！とても おいしかったです。', chinese: '謝謝招待！非常好吃。', note: '離開時對店員說，禮貌又加分', starred: false },
+
+      // 居酒屋點餐(文化)
+      { scene: '居酒屋點餐(文化)', category: '居酒屋文化', situation: '小菜 / 入座費（お通し）', speaker: '店員', japanese: 'お通しをお持ちしました。', hiragana: 'おとおしを おもちしました。', chinese: '這是您的入座小菜。', note: '💡文化須知：多數居酒屋會自動送上小菜（約 300～500 日圓/人），等同台灣低消或座位費，通常無法拒絕', starred: true },
+      { scene: '居酒屋點餐(文化)', category: '居酒屋文化', situation: '先點第一杯飲料', speaker: '店員', japanese: 'まずはお飲み物からいかがですか？', hiragana: 'まずは おのみものから いかがですか？', chinese: '請問要先點什麼飲料嗎？', note: '💡文化須知：入座後會先問飲料，點完飲料邊喝邊看菜單再點菜是日本習慣', starred: true },
+      { scene: '居酒屋點餐(文化)', category: '飲品酒類', situation: '先來一杯生啤酒', speaker: '顧客', japanese: 'とりあえず生ビールを【一つ】お願いします。', hiragana: 'とりあえず なまびーるを 【ひとつ】 おねがいします。', chinese: '請先給我【一杯】生啤酒。', note: '「とりあえず生」是日本居酒屋經典開場白', starred: true },
+      { scene: '居酒屋點餐(文化)', category: '飲品酒類', situation: '點無酒精/軟性飲料', speaker: '顧客', japanese: '【烏龍茶】をお願いします。', hiragana: '【うーろんちゃ】を おねがいします。', chinese: '請給我【烏龍茶】。', note: '可替換：梅酒蘇打(梅酒ソーダ) / 檸檬沙瓦(レモンサワー) / 柳橙汁(オレンジジュース)', starred: false },
+      { scene: '居酒屋點餐(文化)', category: '點餐節奏', situation: '請給我們一點時間看菜單', speaker: '顧客', japanese: 'すみません、もう少し考えます。', hiragana: 'すみません、もうすこし かんがえます。', chinese: '不好意思，我們再考慮一下。', note: '還沒決定好可以先這樣說', starred: false },
+      { scene: '居酒屋點餐(文化)', category: '點餐節奏', situation: '呼叫店員', speaker: '顧客', japanese: 'すみません！', hiragana: 'すみません！', chinese: '不好意思（我要點餐）！', note: '部分居酒屋桌上有「呼叫鈴」或直接掃 QR Code 點餐', starred: false },
+      { scene: '居酒屋點餐(文化)', category: '烤物點法', situation: '選擇醬燒或鹽烤', speaker: '店員', japanese: 'タレと塩、どちらになさいますか？', hiragana: 'たれと しお、どちらに なさいますか？', chinese: '請問要醬燒還是鹽烤？', note: '點燒鳥（串燒）時店員必問', starred: true },
+      { scene: '居酒屋點餐(文化)', category: '烤物點法', situation: '回答醬燒 / 鹽烤', speaker: '顧客', japanese: '【塩】でお願いします。', hiragana: '【しお】で おねがいします。', chinese: '請用【鹽烤】的。', note: '醬燒：タレ（たれ）', starred: false },
+      { scene: '居酒屋點餐(文化)', category: '時間提醒', situation: '飲品/餐點最後加點', speaker: '店員', japanese: 'ラストオーダーのお時間ですが、何か追加はございますか？', hiragana: 'らすと おーだーの おじかんですが、なにか ついかは ございますか？', chinese: '現在是最後加點時間，請問還要加點嗎？', note: '💡文化須知：通常在打烊或限時前 30 分鐘會詢問最後加點', starred: false },
+      { scene: '居酒屋點餐(文化)', category: '時間提醒', situation: '不加點了', speaker: '顧客', japanese: '大丈夫です、ありがとうございます。', hiragana: 'だいじょうぶです、ありがとう ございます。', chinese: '不用了，謝謝。', note: '', starred: false },
+      { scene: '居酒屋點餐(文化)', category: '文化提醒', situation: '詢問是否為禁菸/吸菸席', speaker: '顧客', japanese: '禁煙席はありますか？', hiragana: 'きんえんせきは ありますか？', chinese: '請問有禁菸座位嗎？', note: '💡文化須知：部分傳統居酒屋仍允許室內吸菸，介意者可先確認', starred: false },
+      { scene: '居酒屋點餐(文化)', category: '文化提醒', situation: '熱毛巾擦手（おしぼり）', speaker: '單字', japanese: 'おしぼり', hiragana: 'おしぼり', chinese: '濕毛巾（擦手用）', note: '入座時送上，是用來擦手的（不要拿來擦臉）', starred: false },
+
+      // 藥妝店詢問
+      { scene: '藥妝店詢問', category: '尋找商品', situation: '拿照片詢問是否有賣', speaker: '顧客', japanese: 'すみません、これはどこにありますか？', hiragana: 'すみません、これは どこに ありますか？', chinese: '不好意思，請問這個放在哪裡？', note: '最萬用！直接手機秀商品圖給店員看', starred: true },
+      { scene: '藥妝店詢問', category: '尋找商品', situation: '詢問是否缺貨/有無庫存', speaker: '顧客', japanese: '在庫はありますか？', hiragana: 'ざいこは ありますか？', chinese: '請問還有庫存嗎？', note: '架上空了可以問店員倉庫還有沒有', starred: false },
+      { scene: '藥妝店詢問', category: '尋找商品', situation: '缺貨中/已售完', speaker: '店員', japanese: '申し訳ございません、ただいま品切れ中です。', hiragana: 'もうしわけ ございません、ただいま しなぎれちゅう です。', chinese: '非常抱歉，目前缺貨中。', note: '「品切れ（しなぎれ）」= 缺貨', starred: false },
+      { scene: '藥妝店詢問', category: '藥物諮詢', situation: '詢問成分/效果', speaker: '顧客', japanese: '【頭痛】に効く薬はどれですか？', hiragana: '【ずつう】に きく くすりは どれですか？', chinese: '請問對【頭痛】有效的藥是哪一種？', note: '胃痛：胃痛(いつう) / 感冒：風邪(かぜ) / 過敏：アレルギー', starred: true },
+      { scene: '藥妝店詢問', category: '藥物諮詢', situation: '詢問用法與次數', speaker: '顧客', japanese: '1日に何回飲みますか？', hiragana: 'いちにちに なんかい のみますか？', chinese: '請問一天吃幾次？', note: '飯後：食後（しょくご）/ 睡前：寝る前（ねるまえ）', starred: false },
+      { scene: '藥妝店詢問', category: '藥物諮詢', situation: '詢問兒童是否可服用', speaker: '顧客', japanese: '子供でも飲めますか？', hiragana: 'こどもでも のめますか？', chinese: '請問小朋友也可以吃嗎？', note: '可告知小孩年齡（例：5歳です）', starred: false },
+      { scene: '藥妝店詢問', category: '美妝保養', situation: '詢問有無試用品', speaker: '顧客', japanese: 'テスターはありますか？', hiragana: 'てすたーは ありますか？', chinese: '請問有試用品嗎？', note: '', starred: false },
+      { scene: '藥妝店詢問', category: '美妝保養', situation: '詢問是否含酒精/香料', speaker: '顧客', japanese: 'アルコールフリーですか？', hiragana: 'あるこーる ふりー ですか？', chinese: '請問這是無酒精的嗎？', note: '無香料：無香料（むこうりょう）', starred: false },
+      { scene: '藥妝店詢問', category: '結帳退稅', situation: '指引至免稅專用櫃檯', speaker: '店員', japanese: '免税レジはあちらです。', hiragana: 'めんぜい れじは あちらです。', chinese: '免稅結帳櫃檯在那邊。', note: '大型藥妝店通常有獨立「Tax-Free」櫃檯', starred: false },
+      { scene: '藥妝店詢問', category: '結帳退稅', situation: '出示優惠券（Coupon）', speaker: '顧客', japanese: 'このクーポンは使えますか？', hiragana: 'この くーぽんは つかえますか？', chinese: '請問這張優惠券可以使用嗎？', note: '常可搭配免稅再折 3%～7%', starred: true },
+      { scene: '藥妝店詢問', category: '結帳退稅', situation: '詢問是否需要另外封袋', speaker: '顧客', japanese: '免税袋を別々にできますか？', hiragana: 'めんぜいぶくろを べつべつに できますか？', chinese: '免稅袋可以分開裝嗎？', note: '幫朋友代買或想分箱塞行李箱時超好用', starred: false },
+      { scene: '藥妝店詢問', category: '結帳退稅', situation: '立即要吃的零食想分開結帳', speaker: '顧客', japanese: 'これだけ別会計でお願いします。', hiragana: 'これだけ べつかいけいで おねがいします。', chinese: '只有這個要分開結帳（要馬上吃的）。', note: '免稅封袋內商品離境前不可拆，晚上想吃的零食/飲料記得單獨結帳', starred: true },
     ].map((item, idx) => ({
       id: `seed-${idx + 1}`,
       ...item,
@@ -430,6 +464,8 @@
       '機場出入境': '✈️',
       '買東西退稅': '🛍️',
       '餐廳點餐': '🍽️',
+      '居酒屋點餐(文化)': '🏮',
+      '藥妝店詢問': '💊',
       '交通問路': '🚆',
       '飯店住宿': '🏨',
       '緊急求助': '🆘',
@@ -508,7 +544,16 @@
         const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
         if (raw) {
           const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const existingScenes = new Set(parsed.map(p => p.scene));
+            const newSeedItems = DEFAULT_SEED_PHRASES.filter(s => !existingScenes.has(s.scene));
+            if (newSeedItems.length > 0) {
+              const merged = [...parsed, ...newSeedItems.map(x => ({ ...x }))];
+              localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(merged));
+              return merged;
+            }
+            return parsed;
+          }
         }
       } catch {}
       return DEFAULT_SEED_PHRASES.map(x => ({ ...x }));
@@ -694,14 +739,12 @@
     }
 
     function getFilteredPhrases() {
-      const speakerFilter = document.getElementById('filter-speaker').value;
       const keyword = document.getElementById('input-search').value.trim().toLowerCase();
 
       return phrases.filter(p => {
         if (quickFilter === 'starred' && !p.starred) return false;
         if (selectedScene !== '全部' && p.scene !== selectedScene) return false;
         if (selectedScene !== '全部' && selectedCategory !== '全部' && p.category !== selectedCategory) return false;
-        if (speakerFilter !== '全部' && p.speaker !== speakerFilter) return false;
         if (keyword) {
           const hay = [p.scene, p.category, p.situation, p.speaker, p.japanese, p.hiragana, p.chinese, p.note]
             .join(' ')
@@ -795,9 +838,8 @@
         starBtn.classList.remove('bg-[#F6D27A]');
       }
 
-      const speaker = document.getElementById('filter-speaker').value;
       const kw = document.getElementById('input-search').value.trim();
-      document.getElementById('advanced-dot').classList.toggle('hidden', speaker === '全部' && !kw);
+      document.getElementById('advanced-dot').classList.toggle('hidden', !kw);
     }
 
     function renderComboBar() {
@@ -830,13 +872,14 @@
 
       tbody.innerHTML = list.map(p => {
         const isInCombo = comboIds.includes(p.id);
+        const isStaffLine = p.speaker === '店員';
         return `
           <tr class="transition hover:bg-[#F6D27A]/10">
             <td class="px-3 py-3 text-center align-top">
               <button type="button" data-action="star" data-id="${escapeHtml(p.id)}" class="text-lg leading-none transition hover:scale-110" title="收藏常用">${p.starred ? '★' : '☆'}</button>
             </td>
             <td class="px-2 py-3 text-center align-top">
-              <input type="checkbox" data-action="combo" data-id="${escapeHtml(p.id)}" ${isInCombo ? 'checked' : ''} title="加入組合指字卡" class="h-4 w-4 cursor-pointer accent-[#3E3A39]" />
+              ${isStaffLine ? '<span class="text-xs text-[#3E3A39]/35" title="聽懂店員問句">—</span>' : `<input type="checkbox" data-action="combo" data-id="${escapeHtml(p.id)}" ${isInCombo ? 'checked' : ''} title="加入組合指字卡" class="h-4 w-4 cursor-pointer accent-[#3E3A39]" />`}
             </td>
             <td class="px-3 py-3 align-top">
               <div class="text-[11px] font-bold text-[#3E3A39]/60">${selectedScene === '全部' ? escapeHtml(getSceneLabel(p.scene)) + '・' : ''}${escapeHtml(p.category)}</div>
@@ -853,9 +896,11 @@
             <td class="px-3 py-3 align-top text-xs text-[#3E3A39]/75">${escapeHtml(p.note || '—')}</td>
             <td class="px-3 py-3 text-right align-top">
               <div class="inline-flex items-center gap-1">
-                <button type="button" data-action="speak" data-id="${escapeHtml(p.id)}" class="rounded-xl border-2 border-[#3E3A39]/25 bg-white px-2 py-1 text-xs font-bold hover:bg-[#A8D3E6]/40" title="朗讀日文">🔊</button>
-                <button type="button" data-action="show" data-id="${escapeHtml(p.id)}" class="rounded-xl border-2 border-[#3E3A39]/25 bg-white px-2 py-1 text-xs font-bold hover:bg-[#F6D27A]/50" title="放大給店員看">👆</button>
-                <button type="button" data-action="copy" data-id="${escapeHtml(p.id)}" class="rounded-xl border-2 border-[#3E3A39]/25 bg-white px-2 py-1 text-xs font-bold hover:bg-[#B9DAA5]/40" title="複製日文">📋</button>
+                ${isStaffLine ? '<span class="rounded-lg bg-[#A8D3E6]/30 px-2 py-1 text-[11px] font-bold text-[#3E3A39]/75">👂 聽懂店員</span>' : `
+                  <button type="button" data-action="speak" data-id="${escapeHtml(p.id)}" class="rounded-xl border-2 border-[#3E3A39]/25 bg-white px-2 py-1 text-xs font-bold hover:bg-[#A8D3E6]/40" title="朗讀日文">🔊</button>
+                  <button type="button" data-action="show" data-id="${escapeHtml(p.id)}" class="rounded-xl border-2 border-[#3E3A39]/25 bg-white px-2 py-1 text-xs font-bold hover:bg-[#F6D27A]/50" title="放大給店員看">👆</button>
+                  <button type="button" data-action="copy" data-id="${escapeHtml(p.id)}" class="rounded-xl border-2 border-[#3E3A39]/25 bg-white px-2 py-1 text-xs font-bold hover:bg-[#B9DAA5]/40" title="複製日文">📋</button>
+                `}
                 ${effectiveView ? '' : `<button type="button" data-action="edit" data-id="${escapeHtml(p.id)}" class="rounded-xl border-2 border-[#3E3A39]/25 bg-white px-2 py-1 text-xs font-bold hover:bg-[#F2A497]/40" title="編輯">✏️</button>`}
               </div>
             </td>
@@ -865,6 +910,7 @@
 
       mobile.innerHTML = list.map(p => {
         const isInCombo = comboIds.includes(p.id);
+        const isStaffLine = p.speaker === '店員';
         return `
           <article class="space-y-2 p-4">
             <div class="flex items-start justify-between gap-2">
@@ -876,10 +922,12 @@
                 <h3 class="mt-1 text-sm font-bold text-[#3E3A39]">${escapeHtml(p.situation)}</h3>
               </div>
               <div class="flex shrink-0 items-center gap-2">
-                <label class="inline-flex items-center gap-1 rounded-xl border border-[#3E3A39]/25 bg-white px-2 py-1 text-[11px] font-bold">
-                  <input type="checkbox" data-action="combo" data-id="${escapeHtml(p.id)}" ${isInCombo ? 'checked' : ''} class="h-3.5 w-3.5 accent-[#3E3A39]" />
-                  <span>選</span>
-                </label>
+                ${isStaffLine ? '' : `
+                  <label class="inline-flex items-center gap-1 rounded-xl border border-[#3E3A39]/25 bg-white px-2 py-1 text-[11px] font-bold">
+                    <input type="checkbox" data-action="combo" data-id="${escapeHtml(p.id)}" ${isInCombo ? 'checked' : ''} class="h-3.5 w-3.5 accent-[#3E3A39]" />
+                    <span>選</span>
+                  </label>
+                `}
                 <button type="button" data-action="star" data-id="${escapeHtml(p.id)}" class="text-xl leading-none" aria-label="收藏">${p.starred ? '★' : '☆'}</button>
               </div>
             </div>
@@ -892,9 +940,11 @@
             </div>
 
             <div class="flex flex-wrap items-center justify-end gap-1.5">
-              <button type="button" data-action="speak" data-id="${escapeHtml(p.id)}" class="ehon-btn rounded-xl bg-[#A8D3E6] px-2.5 py-1 text-xs font-bold text-[#3E3A39]">🔊 唸出來</button>
-              <button type="button" data-action="show" data-id="${escapeHtml(p.id)}" class="ehon-btn rounded-xl bg-[#F6D27A] px-2.5 py-1 text-xs font-bold text-[#3E3A39]">👆 給店員看</button>
-              <button type="button" data-action="copy" data-id="${escapeHtml(p.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-2.5 py-1 text-xs font-bold text-[#3E3A39]">📋 複製</button>
+              ${isStaffLine ? '<span class="mr-auto rounded-xl bg-[#A8D3E6]/30 px-2.5 py-1 text-[11px] font-bold text-[#3E3A39]/75">👂 聽懂店員問句</span>' : `
+                <button type="button" data-action="speak" data-id="${escapeHtml(p.id)}" class="ehon-btn rounded-xl bg-[#A8D3E6] px-2.5 py-1 text-xs font-bold text-[#3E3A39]">🔊 唸出來</button>
+                <button type="button" data-action="show" data-id="${escapeHtml(p.id)}" class="ehon-btn rounded-xl bg-[#F6D27A] px-2.5 py-1 text-xs font-bold text-[#3E3A39]">👆 給店員看</button>
+                <button type="button" data-action="copy" data-id="${escapeHtml(p.id)}" class="ehon-btn rounded-xl bg-[#FFFCF6] px-2.5 py-1 text-xs font-bold text-[#3E3A39]">📋 複製</button>
+              `}
               ${effectiveView ? '' : `<button type="button" data-action="edit" data-id="${escapeHtml(p.id)}" class="ehon-btn rounded-xl bg-[#F2A497] px-2.5 py-1 text-xs font-bold text-[#3E3A39]">✏️ 編輯</button>`}
             </div>
           </article>
@@ -1147,10 +1197,8 @@
       arrow.textContent = isHidden ? '▾' : '▴';
     });
 
-    document.getElementById('filter-speaker').addEventListener('change', () => { renderStatsAndQuickButtons(); renderList(); });
     document.getElementById('input-search').addEventListener('input', () => { renderStatsAndQuickButtons(); renderList(); });
     document.getElementById('btn-reset-filters').addEventListener('click', () => {
-      document.getElementById('filter-speaker').value = '全部';
       document.getElementById('input-search').value = '';
       quickFilter = 'all';
       selectedScene = '全部';
