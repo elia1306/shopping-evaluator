@@ -61,6 +61,7 @@
     @media (max-width: 640px) {
       main section { min-width: 0; }
       #product-grid { grid-template-columns: minmax(0, 1fr) !important; }
+      #product-grid.image-only-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
       #cloud-modal, #form-modal, #detail-modal, #profile-modal, #confirm-modal {
         align-items: flex-start !important; overflow-y: auto;
         padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom)) !important;
@@ -153,11 +154,17 @@
           <span class="text-xs font-bold text-[#3E3A39]/80">全部</span>
           <span id="stat-total" class="text-sm font-bold leading-none text-[#3E3A39] sm:text-base">0</span>
         </button>
-        <button id="btn-toggle-advanced-search" type="button" aria-expanded="false" class="ehon-btn ml-auto inline-flex shrink-0 items-center gap-1 rounded-2xl bg-[#FFFCF6] px-3 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#A8D3E6]/40 sm:py-2">
-          <span>🔍 進階</span>
-          <span id="advanced-active-dot" class="hidden h-2 w-2 rounded-full bg-[#F2A497] ring-1 ring-[#3E3A39]"></span>
-          <span id="advanced-toggle-arrow">▾</span>
-        </button>
+        <div class="ml-auto flex shrink-0 items-center gap-1.5">
+          <button id="btn-toggle-display-mode" type="button" title="切換圖片模式 / 詳細模式" aria-label="切換圖片模式 / 詳細模式" class="ehon-btn inline-flex shrink-0 items-center gap-1 rounded-2xl bg-[#FFFCF6] px-2.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#A8D3E6]/40 sm:px-3 sm:py-2">
+            <span id="btn-display-mode-icon">🖼️</span>
+            <span id="btn-display-mode-label" class="hidden sm:inline">圖片模式</span>
+          </button>
+          <button id="btn-toggle-advanced-search" type="button" aria-expanded="false" class="ehon-btn inline-flex shrink-0 items-center gap-1 rounded-2xl bg-[#FFFCF6] px-3 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#A8D3E6]/40 sm:py-2">
+            <span>🔍 進階</span>
+            <span id="advanced-active-dot" class="hidden h-2 w-2 rounded-full bg-[#F2A497] ring-1 ring-[#3E3A39]"></span>
+            <span id="advanced-toggle-arrow">▾</span>
+          </button>
+        </div>
       </div>
       <div id="category-pills" class="no-scrollbar flex flex-nowrap items-center gap-1.5 overflow-x-auto pb-0.5 sm:flex-wrap sm:overflow-visible sm:pb-0"></div>
 
@@ -562,6 +569,7 @@
     let userProfile = structuredClone(DEFAULT_PROFILE);
     let cloudUrl = '';
     let isViewMode = localStorage.getItem('ehon_view_mode') === '1';
+    let displayMode = localStorage.getItem('ehon_shopping_display_mode') === 'image' ? 'image' : 'detail';
     let filters = {
       category: '全部',
       recommendation: '全部',
@@ -1111,10 +1119,31 @@
       }
     }
 
+    function updateDisplayModeBtn() {
+      const btn = document.getElementById('btn-toggle-display-mode');
+      const icon = document.getElementById('btn-display-mode-icon');
+      const label = document.getElementById('btn-display-mode-label');
+      if (!btn || !icon || !label) return;
+      const isImg = displayMode === 'image';
+      icon.textContent = isImg ? '📋' : '🖼️';
+      label.textContent = isImg ? '詳細模式' : '圖片模式';
+      btn.className = `ehon-btn inline-flex shrink-0 items-center gap-1 rounded-2xl px-2.5 py-1.5 text-xs font-bold text-[#3E3A39] sm:px-3 sm:py-2 ${
+        isImg ? 'bg-[#A8D3E6]' : 'bg-[#FFFCF6] hover:bg-[#A8D3E6]/40'
+      }`;
+    }
+
     function renderGrid() {
       const grid = document.getElementById('product-grid');
       const empty = document.getElementById('empty-state');
       const filtered = getFilteredItems();
+      const isImageMode = displayMode === 'image';
+
+      updateDisplayModeBtn();
+      if (isImageMode) {
+        grid.className = 'image-only-grid grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5';
+      } else {
+        grid.className = 'grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3';
+      }
 
       if (filtered.length === 0) {
         grid.innerHTML = '';
@@ -1123,6 +1152,28 @@
       }
 
       empty.classList.add('hidden');
+
+      if (isImageMode) {
+        grid.innerHTML = filtered.map(item => {
+          const hasImg = Boolean(item.image);
+          const isWant = item.purchaseStatus === '想買';
+          return `
+            <article class="group relative aspect-square overflow-hidden rounded-2xl border-[2.5px] border-[#3E3A39] bg-white shadow-[0_3px_0_#3E3A39]">
+              ${hasImg
+                ? `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" class="h-full w-full cursor-pointer object-cover transition duration-200 group-hover:scale-105" data-action="detail" data-id="${escapeHtml(item.id)}" />`
+                : `<div class="flex h-full w-full cursor-pointer flex-col items-center justify-center bg-slate-100 p-3 text-center text-xs font-bold text-slate-400" data-action="detail" data-id="${escapeHtml(item.id)}"><span>尚無圖片</span><span class="mt-1 line-clamp-2 text-[11px] text-slate-500">${escapeHtml(item.name)}</span></div>`
+              }
+              <button type="button" data-action="toggle-star" data-id="${escapeHtml(item.id)}" title="${isWant ? '已列入想買（點擊取消）' : '點擊加星列入想買'}" class="absolute right-2 top-2 rounded-full border-2 border-[#3E3A39] bg-[#FFFCF6]/95 p-1.5 shadow-[0_2px_0_#3E3A39] transition hover:scale-110 ${isWant ? 'text-amber-500' : 'text-slate-400 hover:text-amber-400'}">
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="${isWant ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+                </svg>
+              </button>
+            </article>
+          `;
+        }).join('');
+        return;
+      }
+
       grid.innerHTML = filtered.map(item => {
         const recStyle = REC_STYLES[item.recommendation] || REC_STYLES['待評估'];
         const hasImg = Boolean(item.image);
@@ -1187,7 +1238,7 @@
                     ${isSuitable ? `<svg class="h-4 w-4 text-emerald-600" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>` : ''}
                     是否適合我
                   </div>
-                  <p class="line-clamp-3">${escapeHtml(item.suitability)}</p>
+                  <p class="whitespace-pre-line break-words">${escapeHtml(item.suitability)}</p>
                 </div>
 
                 <div>
@@ -1584,6 +1635,12 @@
         content.classList.toggle('hidden', !willOpen);
         if (arrow) arrow.textContent = willOpen ? '收合 ▴' : '展開 ▾';
         if (btn) btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+      });
+
+      document.getElementById('btn-toggle-display-mode')?.addEventListener('click', () => {
+        displayMode = displayMode === 'image' ? 'detail' : 'image';
+        try { localStorage.setItem('ehon_shopping_display_mode', displayMode); } catch (e) {}
+        renderGrid();
       });
 
       document.getElementById('btn-toggle-advanced-search')?.addEventListener('click', () => {
