@@ -1662,6 +1662,29 @@
     renderAll();
     initSupabase();
   </script>
+  <!-- Floating Back to Top Button -->
+  <button id="btn-scroll-top" type="button" aria-label="回到最上面" class="ehon-btn fixed bottom-16 right-4 z-40 hidden items-center gap-1 rounded-full bg-[#F6D27A] px-3.5 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95 sm:bottom-6 sm:right-6">
+    ↑ 頂端
+  </button>
+  <script>
+    (function () {
+      const btn = document.getElementById('btn-scroll-top');
+      if (!btn) return;
+      const getScrollTop = () => Math.max(window.scrollY || 0, document.documentElement.scrollTop || 0, document.body.scrollTop || 0);
+      const toggle = () => {
+        if (getScrollTop() > 120) { btn.classList.remove('hidden'); btn.classList.add('inline-flex'); }
+        else { btn.classList.add('hidden'); btn.classList.remove('inline-flex'); }
+      };
+      window.addEventListener('scroll', toggle, { passive: true });
+      document.addEventListener('scroll', toggle, { passive: true });
+      toggle();
+      btn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.documentElement.scrollTo({ top: 0, behavior: 'smooth' });
+        document.body.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    })();
+  </script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
