@@ -155,9 +155,9 @@
           <span id="stat-total" class="text-sm font-bold leading-none text-[#3E3A39] sm:text-base">0</span>
         </button>
         <div class="ml-auto flex shrink-0 items-center gap-1.5">
-          <button id="btn-toggle-display-mode" type="button" title="切換圖片模式 / 詳細模式" aria-label="切換圖片模式 / 詳細模式" class="ehon-btn inline-flex shrink-0 items-center gap-1 rounded-2xl bg-[#FFFCF6] px-2.5 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#A8D3E6]/40 sm:px-3 sm:py-2">
-            <span id="btn-display-mode-icon">🖼️</span>
-            <span id="btn-display-mode-label" class="hidden sm:inline">圖片模式</span>
+          <button id="btn-toggle-display-mode" type="button" title="切換縮圖模式 / 詳細模式" aria-label="切換縮圖模式 / 詳細模式" class="ehon-btn inline-flex shrink-0 items-center gap-1 rounded-2xl bg-[#A8D3E6] px-2.5 py-1.5 text-xs font-bold text-[#3E3A39] sm:px-3 sm:py-2">
+            <span id="btn-display-mode-icon" class="inline-flex items-center"></span>
+            <span id="btn-display-mode-label">縮圖<span class="hidden sm:inline">模式</span></span>
           </button>
           <button id="btn-toggle-advanced-search" type="button" aria-expanded="false" class="ehon-btn inline-flex shrink-0 items-center gap-1 rounded-2xl bg-[#FFFCF6] px-3 py-1.5 text-xs font-bold text-[#3E3A39] hover:bg-[#A8D3E6]/40 sm:py-2">
             <span>🔍 進階</span>
@@ -1125,8 +1125,11 @@
       const label = document.getElementById('btn-display-mode-label');
       if (!btn || !icon || !label) return;
       const isImg = displayMode === 'image';
-      icon.textContent = isImg ? '📋' : '🖼️';
-      label.textContent = isImg ? '詳細模式' : '圖片模式';
+      const gridSvg = '<svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>';
+      const listSvg = '<svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h10"/></svg>';
+      icon.innerHTML = isImg ? gridSvg : listSvg;
+      label.innerHTML = isImg ? '縮圖<span class="hidden sm:inline">模式</span>' : '詳細<span class="hidden sm:inline">模式</span>';
+      btn.title = isImg ? '目前為縮圖模式（點擊切換詳細模式）' : '目前為詳細模式（點擊切換縮圖模式）';
       btn.className = `ehon-btn inline-flex shrink-0 items-center gap-1 rounded-2xl px-2.5 py-1.5 text-xs font-bold text-[#3E3A39] sm:px-3 sm:py-2 ${
         isImg ? 'bg-[#A8D3E6]' : 'bg-[#FFFCF6] hover:bg-[#A8D3E6]/40'
       }`;
