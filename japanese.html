@@ -1054,6 +1054,99 @@
       renderAll();
     }
 
+    const SLOT_PRESETS = {
+      '敏感肌': [
+        { jp: '敏感肌', hira: 'びんかんはだ', zh: '敏感肌' },
+        { jp: '乾燥肌', hira: 'かんそうはだ', zh: '乾肌' },
+        { jp: '脂性肌', hira: 'しせいはだ', zh: '油肌' },
+        { jp: '混合肌', hira: 'こんごうはだ', zh: '混合肌' },
+      ],
+      '24.5': [
+        { jp: '23.0', hira: 'にじゅうさん', zh: '23.0' },
+        { jp: '23.5', hira: 'にじゅうさんてんご', zh: '23.5' },
+        { jp: '24.0', hira: 'にじゅうよん', zh: '24.0' },
+        { jp: '24.5', hira: 'にじゅうよんてんご', zh: '24.5' },
+        { jp: '25.0', hira: 'にじゅうご', zh: '25.0' },
+        { jp: '26.0', hira: 'にじゅうろく', zh: '26.0' },
+        { jp: '27.0', hira: 'にじゅうなな', zh: '27.0' },
+      ],
+      'アイス': [
+        { jp: 'アイス', hira: 'あいす', zh: '冰' },
+        { jp: 'ホット', hira: 'ほっと', zh: '熱' },
+      ],
+      'トール': [
+        { jp: 'ショート', hira: 'しょーと', zh: '小杯' },
+        { jp: 'トール', hira: 'とーる', zh: '中杯' },
+        { jp: 'グランデ', hira: 'ぐらんで', zh: '大杯' },
+        { jp: 'ベンティ', hira: 'べんてぃ', zh: '特大杯' },
+      ],
+      'カフェラテ': [
+        { jp: 'カフェラテ', hira: 'かふぇらて', zh: '拿鐵' },
+        { jp: '抹茶ティーラテ', hira: 'まっちゃてぃーらて', zh: '抹茶那堤' },
+        { jp: 'ほうじ茶ティーラテ', hira: 'ほうじちゃてぃーらて', zh: '焙茶那堤' },
+        { jp: 'フラペチーノ', hira: 'ふらぺちーの', zh: '星冰樂' },
+      ],
+      '7人': [
+        { jp: '2人', hira: 'ふたり', zh: '2位' },
+        { jp: '4人', hira: 'よにん', zh: '4位' },
+        { jp: '5人', hira: 'ごにん', zh: '5位' },
+        { jp: '6人', hira: 'ろくにん', zh: '6位' },
+        { jp: '7人', hira: 'ななにん', zh: '7位' },
+      ],
+      'ネギ': [
+        { jp: 'ネギ', hira: 'ねぎ', zh: '蔥' },
+        { jp: 'パクチー', hira: 'ぱくちー', zh: '香菜' },
+        { jp: 'ニンニク', hira: 'にんにく', zh: '大蒜' },
+        { jp: '生もの', hira: 'なまもの', zh: '生食' },
+      ],
+      '頭痛': [
+        { jp: '頭痛', hira: 'ずつう', zh: '頭痛' },
+        { jp: '胃痛', hira: 'いつう', zh: '胃痛' },
+        { jp: '風邪', hira: 'かぜ', zh: '感冒' },
+        { jp: 'アレルギー', hira: 'あれるぎー', zh: '過敏' },
+        { jp: '喉の痛み', hira: 'のどのいたみ', zh: '喉嚨痛' },
+      ],
+      '色': [
+        { jp: '色', hira: 'いろ', zh: '顏色' },
+        { jp: 'ピンク', hira: 'ぴんく', zh: '粉色' },
+        { jp: '赤', hira: 'あか', zh: '紅色' },
+        { jp: 'オレンジ', hira: 'おれんじ', zh: '橘色' },
+        { jp: 'ブラウン', hira: 'ぶらうん', zh: '棕色' },
+      ],
+    };
+
+    function extractBracketSlots(str) {
+      const out = [];
+      const re = /【([^】]+)】/g;
+      let m;
+      while ((m = re.exec(String(str || ''))) !== null) out.push(m[1]);
+      return out;
+    }
+
+    function replaceBracketSlots(str, values) {
+      let i = 0;
+      return String(str || '').replace(/【([^】]+)】/g, (_, orig) => {
+        const val = values[i] !== undefined ? values[i] : orig;
+        i += 1;
+        return `【${val}】`;
+      });
+    }
+
+    function buildSlotOptions(jpVal, hiraVal, zhVal) {
+      if (SLOT_PRESETS[jpVal]) return SLOT_PRESETS[jpVal];
+      if (jpVal.includes('/')) {
+        const jpParts = jpVal.split('/').map(s => s.trim()).filter(Boolean);
+        const hiraParts = String(hiraVal || '').split('/').map(s => s.trim());
+        const zhParts = String(zhVal || '').split('/').map(s => s.trim());
+        return jpParts.map((jp, idx) => ({
+          jp,
+          hira: hiraParts[idx] || '',
+          zh: zhParts[idx] || jp,
+        }));
+      }
+      return [];
+    }
+
     function openShowCard(items) {
       if (!items || items.length === 0) return;
       const modal = document.getElementById('show-card-modal');
@@ -1061,18 +1154,109 @@
       const badge = document.getElementById('show-card-badge');
 
       badge.textContent = items.length > 1 ? `組合點餐 / 對話卡（${items.length} 項）` : `${items[0].scene}・${items[0].situation}`;
-      content.innerHTML = items.map(item => `
-        <div class="rounded-2xl border-[2.5px] border-[#3E3A39] bg-white p-4">
-          <div class="jp-text text-2xl font-bold leading-relaxed text-[#3E3A39] sm:text-3xl">${formatJapaneseHighlight(item.japanese)}</div>
-          ${item.hiragana ? `<div class="jp-text mt-1.5 text-sm text-[#3E3A39]/65">${escapeHtml(item.hiragana)}</div>` : ''}
-          <div class="mt-3 border-t-2 border-dashed border-[#3E3A39]/15 pt-2 text-base font-bold text-[#3E3A39]/85">${escapeHtml(item.chinese)}</div>
-        </div>
-      `).join('');
 
-      const combinedJp = items.map(i => i.japanese.replace(/[【】]/g, '')).join('、');
-      document.getElementById('btn-speak-show-card').onclick = () => speakJapanese(combinedJp);
-      document.getElementById('btn-copy-show-card').onclick = () => copyText(combinedJp);
+      const cardStates = items.map(item => {
+        const jpSlots = extractBracketSlots(item.japanese);
+        const hiraSlots = extractBracketSlots(item.hiragana);
+        const zhSlots = extractBracketSlots(item.chinese);
+        const slots = jpSlots.map((jpRaw, idx) => {
+          const options = buildSlotOptions(jpRaw, hiraSlots[idx], zhSlots[idx]);
+          const initial = options.length > 0 ? options[0] : { jp: jpRaw, hira: hiraSlots[idx] || '', zh: zhSlots[idx] || jpRaw };
+          return {
+            origJp: jpRaw,
+            options,
+            jp: initial.jp,
+            hira: initial.hira,
+            zh: initial.zh,
+          };
+        });
+        return { item, slots };
+      });
 
+      function updateShowCardOutputs() {
+        cardStates.forEach((st, cIdx) => {
+          const jpText = replaceBracketSlots(st.item.japanese, st.slots.map(s => s.jp));
+          const hiraText = replaceBracketSlots(st.item.hiragana, st.slots.map(s => s.hira));
+          const zhText = replaceBracketSlots(st.item.chinese, st.slots.map(s => s.zh));
+
+          const jpEl = document.getElementById(`show-jp-${cIdx}`);
+          const hiraEl = document.getElementById(`show-hira-${cIdx}`);
+          const zhEl = document.getElementById(`show-zh-${cIdx}`);
+          if (jpEl) jpEl.innerHTML = formatJapaneseHighlight(jpText);
+          if (hiraEl) hiraEl.textContent = hiraText;
+          if (zhEl) zhEl.textContent = zhText;
+        });
+
+        const combinedJp = cardStates
+          .map(st => replaceBracketSlots(st.item.japanese, st.slots.map(s => s.jp)).replace(/[【】]/g, ''))
+          .join('、');
+        document.getElementById('btn-speak-show-card').onclick = () => speakJapanese(combinedJp);
+        document.getElementById('btn-copy-show-card').onclick = () => copyText(combinedJp);
+      }
+
+      content.innerHTML = cardStates.map((st, cIdx) => {
+        const slotEditorHtml = st.slots.length > 0 ? `
+          <div class="mb-3 space-y-2 rounded-2xl border-2 border-dashed border-[#3E3A39]/25 bg-[#FFFCF6] p-3">
+            <div class="text-xs font-bold text-[#3E3A39]/75">🔄 點選或輸入修改內容：</div>
+            ${st.slots.map((sl, sIdx) => `
+              <div class="space-y-1.5">
+                ${sl.options.length > 0 ? `
+                  <div class="flex flex-wrap gap-1.5" data-slot-pills="${cIdx}-${sIdx}">
+                    ${sl.options.map((opt, oIdx) => `
+                      <button type="button" data-pick-slot="${cIdx}:${sIdx}:${oIdx}" class="rounded-full border-2 border-[#3E3A39] px-2.5 py-0.5 text-xs font-bold transition ${oIdx === 0 ? 'bg-[#F6D27A] text-[#3E3A39]' : 'bg-white text-[#3E3A39]/80 hover:bg-[#F6D27A]/40'}">${escapeHtml(opt.zh && opt.zh !== opt.jp ? `${opt.zh}（${opt.jp}）` : opt.jp)}</button>
+                    `).join('')}
+                  </div>
+                ` : ''}
+                <input type="text" data-input-slot="${cIdx}:${sIdx}" value="${escapeHtml(sl.jp)}" placeholder="自行輸入替換詞..." class="jp-text w-full rounded-xl border-2 border-[#3E3A39]/25 bg-white px-3 py-1.5 text-sm font-bold text-[#3E3A39] outline-none focus:border-[#3E3A39]" />
+              </div>
+            `).join('')}
+          </div>
+        ` : '';
+
+        return `
+          <div class="rounded-2xl border-[2.5px] border-[#3E3A39] bg-white p-4">
+            ${slotEditorHtml}
+            <div id="show-jp-${cIdx}" class="jp-text text-2xl font-bold leading-relaxed text-[#3E3A39] sm:text-3xl"></div>
+            ${st.item.hiragana ? `<div id="show-hira-${cIdx}" class="jp-text mt-1.5 text-sm text-[#3E3A39]/65"></div>` : ''}
+            <div id="show-zh-${cIdx}" class="mt-3 border-t-2 border-dashed border-[#3E3A39]/15 pt-2 text-base font-bold text-[#3E3A39]/85"></div>
+          </div>
+        `;
+      }).join('');
+
+      content.querySelectorAll('[data-pick-slot]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const [cIdx, sIdx, oIdx] = btn.getAttribute('data-pick-slot').split(':').map(Number);
+          const slot = cardStates[cIdx]?.slots[sIdx];
+          const opt = slot?.options[oIdx];
+          if (!slot || !opt) return;
+          slot.jp = opt.jp;
+          slot.hira = opt.hira;
+          slot.zh = opt.zh;
+          const inputEl = content.querySelector(`[data-input-slot="${cIdx}:${sIdx}"]`);
+          if (inputEl) inputEl.value = opt.jp;
+          const pillWrap = content.querySelector(`[data-slot-pills="${cIdx}-${sIdx}"]`);
+          if (pillWrap) {
+            pillWrap.querySelectorAll('button').forEach((b, idx) => {
+              b.className = `rounded-full border-2 border-[#3E3A39] px-2.5 py-0.5 text-xs font-bold transition ${idx === oIdx ? 'bg-[#F6D27A] text-[#3E3A39]' : 'bg-white text-[#3E3A39]/80 hover:bg-[#F6D27A]/40'}`;
+            });
+          }
+          updateShowCardOutputs();
+        });
+      });
+
+      content.querySelectorAll('[data-input-slot]').forEach(input => {
+        input.addEventListener('input', () => {
+          const [cIdx, sIdx] = input.getAttribute('data-input-slot').split(':').map(Number);
+          const slot = cardStates[cIdx]?.slots[sIdx];
+          if (!slot) return;
+          slot.jp = input.value;
+          slot.hira = input.value;
+          slot.zh = input.value;
+          updateShowCardOutputs();
+        });
+      });
+
+      updateShowCardOutputs();
       modal.classList.remove('hidden');
       modal.classList.add('flex');
     }
