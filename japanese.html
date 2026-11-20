@@ -140,8 +140,8 @@
     <!-- Cloud Seed Banner (shown when logged in & cloud is empty) -->
     <div id="cloud-seed-banner" class="ehon-box mb-4 hidden flex-col items-start justify-between gap-3 bg-[#F6D27A]/35 p-4 sm:flex-row sm:items-center">
       <div>
-        <p class="text-sm font-bold text-[#3E3A39]">☁️ 雲端目前還沒有日文筆記資料</p>
-        <p class="text-xs text-[#3E3A39]/80">要把目前的「星巴克・機場・退稅」內建筆記（<span id="seed-count-label">0</span> 筆）一鍵上傳到您的雲端帳號嗎？</p>
+        <p id="seed-banner-title" class="text-sm font-bold text-[#3E3A39]">☁️ 雲端目前還沒有日文筆記資料</p>
+        <p id="seed-banner-desc" class="text-xs text-[#3E3A39]/80">要把目前的內建筆記（<span id="seed-count-label">0</span> 筆）一鍵上傳到您的雲端帳號嗎？</p>
       </div>
       <div class="flex shrink-0 gap-2">
         <button id="btn-upload-seed" type="button" class="ehon-btn rounded-xl bg-[#B9DAA5] px-3.5 py-2 text-xs font-bold text-[#3E3A39] hover:brightness-95">一鍵上傳到雲端</button>
@@ -407,7 +407,16 @@
       { scene: '買東西退稅', category: '結帳退稅', situation: '免稅包裝提醒', speaker: '店員', japanese: '日本国内では開けないでください。', hiragana: 'にほん こくないでは あけないで ください。', chinese: '請勿在日本國內拆封。', note: '消耗品（藥妝/零食）會封袋', starred: false },
       { scene: '買東西退稅', category: '結帳退稅', situation: '需要購物袋', speaker: '顧客', japanese: 'レジ袋をお願いします。', hiragana: 'れじぶくろを おねがいします。', chinese: '請給我購物袋。', note: '日本塑膠袋大多需另加 3～10 日圓', starred: false },
       { scene: '買東西退稅', category: '商品詢問', situation: '詢問有沒有新品', speaker: '顧客', japanese: '新しい在庫はありますか？', hiragana: 'あたらしい ざいこは ありますか？', chinese: '請問有全新的庫存嗎？', note: '藥妝/服飾適用', starred: false },
-      { scene: '買東西退稅', category: '商品詢問', situation: '詢問試穿/試用', speaker: '顧客', japanese: '試着してもいいですか？', hiragana: 'しちゃく しても いいですか？', chinese: '請問可以試穿嗎？', note: '鞋類/服飾適用', starred: false },
+      { scene: '買東西退稅', category: '服飾鞋類尺寸', situation: '詢問試穿衣服', speaker: '顧客', japanese: '試着してもいいですか？', hiragana: 'しちゃく しても いいですか？', chinese: '請問可以試穿嗎？', note: '服飾適用', starred: false },
+      { scene: '買東西退稅', category: '服飾鞋類尺寸', situation: '詢問試穿鞋子', speaker: '顧客', japanese: '試し履きしてもいいですか？', hiragana: 'ためしばき しても いいですか？', chinese: '請問可以試穿鞋子嗎？', note: '鞋類適用（通常會提供拋棄式試穿襪）', starred: false },
+      { scene: '買東西退稅', category: '服飾鞋類尺寸', situation: '詢問大一號 / 小一號尺寸', speaker: '顧客', japanese: 'もう少し【大きい / 小さい】サイズはありますか？', hiragana: 'もうすこし 【おおきい / ちいさい】 さいずは ありますか？', chinese: '請問有更【大 / 小】一點的尺寸嗎？', note: '尺寸不合必備句！', starred: true },
+      { scene: '買東西退稅', category: '服飾鞋類尺寸', situation: '穿起來有點緊 / 有點鬆', speaker: '顧客', japanese: '少し【きつい / ゆるい】です。', hiragana: 'すこし 【きつい / ゆるい】 です。', chinese: '穿起來有點【緊 / 鬆】。', note: '剛好：ちょうどいいです', starred: false },
+      { scene: '買東西退稅', category: '服飾鞋類尺寸', situation: '詢問鞋子公分尺寸', speaker: '顧客', japanese: '【24.5】センチはありますか？', hiragana: '【にじゅうよんてんご】 せんちは ありますか？', chinese: '請問有【24.5】公分的嗎？', note: '日本鞋碼直接報公分數（センチ）', starred: true },
+      { scene: '買東西退稅', category: '服飾鞋類尺寸', situation: '尺寸單字（S / M / L / F）', speaker: '單字', japanese: 'サイズ（S / M / L / フリーサイズ）', hiragana: 'さいず（えす / えむ / える / ふりーさいず）', chinese: '尺寸（S / M / L / 均碼）', note: '', starred: false },
+      { scene: '買東西退稅', category: '服飾鞋類尺寸', situation: '緊 / 鬆（合身度單字）', speaker: '單字', japanese: 'きつい / ゆるい', hiragana: 'きつい / ゆるい', chinese: '太緊 / 太鬆', note: '鞋頭窄：幅が狭い（はばが せまい）', starred: false },
+      { scene: '買東西退稅', category: '顏色挑選', situation: '詢問是否有其他顏色', speaker: '顧客', japanese: '他の色はありますか？', hiragana: 'ほかの いろは ありますか？', chinese: '請問有其他顏色嗎？', note: '衣服、包包、鞋子、彩妝通用', starred: true },
+      { scene: '買東西退稅', category: '顏色挑選', situation: '常用基本色（黑 / 白 / 米色）', speaker: '單字', japanese: '黒 / 白 / ベージュ', hiragana: 'くろ / しろ / べーじゅ', chinese: '黑色 / 白色 / 米色（奶茶色）', note: '深藍：ネイビー / 灰色：グレー', starred: false },
+      { scene: '買東西退稅', category: '顏色挑選', situation: '常用色系（粉 / 紅 / 橘 / 棕）', speaker: '單字', japanese: 'ピンク / 赤 / オレンジ / ブラウン', hiragana: 'ぴんく / あか / おれんじ / ぶらうん', chinese: '粉色 / 紅色 / 橘色 / 棕色', note: '口紅、腮紅、衣服選色常用', starred: false },
 
       // 餐廳點餐
       { scene: '餐廳點餐', category: '入座帶位', situation: '詢問幾位用餐', speaker: '店員', japanese: '何名様ですか？', hiragana: 'なんめいさま ですか？', chinese: '請問幾位呢？', note: '常用手勢比出人數即可', starred: false },
@@ -448,6 +457,9 @@
       { scene: '藥妝店詢問', category: '藥物諮詢', situation: '詢問兒童是否可服用', speaker: '顧客', japanese: '子供でも飲めますか？', hiragana: 'こどもでも のめますか？', chinese: '請問小朋友也可以吃嗎？', note: '可告知小孩年齡（例：5歳です）', starred: false },
       { scene: '藥妝店詢問', category: '美妝保養對話', situation: '詢問哪款最受歡迎', speaker: '顧客', japanese: '一番人気なのはどれですか？', hiragana: 'いちばん にんきなのは どれですか？', chinese: '請問哪一款最受歡迎？', note: '', starred: false },
       { scene: '藥妝店詢問', category: '美妝保養對話', situation: '詢問有無試用品/試色', speaker: '顧客', japanese: 'テスターはありますか？', hiragana: 'てすたーは ありますか？', chinese: '請問有試用品嗎？', note: '', starred: false },
+      { scene: '藥妝店詢問', category: '美妝保養對話', situation: '口紅/彩妝詢問其他顏色', speaker: '顧客', japanese: '他の色はありますか？', hiragana: 'ほかの いろは ありますか？', chinese: '請問有其他顏色（色號）嗎？', note: '挑口紅、眼影、腮紅通用', starred: true },
+      { scene: '藥妝店詢問', category: '美妝保養對話', situation: '請店員推薦適合的顏色', speaker: '顧客', japanese: 'おすすめの【色】はどれですか？', hiragana: 'おすすめの 【いろ】は どれですか？', chinese: '請問推薦哪一個【顏色】呢？', note: '或問熱門色號：一番人気の色はどれですか？', starred: true },
+      { scene: '藥妝店詢問', category: '美妝保養對話', situation: '詢問可以在手上試色嗎', speaker: '顧客', japanese: '手に試してみてもいいですか？', hiragana: 'てに ためして みても いいですか？', chinese: '請問可以在手上試色看看嗎？', note: '試口紅/粉底超實用', starred: false },
       { scene: '藥妝店詢問', category: '美妝保養對話', situation: '詢問適合敏感肌/乾肌嗎', speaker: '顧客', japanese: 'これは【敏感肌】でも使えますか？', hiragana: 'これは 【びんかんはだ】でも つかえますか？', chinese: '請問這個【敏感肌】也可以用嗎？', note: '乾肌：乾燥肌（かんそうはだ）/ 油肌：脂性肌（しせいはだ）', starred: true },
       { scene: '藥妝店詢問', category: '美妝保養對話', situation: '詢問是否含酒精/香料', speaker: '顧客', japanese: 'アルコールフリーですか？', hiragana: 'あるこーる ふりー ですか？', chinese: '請問這是無酒精的嗎？', note: '無香料：無香料（むこうりょう）', starred: false },
       { scene: '藥妝店詢問', category: '美妝保養對話', situation: '詢問是否有補充包', speaker: '顧客', japanese: '詰め替え用はありますか？', hiragana: 'つめかえようは ありますか？', chinese: '請問有補充包嗎？', note: '洗髮精、化妝水、洗衣球常有補充包', starred: false },
@@ -695,18 +707,32 @@
 
         const rows = data || [];
         const seedBanner = document.getElementById('cloud-seed-banner');
+        const bannerTitle = document.getElementById('seed-banner-title');
+        const bannerDesc = document.getElementById('seed-banner-desc');
         if (rows.length === 0) {
           // 雲端尚無資料，保留本機/預設筆記並提示可一鍵上傳
           phrases = loadLocalPhrases();
+          window.__pendingCloudSeeds = phrases;
           if (seedBanner && localStorage.getItem(SEED_DISMISSED_KEY) !== '1') {
-            document.getElementById('seed-count-label').textContent = String(phrases.length);
+            if (bannerTitle) bannerTitle.textContent = '☁️ 雲端目前還沒有日文筆記資料';
+            if (bannerDesc) bannerDesc.innerHTML = `要把目前的內建筆記（<span>${phrases.length}</span> 筆）一鍵上傳到您的雲端帳號嗎？`;
             seedBanner.classList.remove('hidden');
             seedBanner.classList.add('flex');
           }
         } else {
           phrases = rows;
           saveLocalPhrases();
-          if (seedBanner) seedBanner.classList.add('hidden');
+          const existingKeys = new Set(rows.map(r => `${r.scene}::${r.japanese}`));
+          const missingSeeds = DEFAULT_SEED_PHRASES.filter(s => !existingKeys.has(`${s.scene}::${s.japanese}`));
+          window.__pendingCloudSeeds = missingSeeds;
+          if (seedBanner && missingSeeds.length > 0 && localStorage.getItem(SEED_DISMISSED_KEY) !== '1') {
+            if (bannerTitle) bannerTitle.textContent = `✨ 發現 ${missingSeeds.length} 筆新上架的預設日文筆記`;
+            if (bannerDesc) bannerDesc.textContent = '包含服飾／鞋類尺寸與挑顏色對話，要一鍵補存到您的雲端帳號嗎？';
+            seedBanner.classList.remove('hidden');
+            seedBanner.classList.add('flex');
+          } else if (seedBanner) {
+            seedBanner.classList.add('hidden');
+          }
         }
         updateSyncBadge();
         renderAll();
@@ -1377,7 +1403,11 @@
     document.getElementById('btn-upload-seed').addEventListener('click', async () => {
       if (!supabaseClient || !currentUser) return;
       try {
-        const rows = phrases.map((p, idx) => ({
+        const toInsert = Array.isArray(window.__pendingCloudSeeds) && window.__pendingCloudSeeds.length > 0
+          ? window.__pendingCloudSeeds
+          : phrases;
+        const baseOrder = phrases.length === toInsert.length ? 0 : phrases.length;
+        const rows = toInsert.map((p, idx) => ({
           user_id: currentUser.id,
           scene: p.scene,
           category: p.category,
@@ -1388,15 +1418,20 @@
           chinese: p.chinese,
           note: p.note || '',
           starred: Boolean(p.starred),
-          sort_order: idx + 1,
+          sort_order: baseOrder + idx + 1,
         }));
         const { data, error } = await supabaseClient.from('japanese_phrases').insert(rows).select();
         if (error) throw error;
-        phrases = data || [];
+        if (baseOrder === 0) {
+          phrases = data || [];
+        } else {
+          phrases.push(...(data || []));
+        }
+        window.__pendingCloudSeeds = [];
         saveLocalPhrases();
         document.getElementById('cloud-seed-banner').classList.add('hidden');
         renderAll();
-        showToast(`已將 ${phrases.length} 筆筆記上傳至雲端！`);
+        showToast(`已將 ${rows.length} 筆筆記上傳至雲端！`);
       } catch (err) {
         showToast('上傳失敗：' + (err?.message || '請確認資料表已建立'));
       }
