@@ -569,7 +569,7 @@
     let userProfile = structuredClone(DEFAULT_PROFILE);
     let cloudUrl = '';
     let isViewMode = localStorage.getItem('ehon_view_mode') === '1';
-    let displayMode = localStorage.getItem('ehon_shopping_display_mode') === 'image' ? 'image' : 'detail';
+    let displayMode = localStorage.getItem('ehon_shopping_display_mode') === 'detail' ? 'detail' : 'image';
     let filters = {
       category: '全部',
       recommendation: '全部',
