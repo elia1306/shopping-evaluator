@@ -638,12 +638,25 @@
         const rows = data || [];
         const paths = Array.from(new Set(rows.map(s => s.image_path).filter(Boolean)));
         const signedMap = new Map();
+        let imageUrlError = '';
         if (paths.length) {
-          const { data: signedList } = await supabaseClient.storage.from(STORAGE_BUCKET).createSignedUrls(paths, 3600);
+          const { data: signedList, error: signedError } = await supabaseClient.storage.from(STORAGE_BUCKET).createSignedUrls(paths, 3600);
+          if (signedError) {
+            imageUrlError = signedError.message || '無法產生圖片連結';
+            console.error('Food image URL refresh failed:', signedError);
+          }
           if (Array.isArray(signedList)) {
             for (const entry of signedList) {
-              if (entry.path && entry.signedUrl) signedMap.set(entry.path, entry.signedUrl);
+              if (entry.path && entry.signedUrl && !entry.error) {
+                signedMap.set(entry.path, entry.signedUrl);
+              } else if (entry.path && entry.error) {
+                imageUrlError = imageUrlError || (typeof entry.error === 'string' ? entry.error : entry.error.message) || '部分圖片連結更新失敗';
+                console.error('Food image URL item failed:', entry.path, entry.error);
+              }
             }
+          }
+          if (!signedError && signedMap.size < paths.length && !imageUrlError) {
+            imageUrlError = '部分圖片沒有取得有效連結';
           }
         }
         for (const s of rows) {
@@ -653,6 +666,7 @@
         saveLocalSpots();
         renderAll();
         updateSyncBadge();
+        if (imageUrlError) showToast(`圖片載入異常：${imageUrlError}`);
       } catch (err) {
         console.error(err);
         updateSyncBadge();
