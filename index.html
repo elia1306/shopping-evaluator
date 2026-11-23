@@ -838,12 +838,25 @@
         }
         const imagePaths = Array.from(new Set(images.map(i => i.image_path).filter(Boolean)));
         const signedMap = new Map();
+        let imageUrlError = '';
         if (imagePaths.length) {
-          const { data: signedList } = await supabaseClient.storage.from(STORAGE_BUCKET).createSignedUrls(imagePaths, 3600);
+          const { data: signedList, error: signedError } = await supabaseClient.storage.from(STORAGE_BUCKET).createSignedUrls(imagePaths, 3600);
+          if (signedError) {
+            imageUrlError = signedError.message || '無法產生圖片連結';
+            console.error('Shopping image URL refresh failed:', signedError);
+          }
           if (Array.isArray(signedList)) {
             for (const entry of signedList) {
-              if (entry.path && entry.signedUrl) signedMap.set(entry.path, entry.signedUrl);
+              if (entry.path && entry.signedUrl && !entry.error) {
+                signedMap.set(entry.path, entry.signedUrl);
+              } else if (entry.path && entry.error) {
+                imageUrlError = imageUrlError || (typeof entry.error === 'string' ? entry.error : entry.error.message) || '部分圖片連結更新失敗';
+                console.error('Shopping image URL item failed:', entry.path, entry.error);
+              }
             }
+          }
+          if (!signedError && signedMap.size < imagePaths.length && !imageUrlError) {
+            imageUrlError = '部分圖片沒有取得有效連結';
           }
         }
         const restored = [];
@@ -888,6 +901,7 @@
           renderAll();
         }
         updateSyncBadge();
+        if (imageUrlError) showToast(`圖片載入異常：${imageUrlError}`);
       } catch (err) {
         console.error('Supabase sync failed:', err);
         updateSyncBadge();
